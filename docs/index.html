@@ -80,6 +80,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .te-right{width:80px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px}
 .te-logo{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .te-logo img{width:54px;height:54px;object-fit:contain}
+.te-logo-fb{font-size:24px;font-weight:800;color:var(--t2)}
 .te-meta{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(0,0,0,.2);border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:var(--t2);flex-wrap:wrap}
 .te-meta-item{display:flex;align-items:center;gap:4px}
 .tier-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;letter-spacing:.5px}
@@ -158,6 +159,18 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .pit-stats{font-size:9px;color:var(--t2);text-align:center;line-height:1.5}
 .pit-vs{font-size:10px;font-weight:700;color:var(--t3);flex-shrink:0}
 
+/* lineup (打線) */
+.gc-lu-toggle{display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 14px;font-size:11px;font-weight:700;color:var(--t2);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);-webkit-tap-highlight-color:transparent;min-height:32px}
+.gc-lu-toggle:hover{color:var(--t1)}
+.gc-lu-arrow{font-size:9px;transition:transform .2s}
+.gc-lineup{display:flex;gap:4px;padding:10px 14px;background:rgba(0,0,0,.15);border-bottom:1px solid rgba(255,255,255,.05)}
+.lu-col{flex:1;min-width:0}
+.lu-team{font-size:10px;font-weight:800;color:var(--t2);letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase}
+.lu-row{display:flex;align-items:baseline;gap:6px;font-size:11px;padding:2px 0;color:var(--t1)}
+.lu-ord{color:var(--t3);width:14px;flex-shrink:0;font-weight:700}
+.lu-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lu-pos{color:var(--t2);font-size:9px;flex-shrink:0}
+
 /* bet row */
 .gc-bet{display:flex;align-items:center;gap:8px;padding:10px 14px;flex-wrap:wrap}
 .bt-badge{padding:3px 9px;border-radius:7px;font-size:11px;font-weight:800;letter-spacing:.5px;flex-shrink:0}
@@ -176,6 +189,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .bar-track{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
 .bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
 .bar-val{font-size:10px;font-weight:700;width:32px;text-align:right;flex-shrink:0}
+
+/* dual (away vs home) bars */
+.bar-row.dual .bar-lbl{width:60px}
+.bar-val-l{text-align:left!important}
+.dual-track{position:relative}
+.bar-fill-l{position:absolute;right:50%;top:0;height:100%;border-radius:3px 0 0 3px}
+.bar-fill-r{position:absolute;left:50%;top:0;height:100%;border-radius:0 3px 3px 0}
+.dual-track::after{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:rgba(255,255,255,.12);transform:translateX(-.5px)}
 
 /* metrics */
 .gc-metrics{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.06)}
@@ -522,6 +543,58 @@ function barRow(label,pct,color,valText){
   +'</div>';
 }
 
+// 兩隊對比 bar：從中線各自往兩側長出去，數值愈好（lowerIsBetter 決定方向）該側愈長
+function dualBarRow(label,awayVal,homeVal,fmt,lowerIsBetter){
+  var av=safeNum(awayVal,null), hv=safeNum(homeVal,null);
+  var awayC='var(--c)', homeC='var(--g)';
+  var awayTxt=av!=null?fmt(av):'--', homeTxt=hv!=null?fmt(hv):'--';
+  var awayShare=50, homeShare=50;
+  if(av!=null&&hv!=null&&(av+hv)>0){
+    var awayGood=lowerIsBetter?(1/Math.max(av,0.01)):av;
+    var homeGood=lowerIsBetter?(1/Math.max(hv,0.01)):hv;
+    awayShare=clamp((awayGood/(awayGood+homeGood))*100,15,85);
+    homeShare=100-awayShare;
+  }
+  return '<div class="bar-row dual">'
+    +'<span class="bar-lbl">'+label+'</span>'
+    +'<span class="bar-val bar-val-l" style="color:'+awayC+'">'+awayTxt+'</span>'
+    +'<div class="bar-track dual-track">'
+      +'<div class="bar-fill bar-fill-l" style="width:0%;background:'+awayC+'" data-target="'+(awayShare/2)+'%"></div>'
+      +'<div class="bar-fill bar-fill-r" style="width:0%;background:'+homeC+'" data-target="'+(homeShare/2)+'%"></div>'
+    +'</div>'
+    +'<span class="bar-val" style="color:'+homeC+'">'+homeTxt+'</span>'
+  +'</div>';
+}
+
+// ── LINEUP（先發打線）────────────────────────────────────
+// 打線要等 MLB 公布 Pre-Game 卡才會有資料，兩隊都沒有時整段不顯示
+function lineupCol(teamAb,players){
+  var rows=(players||[]).slice(0,9).map(function(p){
+    return '<div class="lu-row"><span class="lu-ord">'+(p.order||'')+'</span>'
+      +'<span class="lu-name">'+(p.name||'')+'</span>'
+      +'<span class="lu-pos">'+(p.pos||'')+'</span></div>';
+  }).join('');
+  return '<div class="lu-col"><div class="lu-team">'+teamAb+'</div>'+rows+'</div>';
+}
+function lineupSection(idx,awayAb,homeAb,awayLineup,homeLineup){
+  if(!(awayLineup&&awayLineup.length)&&!(homeLineup&&homeLineup.length))return '';
+  return '<div class="gc-lu-toggle" onclick="toggleLineup(\''+idx+'\')">'
+      +'<span>🧢 先發打線</span><span class="gc-lu-arrow" id="lu-arrow-'+idx+'">▾</span>'
+    +'</div>'
+    +'<div class="gc-lineup" id="lu-'+idx+'" style="display:none">'
+      +lineupCol(awayAb,awayLineup)
+      +lineupCol(homeAb,homeLineup)
+    +'</div>';
+}
+function toggleLineup(idx){
+  var el=document.getElementById('lu-'+idx);
+  var arrow=document.getElementById('lu-arrow-'+idx);
+  if(!el)return;
+  var open=el.style.display!=='none';
+  el.style.display=open?'none':'flex';
+  if(arrow)arrow.style.transform=open?'rotate(0deg)':'rotate(180deg)';
+}
+
 // ── TIER BADGE HTML ────────────────────────────────────
 function tierBadge(tier){
   var t=TC[tier]||{l:tier,c:'var(--t2)',bg:'rgba(255,255,255,.06)'};
@@ -563,11 +636,6 @@ function makeGCard(pick,idx,showCharts){
   // bars
   var edgeV=safeNum(pick.edge,0);
   var confV=safeNum(pick.conf,0);
-  var awEra=safeNum(pick.away_era,4.5);
-  var hmEra=safeNum(pick.home_era,4.5);
-  var avgEra=(awEra+hmEra)/2;
-  var bullpenPct=clamp(100-(avgEra/6)*80,10,95);
-  var totalPowerPct=clamp(((safeNum(pick.away_rs,4)+safeNum(pick.home_rs,4))/12)*100,15,90);
   var wxPct=pick.weather_factor!=null?clamp(safeNum(pick.weather_factor,0)*100,0,100):50;
 
   // kelly
@@ -637,6 +705,9 @@ function makeGCard(pick,idx,showCharts){
     +'</div>'
   +'</div>';
 
+  // lineup（先發打線，Pre-Game 卡公布後才有資料，兩隊都沒有時不顯示這段）
+  h+=lineupSection(idx,awAb,hmAb,pick.away_lineup,pick.home_lineup);
+
   // bet row
   h+='<div class="gc-bet">'
     +'<span class="bt-badge '+btType+'">'+btType+'</span>'
@@ -646,11 +717,11 @@ function makeGCard(pick,idx,showCharts){
     +(pick.bk?('<span class="bet-bk">'+pick.bk+'</span>'):'')
   +'</div>';
 
-  // bars
+  // bars — 前三個改成兩隊對比（原本只顯示合併後的單一數字，看不出兩隊差異）
   h+='<div class="gc-bars">'
-    +barRow('RUN LINE',clamp(edgeV*5,10,95),'var(--c)',edgeV.toFixed(1)+'%')
-    +barRow('BULL PEN ERA',bullpenPct,'var(--g)',avgEra.toFixed(2))
-    +barRow('TOTAL POWER CLD',totalPowerPct,'var(--y)',(safeNum(pick.away_rs,4)+safeNum(pick.home_rs,4)).toFixed(1))
+    +dualBarRow('近10戰',pick.away_l10_wpct,pick.home_l10_wpct,function(v){return (v*100).toFixed(0)+'%'},false)
+    +dualBarRow('先發 ERA',pick.away_era,pick.home_era,function(v){return v.toFixed(2)},true)
+    +dualBarRow('場均得分',pick.away_rpg,pick.home_rpg,function(v){return v.toFixed(1)},false)
     +barRow('WEATHER ADJ',wxPct,'var(--t2)','--')
   +'</div>';
 
@@ -718,7 +789,7 @@ function renderTopEdge(picks){
     +'<button class="te-btn" onclick="showPg(1,document.querySelectorAll(\'.htab\')[1])">查看完整分析 →</button>'
     +'</div>'
     +'<div class="te-right">'
-    +(betTid?('<div class="te-logo"><img src="https://www.mlbstatic.com/team-logos/'+betTid+'.svg" alt="'+betCn+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<div style=\'font-size:24px;font-weight:800;color:var(--t2)\'>'+betAb+'</div>\'"></div>'):'<div class="te-logo" style="font-size:20px;font-weight:800;color:var(--t2)">'+betAb+'</div>')
+    +(betTid?('<div class="te-logo"><img src="https://www.mlbstatic.com/team-logos/'+betTid+'.svg" alt="'+betCn+'" loading="lazy" onerror="this.parentNode.className=\'te-logo te-logo-fb\';this.parentNode.textContent=\''+betAb+'\'"></div>'):'<div class="te-logo te-logo-fb">'+betAb+'</div>')
     +'</div>'
     +'</div>'
     +'</div>'
@@ -820,7 +891,7 @@ function renderPicksSection(picks,containerId){
   +'</div>';
   h+='<div id="picks-list-'+containerId+'">';
   picks.forEach(function(p,i){
-    h+=makeGCard(p,i,i<2);
+    h+=makeGCard(p,containerId+'-'+i,i<2);
   });
   h+='</div>';
   el.innerHTML=h;
@@ -841,7 +912,7 @@ function doFilter(type,btn){
       return;
     }
     var h='';
-    filtered.forEach(function(p,i){h+=makeGCard(p,i,i<2)});
+    filtered.forEach(function(p,i){h+=makeGCard(p,cid+'-'+i,i<2)});
     el.innerHTML=h;
     initScrollReveal();
     animateBars();
@@ -1260,7 +1331,7 @@ function renderAll(data){
       +'<button class="ftab" onclick="doFilter(\'TOT\',this)">大小分 TOT</button>'
     +'</div>';
     h+='<div id="picks-list-ai-picks-section">';
-    picks.forEach(function(p,i){h+=makeGCard(p,i,i<2)});
+    picks.forEach(function(p,i){h+=makeGCard(p,'ai-picks-section-'+i,i<2)});
     h+='</div>';
     aiEl.innerHTML=h;
   } else {
