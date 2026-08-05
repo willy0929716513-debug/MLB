@@ -1,0 +1,17 @@
+name: Add Picks to Gist (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  add-picks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - run: python add_picks_to_gist.py
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}

@@ -1,0 +1,23 @@
+name: Add Manual History Records
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add_manual_records.yml'
+
+jobs:
+  add-records:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - run: pip install requests
+
+      - name: Add records to Gist
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: python3 scripts/add_records.py

@@ -1,0 +1,41 @@
+name: Merge Feature to Main
+
+on:
+  push:
+    branches:
+      - 'claude/model-overview-w7p4ya'
+
+permissions:
+  contents: write
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Deploy feature files to main
+        run: |
+          git config user.email "noreply@anthropic.com"
+          git config user.name "Claude"
+          git fetch origin claude/model-overview-w7p4ya
+          # Checkout all files changed between main and feature branch,
+          # excluding bot-generated data files that update daily
+          git diff --name-only HEAD...origin/claude/model-overview-w7p4ya \
+            | grep -v '^docs/picks_latest\.json$' \
+            | grep -v '^docs/standings\.json$' \
+            | grep -v '^docs/odds_snapshot\.json$' \
+            | grep -v '^docs/images/' \
+            | xargs -r git checkout origin/claude/model-overview-w7p4ya --
+          if git diff --cached --quiet; then
+            echo "Nothing to deploy — already up to date"
+          else
+            git commit -m "chore: deploy feature changes to main"
+            git push origin main
+            echo "Deployed successfully to main"
+          fi
