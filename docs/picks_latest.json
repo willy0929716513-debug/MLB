@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-05 14:19 (台灣時間)",
+  "generated_at": "2026-08-05 23:40 (台灣時間)",
   "date": "2026-08-05",
   "stats": {
     "settled": 0,
@@ -16,19 +16,82 @@
     {
       "tier": "⭐ 穩定",
       "btype": "讓分",
+      "away": "cardinals",
+      "home": "yankees",
+      "away_cn": "紅雀",
+      "home_cn": "洋基",
+      "bet_label": "紅雀 讓分(+1.5)",
+      "bk": "LowVig.ag",
+      "bp": 1.67,
+      "con_p": 1.65,
+      "dv_p": 0.5829,
+      "edge": 16.7,
+      "conf": 65.2,
+      "stake": 50.0,
+      "model_p": 75.0,
+      "away_sp": "Andre Pallante",
+      "home_sp": "Will Warren",
+      "away_era": 2.46,
+      "home_era": 5.66,
+      "away_fip": 2.39,
+      "home_fip": 5.93,
+      "away_k9": 6.9,
+      "home_k9": 7.1,
+      "away_avgip": 6.1,
+      "home_avgip": 5.1,
+      "away_whip": 1.04,
+      "home_whip": 1.25,
+      "away_rest": null,
+      "home_rest": null,
+      "away_rs": 5.33,
+      "home_rs": 3.67,
+      "away_rpg": 4.4,
+      "home_rpg": 4.68,
+      "pred_away": 3.9,
+      "pred_home": 3.0,
+      "model_total": null,
+      "market_total": null,
+      "park_factor": null,
+      "weather_factor": 1.016,
+      "ump_name": null,
+      "ump_adj": null,
+      "away_trend": -3.92,
+      "home_trend": -7.38,
+      "line_clv": -0.73,
+      "game_date": "2026-08-06",
+      "game_time": "07:06",
+      "sp_src": "probable",
+      "home_hand": "R",
+      "away_hand": "R",
+      "home_babip": 0.407,
+      "away_babip": 0.424,
+      "home_lob": 90.3,
+      "away_lob": 73.7,
+      "away_road_days": 5,
+      "away_tz_cross": null,
+      "home_wpct": null,
+      "away_road_wpct": null,
+      "home_l10_wpct": 0.5,
+      "away_l10_wpct": 0.3,
+      "home_lineup": [],
+      "away_lineup": []
+    },
+    {
+      "tier": "⭐ 穩定",
+      "btype": "讓分",
       "away": "blue jays",
       "home": "astros",
       "away_cn": "藍鳥",
       "home_cn": "太空人",
       "bet_label": "太空人 讓分(-1.5)",
       "bk": "FanDuel",
-      "bp": 2.3,
-      "con_p": 2.204,
-      "dv_p": 0.4356,
-      "edge": 22.7,
+      "bp": 1.98,
+      "con_p": 1.9,
+      "dv_p": 0.504,
+      "edge": 16.3,
       "conf": 61.5,
       "stake": 50.0,
-      "model_p": 66.3,
+      "model_p": 66.7,
       "away_sp": "Jameson Taillon",
       "home_sp": "Hunter Brown",
       "away_era": 6.15,
@@ -57,7 +120,7 @@
       "ump_adj": null,
       "away_trend": 6.34,
       "home_trend": -6.76,
-      "line_clv": 0.0,
+      "line_clv": 7.03,
       "game_date": "2026-08-06",
       "game_time": "02:10",
       "sp_src": "probable",
@@ -75,69 +138,6 @@
       "away_l10_wpct": null,
       "home_lineup": [],
       "away_lineup": []
-    },
-    {
-      "tier": "⭐ 穩定",
-      "btype": "讓分",
-      "away": "cardinals",
-      "home": "yankees",
-      "away_cn": "紅雀",
-      "home_cn": "洋基",
-      "bet_label": "紅雀 讓分(+1.5)",
-      "bk": "BetOnline.ag",
-      "bp": 1.65,
-      "con_p": 1.626,
-      "dv_p": 0.5913,
-      "edge": 15.9,
-      "conf": 72.4,
-      "stake": 50.0,
-      "model_p": 75.0,
-      "away_sp": "Andre Pallante",
-      "home_sp": "Will Warren",
-      "away_era": 2.46,
-      "home_era": 5.66,
-      "away_fip": 2.39,
-      "home_fip": 5.93,
-      "away_k9": 6.9,
-      "home_k9": 7.1,
-      "away_avgip": 6.1,
-      "home_avgip": 5.1,
-      "away_whip": 1.04,
-      "home_whip": 1.25,
-      "away_rest": null,
-      "home_rest": null,
-      "away_rs": 5.33,
-      "home_rs": 3.67,
-      "away_rpg": 4.4,
-      "home_rpg": 4.68,
-      "pred_away": 4.0,
-      "pred_home": 3.0,
-      "model_total": null,
-      "market_total": null,
-      "park_factor": null,
-      "weather_factor": 1.038,
-      "ump_name": null,
-      "ump_adj": null,
-      "away_trend": -3.92,
-      "home_trend": -7.38,
-      "line_clv": 0.0,
-      "game_date": "2026-08-06",
-      "game_time": "07:06",
-      "sp_src": "probable",
-      "home_hand": "R",
-      "away_hand": "R",
-      "home_babip": 0.407,
-      "away_babip": 0.424,
-      "home_lob": 90.3,
-      "away_lob": 73.7,
-      "away_road_days": 5,
-      "away_tz_cross": null,
-      "home_wpct": null,
-      "away_road_wpct": null,
-      "home_l10_wpct": 0.5,
-      "away_l10_wpct": 0.3,
-      "home_lineup": [],
-      "away_lineup": []
     }
   ],
   "recent_history": [],
@@ -149,35 +149,35 @@
       "market_total": 8.0
     },
     "cubs|dodgers": {
-      "home_win_prob": 0.5819,
+      "home_win_prob": 0.5037,
       "market_total": 9.5
     },
     "rangers|giants": {
-      "home_win_prob": 0.5874,
-      "market_total": 8.5
+      "home_win_prob": 0.5433,
+      "market_total": 8.0
     },
     "rockies|rays": {
-      "home_win_prob": 0.6502,
+      "home_win_prob": 0.6428,
       "market_total": 11.5
     },
     "orioles|angels": {
-      "home_win_prob": 0.5543,
+      "home_win_prob": 0.5497,
       "market_total": 8.5
     },
     "reds|athletics": {
-      "home_win_prob": 0.4857,
+      "home_win_prob": 0.4904,
       "market_total": 9.5
     },
     "guardians|mets": {
-      "home_win_prob": 0.4113,
-      "market_total": 8.0
+      "home_win_prob": 0.4021,
+      "market_total": 7.5
     },
     "phillies|nationals": {
-      "home_win_prob": 0.2531,
+      "home_win_prob": 0.255,
       "market_total": 9.5
     },
     "yankees|cardinals": {
-      "home_win_prob": 0.3482,
+      "home_win_prob": 0.3635,
       "market_total": 8.5
     },
     "red sox|white sox": {
@@ -185,23 +185,23 @@
       "market_total": 8.5
     },
     "braves|marlins": {
-      "home_win_prob": 0.4906,
+      "home_win_prob": 0.4997,
       "market_total": 8.5
     },
     "brewers|pirates": {
-      "home_win_prob": 0.6264,
-      "market_total": 7.0
+      "home_win_prob": 0.6253,
+      "market_total": 7.5
     },
     "royals|twins": {
       "home_win_prob": 0.76,
       "market_total": 9.0
     },
     "diamondbacks|padres": {
-      "home_win_prob": 0.3733,
-      "market_total": 9.0
+      "home_win_prob": 0.381,
+      "market_total": 8.5
     },
     "mariners|tigers": {
-      "home_win_prob": 0.2663,
+      "home_win_prob": 0.2764,
       "market_total": 7.5
     }
   }
