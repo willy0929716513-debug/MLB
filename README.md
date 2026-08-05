@@ -1,6 +1,6 @@
 # MLB Predictor
 
-自動化 MLB（美國職棒大聯盟）比賽預測系統。每天自動抓取賠率、跑模型算出「讓分 / 大小分 / 獨贏」的建議下注，發布到靜態網站（GitHub Pages）與付費會員網站（Next.js + Supabase + Stripe），並透過 Discord / ntfy 推播通知。
+自動化 MLB（美國職棒大聯盟）比賽預測系統。每天自動抓取賠率、跑模型算出「讓分 / 大小分 / 獨贏」的建議下注，發布到靜態網站（GitHub Pages）與 Next.js 網站（Supabase 存資料），兩邊都完全免費公開，並透過 Discord / ntfy 推播通知。
 
 ## 專案結構
 
@@ -13,9 +13,8 @@ scripts/
   fetch_standings.py     抓 MLB 戰績榜，寫入 docs/standings.json 並同步 Supabase
   fetch_pitcher_photos.py 抓先發投手照片存到 docs/images/pitchers/
 docs/                    GitHub Pages 靜態網站（免費看板，公開）
-webapp/                  Next.js 付費會員網站（Supabase 登入 + Stripe 訂閱）
+webapp/                  Next.js 網站（另一種介面呈現同一份資料，同樣完全免費公開）
 supabase/
-  schema.sql             Supabase 資料表 / RLS 設定，需在 Supabase SQL Editor 執行一次
   functions/trigger-bot/ Supabase Edge Function：讓手機瀏覽器也能觸發 GitHub Actions 跑 Bot
 .github/workflows/       所有排程／自動化流程（見下方）
 ```
@@ -55,7 +54,7 @@ supabase/
 
 > `GITHUB_TOKEN` 不用自己設定——GitHub Actions 會自動提供，workflow 裡已經在用了。
 
-### 2. Webapp（Vercel）環境變數（付費會員網站用）
+### 2. Webapp（Vercel）環境變數
 
 到 **Vercel 專案 → Settings → Environment Variables**（本機開發則複製 `webapp/.env.example` 為 `webapp/.env.local`）：
 
@@ -63,13 +62,8 @@ supabase/
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | ✅ | Supabase Dashboard → Project Settings → API → Project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | 同上頁面 → anon public key |
-| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | 同上頁面 → service_role secret key（**後端專用，切勿外流、切勿加 `NEXT_PUBLIC_` 前綴**） |
-| `STRIPE_SECRET_KEY` | ✅ | Stripe Dashboard → Developers → API keys → Secret key |
-| `STRIPE_WEBHOOK_SECRET` | ✅ | Stripe Dashboard → Developers → Webhooks → 建立 endpoint（見下方）後取得的 Signing secret |
-| `STRIPE_MONTHLY_PRICE_ID` | ✅ | Stripe 「月訂閱」商品的 Price ID（`price_...`） |
-| `STRIPE_DAYPASS_PRICE_ID` | ✅ | Stripe 「單日券」商品的 Price ID（`price_...`） |
-| `NEXT_PUBLIC_APP_URL` | ✅ | 網站正式網址，例如 `https://your-app.vercel.app` |
-| `ADMIN_EMAILS` | 選填 | 網站擁有者信箱，逗號分隔（如 `you@gmail.com`）。用這個信箱登入永遠顯示已解鎖內容，不需訂閱付款 |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | 同上頁面 → service_role secret key（**後端專用，切勿外流、切勿加 `NEXT_PUBLIC_` 前綴**）。只用來從 Storage 讀取 `picks_latest.json` |
+| `NEXT_PUBLIC_APP_URL` | 選填 | 網站正式網址，例如 `https://your-app.vercel.app`（目前沒有功能依賴它） |
 
 ### 3. Supabase Edge Function `trigger-bot`（選填，讓手機也能一鍵觸發 Bot）
 
@@ -86,9 +80,7 @@ supabase/
 
 1. **Supabase 專案**
    - 到 [supabase.com](https://supabase.com/) 建立新專案
-   - 到 SQL Editor 貼上並執行 `supabase/schema.sql`（建立 `subscriptions` 表與 RLS 規則）
    - 到 Storage 手動建立一個 **私有（Private）** bucket，名稱必須是 `picks`（`mlb_bot_v101.py` 跑完會把 `picks_latest.json` 上傳到這裡，`webapp` 也是從這裡讀）
-   - 到 Authentication 設定你要的登入方式（如 Email/Google），並把網站正式網址加入 Redirect URLs
    - 複製 Project URL / anon key / service_role key 備用
 
 2. **The Odds API**
@@ -101,21 +93,17 @@ supabase/
 4. **設定 GitHub Actions Secrets**
    - 把上表「1. GitHub Actions Repository Secrets」的所有值填進 repo Settings → Secrets
 
-5. **Stripe（如果要開放付費訂閱）**
-   - 到 Stripe Dashboard 建立兩個商品／價格：「月訂閱」「單日券」，記下各自 Price ID
-   - 到 Developers → Webhooks 新增 endpoint，指向 `https://你的網域/api/stripe/webhook`，訂閱事件至少要有：`checkout.session.completed`、`customer.subscription.created`、`customer.subscription.updated`、`customer.subscription.deleted`
-   - 複製 Secret key 與剛建立 webhook 的 Signing secret
-
-6. **部署 webapp 到 Vercel**
+5. **部署 webapp 到 Vercel**
    - 到 Vercel 匯入這個 repo，Root Directory 設為 `webapp`
    - 把上表「2. Webapp 環境變數」全部填進 Vercel 專案設定
-   - 部署完成後回頭把正式網址填回 `NEXT_PUBLIC_APP_URL`，並補到 Supabase Auth 的 Redirect URLs 與 Stripe Webhook endpoint
+   - 部署完成後回頭把正式網址填回 `NEXT_PUBLIC_APP_URL`
+   - Vercel 預設會在每次 push 到 `main` 時自動重新部署；如果改完環境變數網站沒反應，到 Vercel 專案 → Deployments 分頁手動點最新那筆的 **⋯ → Redeploy**
 
-7. **（選填）部署 Supabase Edge Function**
+6. **（選填）部署 Supabase Edge Function**
    - `supabase/functions/trigger-bot/index.ts` 貼到 Supabase Dashboard → Edge Functions → New Function
    - 設定「3. Edge Function」表格中的環境變數
 
-8. **手動跑一次確認**
+7. **手動跑一次確認**
    - 到 GitHub repo → Actions → `MLB Bot Daily` → Run workflow，確認能成功產生 `docs/picks_latest.json` 並推播 Discord（若有設定）
    - 確認 `docs/` 的 GitHub Pages 有開啟（Settings → Pages → Source 選 `main` 分支 `/docs` 目錄）
 
@@ -131,4 +119,4 @@ supabase/
 ## 已知限制 / 之後可以做的事
 
 - Python 腳本目前沒有讀取 `.env` 檔（沒裝 `python-dotenv`），本機測試要自己 `export` 環境變數；正式環境都是靠 GitHub Actions Secrets 注入，不受影響。
-- `webapp` 走 Next.js App Router + Supabase Auth + Stripe，沒有做金流以外的權限分級（例如管理員後台），如果之後要擴充可以再談。
+- `webapp` 目前所有推薦內容一律公開免費顯示，沒有付費/會員機制。

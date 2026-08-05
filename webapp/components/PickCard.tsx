@@ -5,8 +5,6 @@ import PitcherAvatar from './PitcherAvatar'
 
 interface PickCardProps {
   pick: Pick
-  locked?: boolean
-  onUnlock?: () => void
 }
 
 const BET_LABEL: Record<string, string> = {
@@ -20,7 +18,7 @@ const TIER_CONFIG: Record<string, { label: string; color: string; bg: string }> 
   '⭐ 穩定': { label: '⭐ SOLID',  color: '#00FF88', bg: 'rgba(0,255,136,0.1)' },
 }
 
-export default function PickCard({ pick, locked, onUnlock }: PickCardProps) {
+export default function PickCard({ pick }: PickCardProps) {
   const betShort  = (pick.btype && BET_LABEL[pick.btype]) || pick.btype || '???'
   const direction = pick.bet_label || ''
   const tierCfg   = (pick.tier ? TIER_CONFIG[pick.tier] : undefined) ?? {
@@ -70,43 +68,30 @@ export default function PickCard({ pick, locked, onUnlock }: PickCardProps) {
       </div>
 
       {/* Prediction */}
-      {locked ? (
-        <button
-          onClick={onUnlock}
-          className="w-full flex items-center justify-center gap-2 px-4 py-6"
-          style={{ background: 'rgba(255,255,255,0.02)', cursor: 'pointer' }}
-        >
-          <span style={{ fontSize: 14 }}>🔒</span>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)' }}>
-            Unlock this pick&apos;s edge, confidence & stake
-          </span>
-        </button>
-      ) : (
-        <div className="px-4 py-4 space-y-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="badge badge-cyan" style={{ fontSize: 11 }}>{betShort}</span>
-            <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-1)' }}>{direction}</span>
-            {pick.bp != null && (
-              <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--green)' }}>@ {pick.bp.toFixed(2)}</span>
-            )}
-            {pick.bk && (
-              <span className="badge badge-gray" style={{ fontSize: 9 }}>{pick.bk}</span>
-            )}
-          </div>
-
-          <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))' }}>
-            {pick.edge != null && (
-              <StatPill label="Edge" value={`+${pick.edge.toFixed(1)}%`} color={edgeColor} />
-            )}
-            {pick.conf != null && (
-              <StatPill label="Confidence" value={`${pick.conf.toFixed(0)}%`} color={confColor} />
-            )}
-            {pick.stake != null && (
-              <StatPill label="Kelly Stake" value={`$${pick.stake.toFixed(0)}`} color="var(--text-1)" />
-            )}
-          </div>
+      <div className="px-4 py-4 space-y-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="badge badge-cyan" style={{ fontSize: 11 }}>{betShort}</span>
+          <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--text-1)' }}>{direction}</span>
+          {pick.bp != null && (
+            <span style={{ fontSize: 16, fontWeight: 800, color: 'var(--green)' }}>@ {pick.bp.toFixed(2)}</span>
+          )}
+          {pick.bk && (
+            <span className="badge badge-gray" style={{ fontSize: 9 }}>{pick.bk}</span>
+          )}
         </div>
-      )}
+
+        <div className="grid gap-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(90px, 1fr))' }}>
+          {pick.edge != null && (
+            <StatPill label="Edge" value={`+${pick.edge.toFixed(1)}%`} color={edgeColor} />
+          )}
+          {pick.conf != null && (
+            <StatPill label="Confidence" value={`${pick.conf.toFixed(0)}%`} color={confColor} />
+          )}
+          {pick.stake != null && (
+            <StatPill label="Kelly Stake" value={`$${pick.stake.toFixed(0)}`} color="var(--text-1)" />
+          )}
+        </div>
+      </div>
     </div>
   )
 }
