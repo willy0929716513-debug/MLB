@@ -2489,6 +2489,34 @@ def calc_perf(hist):
     wins = sum(1 for r in settled if r["result"]=="W")
     return len(settled), wins, wins/len(settled)*100 if settled else 0.0
 
+def build_history_trend(hist):
+    """依日期由舊到新，計算累計勝率/ROI 走勢（供網頁畫趨勢圖用）。
+    一天可能有多筆結算，同一天只留當天結束時的累計值。"""
+    settled = sorted(
+        (r for r in hist if r.get("result") in ("W","L") and r.get("date")),
+        key=lambda r: r["date"]
+    )
+    cum_settled = cum_wins = 0
+    cum_in = cum_pnl = 0.0
+    by_date = {}
+    for r in settled:
+        stake = r.get("stake") or 0
+        price = r.get("price") or 0
+        cum_settled += 1
+        cum_in += stake
+        if r["result"] == "W":
+            cum_wins += 1
+            cum_pnl += stake * (price - 1)
+        else:
+            cum_pnl -= stake
+        by_date[r["date"]] = {
+            "date":      r["date"],
+            "settled":   cum_settled,
+            "win_rate":  round(cum_wins/cum_settled*100, 1),
+            "roi":       round(cum_pnl/cum_in*100, 1) if cum_in > 0 else 0.0,
+        }
+    return list(by_date.values())
+
 def calc_pnl(hist):
     total_in = total_pnl = vig_cost = 0.0
     for r in hist:
@@ -2657,6 +2685,7 @@ def write_pages_json(picks, hist, now_tw, live_games=None):
         },
         "picks": records,
         "recent_history": recent_history,
+        "history_trend": build_history_trend(hist),
         "live_games":      live_games or [],
         "live_updated_ts": _prev_live_ts or None,  # 由 live_update.py 維護，bot 不覆寫
         # 供 live_update.py 使用（輕量場中更新不重跑 Odds API）

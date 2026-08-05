@@ -218,6 +218,18 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .chart-box{background:rgba(255,255,255,.03);border-radius:10px;padding:8px;border:1px solid rgba(255,255,255,.06)}
 .chart-title{font-size:8px;color:var(--t2);font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
 
+/* trend charts (走勢圖) */
+.trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.trend-box{background:rgba(255,255,255,.03);border-radius:12px;padding:10px 12px;border:1px solid rgba(255,255,255,.07);position:relative}
+.trend-hdr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px}
+.trend-title{font-size:9px;color:var(--t2);font-weight:800;letter-spacing:.6px;text-transform:uppercase}
+.trend-val{font-size:16px;font-weight:800}
+.trend-svg{width:100%;height:60px;display:block;overflow:visible}
+.trend-tip{position:absolute;pointer-events:none;background:rgba(2,6,23,.95);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;font-size:10px;white-space:nowrap;transform:translateX(-50%);top:26px;opacity:0;transition:opacity .1s;z-index:5}
+.trend-tip.on{opacity:1}
+.trend-tip-date{color:var(--t2)}
+.trend-tip-val{color:var(--t1);font-weight:700;margin-top:1px}
+
 /* ── RECENT HISTORY ── */
 .rh-card{background:rgba(255,255,255,.03);border-radius:12px;padding:10px 14px;margin-bottom:8px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
 .rh-result{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
@@ -920,8 +932,81 @@ function doFilter(type,btn){
   });
 }
 
+// ── TREND CHART（累計勝率／ROI 走勢）──────────────────────
+var _trendPoints={};  // uid -> points array，供 hover 事件查值用
+function trendChartBox(uid,points,key,color,suffix,title){
+  var vals=points.map(function(p){return p[key]});
+  var min=Math.min.apply(null,vals), max=Math.max.apply(null,vals);
+  if(min===max){min-=1;max+=1}
+  var W=300,H=60,PAD=4;
+  var pts=points.map(function(p,i){
+    var x=points.length>1?(i/(points.length-1))*W:W/2;
+    var y=H-PAD-((p[key]-min)/(max-min))*(H-PAD*2);
+    return [x,y];
+  });
+  var path='M '+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1)}).join(' L ');
+  var last=points[points.length-1];
+  var lastVal=last[key];
+  var valTxt=(key==='roi'?(lastVal>=0?'+':''):'')+lastVal.toFixed(1)+suffix;
+  var valColor=key==='roi'?(lastVal>=0?'var(--g)':'var(--r)'):color;
+  _trendPoints[uid]=points;
+  return '<div class="trend-box" data-uid="'+uid+'" data-key="'+key+'" data-suffix="'+suffix+'" data-color="'+color+'">'
+    +'<div class="trend-hdr"><span class="trend-title">'+title+'</span><span class="trend-val" style="color:'+valColor+'">'+valTxt+'</span></div>'
+    +'<svg class="trend-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
+      +'<path d="'+path+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>'
+      +'<line class="trend-cross" x1="0" y1="0" x2="0" y2="'+H+'" stroke="rgba(255,255,255,.15)" style="display:none"/>'
+      +'<circle class="trend-dot" r="3" fill="'+color+'" style="display:none"/>'
+      +'<rect class="trend-hit" x="0" y="0" width="'+W+'" height="'+H+'" fill="transparent"/>'
+    +'</svg>'
+    +'<div class="trend-tip"><div class="trend-tip-date"></div><div class="trend-tip-val"></div></div>'
+  +'</div>';
+}
+function initTrendCharts(){
+  document.querySelectorAll('.trend-box[data-uid]').forEach(function(box){
+    var uid=box.getAttribute('data-uid');
+    var points=_trendPoints[uid];
+    if(!points||!points.length)return;
+    var key=box.getAttribute('data-key');
+    var suffix=box.getAttribute('data-suffix');
+    var svg=box.querySelector('.trend-svg');
+    var path=box.querySelector('path');
+    var cross=box.querySelector('.trend-cross');
+    var dot=box.querySelector('.trend-dot');
+    var tip=box.querySelector('.trend-tip');
+    var tipDate=tip.querySelector('.trend-tip-date');
+    var tipVal=tip.querySelector('.trend-tip-val');
+    var W=300,H=60;
+    function onMove(clientX){
+      var rect=svg.getBoundingClientRect();
+      var frac=clamp((clientX-rect.left)/rect.width,0,1);
+      var idx=Math.round(frac*(points.length-1));
+      var p=points[idx];
+      var x=points.length>1?(idx/(points.length-1))*W:W/2;
+      var vals=points.map(function(pt){return pt[key]});
+      var min=Math.min.apply(null,vals), max=Math.max.apply(null,vals);
+      if(min===max){min-=1;max+=1}
+      var y=H-4-((p[key]-min)/(max-min))*(H-8);
+      cross.setAttribute('x1',x);cross.setAttribute('x2',x);cross.style.display='block';
+      dot.setAttribute('cx',x);dot.setAttribute('cy',y);dot.style.display='block';
+      var pctLeft=(x/W*100);
+      tip.style.left=pctLeft+'%';
+      tipDate.textContent=p.date;
+      var v=p[key];
+      tipVal.textContent=(key==='roi'&&v>=0?'+':'')+v.toFixed(1)+suffix+'（'+p.settled+' 場）';
+      tip.classList.add('on');
+    }
+    function onLeave(){
+      cross.style.display='none';dot.style.display='none';tip.classList.remove('on');
+    }
+    box.addEventListener('mousemove',function(e){onMove(e.clientX)});
+    box.addEventListener('mouseleave',onLeave);
+    box.addEventListener('touchmove',function(e){if(e.touches[0]){onMove(e.touches[0].clientX);e.preventDefault()}},{passive:false});
+    box.addEventListener('touchend',onLeave);
+  });
+}
+
 // ── RECENT HISTORY ─────────────────────────────────────
-function renderRecentHistory(history){
+function renderRecentHistory(history,trend){
   var el=document.getElementById('rh-content');
   if(!history||!history.length){
     el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><p>暫無近期記錄</p></div>';
@@ -929,7 +1014,14 @@ function renderRecentHistory(history){
   }
   var wins=history.filter(function(h){return h.result==='W'}).length;
   var rate=(wins/history.length*100).toFixed(1);
-  var h='<div class="qs-bar" style="margin-bottom:14px">'
+  var h='';
+  if(trend&&trend.length>=2){
+    h+='<div class="trend-grid">'
+      +trendChartBox('rh-wr',trend,'win_rate','var(--c)','%','累計勝率')
+      +trendChartBox('rh-roi',trend,'roi','var(--g)','%','累計 ROI')
+    +'</div>';
+  }
+  h+='<div class="qs-bar" style="margin-bottom:14px">'
     +'<div class="qs-box"><div class="qs-lbl">近期勝率</div><div class="qs-val" style="color:var(--g)">'+rate+'%</div></div>'
     +'<div class="qs-box"><div class="qs-lbl">勝場</div><div class="qs-val" style="color:var(--g)">'+wins+'</div></div>'
     +'<div class="qs-box"><div class="qs-lbl">敗場</div><div class="qs-val" style="color:var(--r)">'+(history.length-wins)+'</div></div>'
@@ -1213,7 +1305,7 @@ function showPg(n,btn){
   if(btn) btn.classList.add('on');
   _curPage=n;
   // lazy render
-  if(n===3&&_data&&_data.recent_history){renderRecentHistory(_data.recent_history)}
+  if(n===3&&_data&&_data.recent_history){renderRecentHistory(_data.recent_history,_data.history_trend);initTrendCharts()}
   if(n===2&&_data){renderDataCenter(_data)}
   if(n===4&&!window._standingsLoaded){loadStandings()}
   if(n===5&&_data){renderLivePage(_data.live_games||[],_data.live_updated_at)}

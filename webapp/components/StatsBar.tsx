@@ -3,9 +3,9 @@
 import type { Stats } from '@/types'
 
 export default function StatsBar({ stats }: { stats: Stats }) {
-  const winRate = (stats.win_rate * 100).toFixed(1)
-  const roi     = (stats.roi * 100).toFixed(1)
-  const roiPlus = stats.roi >= 0 ? '+' : ''
+  const winRate = stats.win_rate.toFixed(1)
+  const roi     = stats.roi != null ? stats.roi.toFixed(1) : '—'
+  const roiPlus = stats.roi != null && stats.roi >= 0 ? '+' : ''
 
   const byType = [
     { key: 'ML',  data: stats.by_type?.ML },
@@ -40,7 +40,7 @@ export default function StatsBar({ stats }: { stats: Stats }) {
           label="Total ROI"
           value={`${roiPlus}${roi}%`}
           sub={`${stats.settled} settled picks`}
-          color={stats.roi >= 0 ? 'var(--green)' : 'var(--red)'}
+          color={stats.roi == null || stats.roi >= 0 ? 'var(--green)' : 'var(--red)'}
           icon="💰"
         />
         <StatCard
@@ -92,14 +92,14 @@ export default function StatsBar({ stats }: { stats: Stats }) {
               <div className="flex items-center gap-4">
                 <div className="text-right">
                   <div style={{ fontSize: 11, color: 'var(--text-2)', fontWeight: 600 }}>Win%</div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: data.win_rate > 0.55 ? 'var(--green)' : 'var(--text-1)' }}>
-                    {(data.win_rate * 100).toFixed(0)}%
+                  <div style={{ fontSize: 15, fontWeight: 800, color: data.win_rate > 55 ? 'var(--green)' : 'var(--text-1)' }}>
+                    {data.win_rate.toFixed(0)}%
                   </div>
                 </div>
                 <div className="text-right">
                   <div style={{ fontSize: 11, color: 'var(--text-2)', fontWeight: 600 }}>ROI</div>
-                  <div style={{ fontSize: 15, fontWeight: 800, color: data.roi >= 0 ? 'var(--green)' : 'var(--red)' }}>
-                    {data.roi >= 0 ? '+' : ''}{(data.roi * 100).toFixed(1)}%
+                  <div style={{ fontSize: 15, fontWeight: 800, color: data.roi == null || data.roi >= 0 ? 'var(--green)' : 'var(--red)' }}>
+                    {data.roi != null ? (data.roi >= 0 ? '+' : '') + data.roi.toFixed(1) : '—'}%
                   </div>
                 </div>
               </div>
