@@ -5,10 +5,22 @@ import type { Pick } from '@/types'
 // "null when locked" contract used by webapp/types/index.ts.
 const LOCKED_FIELDS = ['btype', 'bet_label', 'bp', 'edge', 'conf', 'stake', 'bk'] as const
 
+function isAdminEmail(email: string | undefined | null): boolean {
+  if (!email) return false
+  const admins = (process.env.ADMIN_EMAILS ?? '')
+    .split(',')
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean)
+  return admins.includes(email.toLowerCase())
+}
+
 export async function isUnlocked(): Promise<boolean> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return false
+
+  // Site owner/admin — always unlocked, no subscription needed.
+  if (isAdminEmail(user.email)) return true
 
   const { data } = await supabase
     .from('subscriptions')
