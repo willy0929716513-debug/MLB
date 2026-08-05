@@ -1,0 +1,43 @@
+name: Update MLB Standings
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 6 * * *'  # 06:30 UTC = 14:30 TW（每天下午兩點半）
+
+permissions:
+  contents: write
+
+jobs:
+  standings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Fetch standings
+        env:
+          SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: python scripts/fetch_standings.py
+
+      - name: Commit standings.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/standings.json
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "chore: update standings [skip ci]"
+            git pull --rebase -X ours origin HEAD || true
+            git push origin HEAD
+          fi

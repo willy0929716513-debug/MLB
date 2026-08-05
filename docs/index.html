@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="theme-color" content="#020617">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>MLB AI 預測引擎</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--c:#00E5FF;--g:#00FF88;--y:#FFB800;--r:#FF3366;--bg:#020617;--bg2:#080f23;--t1:#e8f0ff;--t2:#7a8ba8;--t3:#4a5568;--bo:rgba(0,229,255,.1);--boh:rgba(0,229,255,.3)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--t1);font-family:'Space Grotesk','PingFang TC','Noto Sans TC',-apple-system,sans-serif;overflow-x:hidden;line-height:1.5;max-width:480px;margin:0 auto}
+body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 55% at 50% -5%,rgba(0,229,255,.12),transparent 55%),radial-gradient(ellipse 50% 50% at 90% 80%,rgba(0,40,180,.1),transparent),linear-gradient(180deg,#020617,#040d1c 50%,#020617);pointer-events:none}
+
+/* ── PROGRESS BAR ── */
+#pb{position:fixed;top:0;left:0;height:2px;z-index:9999;width:0%;background:linear-gradient(90deg,var(--c),var(--g),var(--c));background-size:200%;animation:pbf 1.2s linear infinite;box-shadow:0 0 10px var(--c);transition:width .4s ease,opacity .4s ease}
+@keyframes pbf{to{background-position:-200%}}
+
+/* ── HEADER ── */
+#hdr{position:sticky;top:0;z-index:50;background:rgba(2,6,23,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--bo)}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px}
+.logo-mark{display:flex;align-items:center;gap:8px}
+.logo-icon{font-size:20px;position:relative}
+.logo-icon::after{content:'';position:absolute;inset:-2px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.3),transparent);animation:pr 2.5s ease-out infinite}
+.logo-text{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.logo-text span{color:var(--c);text-shadow:0 0 16px rgba(0,229,255,.5)}
+.pro-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:800;background:linear-gradient(135deg,rgba(255,184,0,.2),rgba(255,100,0,.15));color:var(--y);border:1px solid rgba(255,184,0,.35);letter-spacing:1px}
+.hdr-tabs{display:flex;overflow-x:auto;padding:0 12px 10px;gap:4px;scrollbar-width:none}
+.hdr-tabs::-webkit-scrollbar{display:none}
+.htab{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid transparent;background:transparent;color:var(--t2);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;-webkit-tap-highlight-color:transparent;min-height:44px;display:inline-flex;align-items:center}
+.htab.on{background:rgba(0,229,255,.14);color:var(--c);border-color:rgba(0,229,255,.3)}
+.pg{display:none}
+.pg.on{display:block}
+.content{position:relative;z-index:1;padding:12px 12px 120px}
+
+/* ── ANIMATIONS ── */
+@keyframes gp{0%,100%{border-color:rgba(255,184,0,.3);box-shadow:0 0 15px rgba(255,184,0,.08)}50%{border-color:rgba(255,184,0,.6);box-shadow:0 0 30px rgba(255,184,0,.18)}}
+@keyframes pr{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.8);opacity:0}}
+@keyframes pa-spin{to{transform:rotate(360deg)}}
+@keyframes sks{to{background-position:-200%}}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes tks{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@keyframes fi-in{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+
+/* ── SCROLL REVEAL ── */
+.fi{transition:opacity .4s ease,transform .4s ease}
+.fi.on{opacity:1;transform:none}
+
+/* ── SKELETON ── */
+.sk{border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%;animation:sks 1.5s infinite}
+
+/* ── DISCLAIMER ── */
+.disc{border-radius:12px;padding:12px 14px;background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.18);display:flex;gap:10px;margin-bottom:14px}
+.disc-body{font-size:11px;color:var(--t2);line-height:1.6}
+.disc-title{font-size:12px;font-weight:700;color:var(--y);margin-bottom:3px}
+
+/* ── HERO TOP-EDGE CARD ── */
+.te-card{border-radius:20px;overflow:hidden;margin-bottom:14px;position:relative;background:linear-gradient(135deg,rgba(8,15,35,.95),rgba(12,22,50,.9));border:1px solid rgba(255,184,0,.25)}
+.te-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 0% 50%,rgba(0,229,255,.08),transparent),radial-gradient(ellipse 50% 70% at 100% 50%,rgba(255,100,0,.08),transparent);pointer-events:none}
+.te-body{position:relative;z-index:1;padding:16px}
+.te-label{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:800;color:var(--g);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.te-fire{font-size:14px;animation:lp 1.5s ease-in-out infinite}
+.te-content{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.te-left{flex:1;min-width:0}
+.te-pick{font-size:22px;font-weight:800;color:var(--t1);line-height:1.15;margin-bottom:12px;word-break:break-word}
+.te-pick span{color:var(--g)}
+.te-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.te-stat{background:rgba(255,255,255,.05);border-radius:10px;padding:8px 10px;border:1px solid rgba(255,255,255,.07)}
+.te-sl{font-size:9px;color:var(--t2);font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:2px}
+.te-sv{font-size:17px;font-weight:800;line-height:1}
+.te-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;background:linear-gradient(135deg,rgba(0,229,255,.18),rgba(0,255,136,.1));border:1px solid rgba(0,229,255,.35);color:var(--c);font-family:inherit;font-weight:700;font-size:12px;cursor:pointer;transition:all .2s;min-height:44px}
+.te-btn:hover{background:linear-gradient(135deg,rgba(0,229,255,.28),rgba(0,255,136,.2));box-shadow:0 0 20px rgba(0,229,255,.25)}
+.te-right{width:80px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.te-logo{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.te-logo img{width:54px;height:54px;object-fit:contain}
+.te-meta{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(0,0,0,.2);border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:var(--t2);flex-wrap:wrap}
+.te-meta-item{display:flex;align-items:center;gap:4px}
+.tier-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;letter-spacing:.5px}
+
+/* ── QUICK STATS BAR ── */
+.qs-bar{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;scrollbar-width:none}
+.qs-bar::-webkit-scrollbar{display:none}
+.qs-box{flex-shrink:0;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;min-width:80px;text-align:center}
+.qs-box:first-child{border-color:rgba(0,255,136,.2);background:rgba(0,255,136,.05)}
+.qs-lbl{font-size:9px;color:var(--t2);font-weight:600;letter-spacing:.5px;white-space:nowrap}
+.qs-val{font-size:16px;font-weight:800;color:var(--t1);margin-top:2px;white-space:nowrap}
+.qs-sub{font-size:9px;color:var(--t2);margin-top:1px;white-space:nowrap}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;margin-top:18px}
+.sec-title{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;color:var(--t1)}
+.sec-dot{width:8px;height:8px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c)}
+.live-dot{background:var(--r);box-shadow:0 0 8px var(--r);animation:lp 1s ease-in-out infinite}
+.sec-count{font-size:11px;color:var(--t2);background:rgba(255,255,255,.06);padding:2px 8px;border-radius:10px}
+
+/* ── LIVE GAMES ── */
+.live-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px 14px;margin-bottom:10px;position:relative}
+.live-card.has-bet{border-color:rgba(0,255,136,.3);background:rgba(0,255,136,.04)}
+.live-score{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.live-team{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.live-logo{width:36px;height:36px;object-fit:contain}
+.live-tn{font-size:12px;font-weight:700;color:var(--t1)}
+.live-runs{font-size:28px;font-weight:800;line-height:1}
+.live-mid{display:flex;flex-direction:column;align-items:center;gap:4px}
+.live-dash{font-size:18px;color:var(--t2);font-weight:300}
+.live-inn{font-size:10px;color:var(--y);font-weight:700;background:rgba(255,184,0,.12);padding:2px 8px;border-radius:10px}
+.live-totals{display:flex;gap:6px;flex-wrap:wrap}
+.live-chip{font-size:10px;padding:3px 8px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--t2);border:1px solid rgba(255,255,255,.08)}
+.live-chip.bet{background:rgba(0,255,136,.1);color:var(--g);border-color:rgba(0,255,136,.25)}
+.live-reason{font-size:11px;color:var(--t2);margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.06)}
+
+/* ── FILTER TABS ── */
+.filter-bar{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.ftab{flex-shrink:0;padding:7px 16px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--t2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;min-height:44px;display:inline-flex;align-items:center}
+.ftab.on{background:rgba(0,229,255,.14);color:var(--c);border-color:rgba(0,229,255,.3)}
+
+/* ── GAME CARDS ── */
+.gc{border-radius:16px;margin-bottom:14px;overflow:hidden;position:relative;background:linear-gradient(160deg,rgba(8,15,35,.98),rgba(5,10,25,.95));border:1px solid rgba(255,255,255,.08)}
+.gc.tier-gold{border-color:rgba(255,184,0,.3);animation:gp 3s ease-in-out infinite}
+.gc-hdr{display:table;width:100%;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2)}
+.gc-hdr-l{display:table-cell;padding:8px 0 8px 14px;vertical-align:middle}
+.gc-time{display:table-cell;padding:8px 14px 8px 8px;vertical-align:middle;white-space:nowrap;font-size:11px;color:var(--t2);font-weight:600;width:1px}
+.gc-num{font-size:10px;color:var(--t2);background:rgba(255,255,255,.06);padding:2px 7px;border-radius:8px;flex-shrink:0}
+
+/* teams row */
+.gc-teams{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;gap:8px}
+.gc-team{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.gc-tl{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(0,229,255,.2))}
+.gc-ab{font-size:13px;font-weight:800;color:var(--t1);letter-spacing:.5px}
+.gc-cn{font-size:11px;color:var(--t2);font-weight:500}
+.gc-vs{font-size:11px;font-weight:800;color:var(--t3);letter-spacing:2px;flex-shrink:0}
+
+/* win probability row */
+.gc-wp{display:flex;align-items:center;justify-content:space-between;padding:0 14px 10px;gap:4px}
+.gc-wp-side{display:flex;flex-direction:column;align-items:center;flex:1}
+.gc-wp-pct{font-size:18px;font-weight:800;line-height:1}
+.gc-wp-lbl{font-size:9px;color:var(--t2);font-weight:600;margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
+.wp-donut{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.wp-pcts{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800}
+.wp-vs{color:var(--t3);font-size:9px}
+
+/* pitcher row */
+.gc-pit{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:rgba(0,0,0,.15);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);gap:6px}
+.gc-pit-side{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.pit-av{position:relative;width:44px;height:44px;flex-shrink:0}
+.pit-inner{position:absolute;inset:0;border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pit-init{font-size:13px;font-weight:800;letter-spacing:-.5px}
+.pit-inner img{width:100%;height:100%;object-fit:cover;border-radius:6px}
+.pit-name{font-size:10px;font-weight:700;color:var(--t1);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px}
+.pit-stats{font-size:9px;color:var(--t2);text-align:center;line-height:1.5}
+.pit-vs{font-size:10px;font-weight:700;color:var(--t3);flex-shrink:0}
+
+/* bet row */
+.gc-bet{display:flex;align-items:center;gap:8px;padding:10px 14px;flex-wrap:wrap}
+.bt-badge{padding:3px 9px;border-radius:7px;font-size:11px;font-weight:800;letter-spacing:.5px;flex-shrink:0}
+.bt-badge.ML{background:rgba(0,229,255,.15);color:var(--c);border:1px solid rgba(0,229,255,.3)}
+.bt-badge.RL{background:rgba(255,184,0,.15);color:var(--y);border:1px solid rgba(255,184,0,.3)}
+.bt-badge.TOT{background:rgba(0,255,136,.12);color:var(--g);border:1px solid rgba(0,255,136,.25)}
+.bet-label{font-size:13px;font-weight:700;color:var(--t1);flex:1;min-width:0}
+.bet-odds{font-size:14px;font-weight:800;color:var(--g)}
+.bet-bk{font-size:10px;color:var(--t2);padding:2px 6px;background:rgba(255,255,255,.06);border-radius:6px;white-space:nowrap}
+
+/* bars */
+.gc-bars{padding:10px 14px;border-top:1px solid rgba(255,255,255,.06)}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-row:last-child{margin-bottom:0}
+.bar-lbl{font-size:9px;color:var(--t2);font-weight:700;letter-spacing:.4px;width:84px;flex-shrink:0;text-transform:uppercase}
+.bar-track{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:3px;transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+.bar-val{font-size:10px;font-weight:700;width:32px;text-align:right;flex-shrink:0}
+
+/* metrics */
+.gc-metrics{display:flex;gap:0;border-top:1px solid rgba(255,255,255,.06)}
+.gc-metric{flex:1;padding:10px 6px;text-align:center;border-right:1px solid rgba(255,255,255,.06)}
+.gc-metric:last-child{border-right:none}
+.gm-lbl{font-size:8px;color:var(--t2);font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px}
+.gm-val{font-size:15px;font-weight:800}
+
+/* predicted score */
+.gc-score{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.1)}
+.gs-lbl{font-size:9px;color:var(--t2);font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.gs-val{font-size:18px;font-weight:800;color:var(--t1)}
+.gs-away{color:var(--t2)}
+.gs-home{color:var(--c)}
+.gs-sep{font-size:14px;color:var(--t3)}
+
+/* charts */
+.gc-charts{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;border-top:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.1)}
+.chart-box{background:rgba(255,255,255,.03);border-radius:10px;padding:8px;border:1px solid rgba(255,255,255,.06)}
+.chart-title{font-size:8px;color:var(--t2);font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+
+/* ── RECENT HISTORY ── */
+.rh-card{background:rgba(255,255,255,.03);border-radius:12px;padding:10px 14px;margin-bottom:8px;border:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+.rh-result{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.rh-result.W{background:rgba(0,255,136,.15);color:var(--g);border:1px solid rgba(0,255,136,.3)}
+.rh-result.L{background:rgba(255,51,102,.15);color:var(--r);border:1px solid rgba(255,51,102,.3)}
+.rh-body{flex:1;min-width:0}
+.rh-teams{font-size:13px;font-weight:700;color:var(--t1)}
+.rh-meta{font-size:10px;color:var(--t2);margin-top:2px}
+.rh-price{font-size:13px;font-weight:800;flex-shrink:0}
+.rh-edge{font-size:10px;color:var(--t2);text-align:right}
+
+/* ── STANDINGS ── */
+.standings-tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none}
+.standings-tabs::-webkit-scrollbar{display:none}
+.stab{flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--t2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;min-height:44px;display:inline-flex;align-items:center}
+.stab.on{background:rgba(0,229,255,.14);color:var(--c);border-color:rgba(0,229,255,.3)}
+.div-group{margin-bottom:16px}
+.div-title{font-size:12px;font-weight:800;color:var(--y);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,184,0,.15)}
+.standings-tbl{width:100%;border-collapse:collapse}
+.standings-tbl th{font-size:9px;color:var(--t2);font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:4px 6px;text-align:right}
+.standings-tbl th:first-child{text-align:left;padding-left:0}
+.standings-tbl td{font-size:12px;padding:7px 6px;border-top:1px solid rgba(255,255,255,.04);text-align:right;vertical-align:middle}
+.standings-tbl td:first-child{text-align:left;padding-left:0;font-weight:700;color:var(--t1)}
+.td-logo{width:20px;height:20px;object-fit:contain;margin-right:6px;vertical-align:middle}
+.td-strk.W{color:var(--g)}
+.td-strk.L{color:var(--r)}
+.td-updated{font-size:10px;color:var(--t2);text-align:center;margin-top:8px}
+.std-loading{text-align:center;color:var(--t2);padding:30px;font-size:13px}
+
+/* ── TICKER ── */
+#ticker{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:26px;background:rgba(2,6,23,.97);border-top:1px solid rgba(255,255,255,.06);z-index:40;overflow:hidden}
+.ticker-inner{display:flex;align-items:center;height:100%;white-space:nowrap;animation:tks 35s linear infinite}
+.ticker-inner:hover{animation-play-state:paused}
+.tk-item{display:inline-flex;align-items:center;gap:6px;padding:0 16px;font-size:10px;color:var(--t2);font-weight:600}
+.tk-sep{color:var(--t3);margin:0 4px}
+.tk-w{color:var(--g)}
+.tk-l{color:var(--r)}
+.tk-odds{color:var(--c)}
+
+/* ── FAB ── */
+#fab{position:fixed;bottom:42px;right:16px;z-index:45;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--c),#0099bb);border:none;color:#000;font-size:20px;cursor:pointer;box-shadow:0 4px 20px rgba(0,229,255,.4);display:flex;align-items:center;justify-content:center;transition:all .2s;-webkit-tap-highlight-color:transparent}
+#fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(0,229,255,.6)}
+#fab:active{transform:scale(.95)}
+
+/* ── MODAL ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border-radius:20px 20px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;border:1px solid rgba(255,255,255,.1);border-bottom:none}
+.modal h3{font-size:16px;font-weight:800;color:var(--t1);margin-bottom:6px}
+.modal p{font-size:12px;color:var(--t2);margin-bottom:14px}
+.modal-inp{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 12px;color:var(--t1);font-family:inherit;font-size:14px;outline:none;margin-bottom:10px}
+.modal-inp:focus{border-color:var(--c)}
+.modal-btns{display:flex;gap:8px}
+.mbtn{flex:1;padding:12px;border-radius:10px;border:none;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;min-height:44px}
+.mbtn-primary{background:linear-gradient(135deg,var(--c),#0099bb);color:#000}
+.mbtn-cancel{background:rgba(255,255,255,.08);color:var(--t2)}
+.modal-msg{font-size:12px;margin-top:8px;min-height:16px}
+
+/* ── EMPTY / ERROR ── */
+.empty{text-align:center;padding:40px 16px;color:var(--t2)}
+.empty-icon{font-size:40px;margin-bottom:10px}
+.empty p{font-size:13px}
+.error-banner{background:rgba(255,51,102,.1);border:1px solid rgba(255,51,102,.25);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--r)}
+
+/* ── LOADING SPINNER ── */
+.spinner{width:32px;height:32px;border:3px solid rgba(0,229,255,.2);border-top-color:var(--c);border-radius:50%;animation:spin 0.8s linear infinite;margin:30px auto}
+</style>
+</head>
+<body>
+<div id="pb"></div>
+<script>
+if('serviceWorker'in navigator){navigator.serviceWorker.getRegistrations().then(function(regs){regs.forEach(function(r){r.unregister()})});}
+</script>
+
+<!-- HEADER -->
+<header id="hdr">
+  <div class="hdr-top">
+    <div class="logo-mark">
+      <span class="logo-icon">⚾</span>
+      <span class="logo-text">MLB <span>AI</span> 預測引擎</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="forceRefresh()" title="強制重新整理" style="background:none;border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--t2);font-size:15px;cursor:pointer;padding:4px 8px;min-height:36px;line-height:1;-webkit-tap-highlight-color:transparent">↻</button>
+      <button onclick="openSettings()" title="設定" style="background:none;border:1px solid rgba(255,255,255,.12);border-radius:8px;color:var(--t2);font-size:15px;cursor:pointer;padding:4px 8px;min-height:36px;line-height:1;-webkit-tap-highlight-color:transparent">⚙️</button>
+      <span class="pro-badge">⚡ PRO</span>
+    </div>
+  </div>
+  <div class="hdr-tabs" role="tablist">
+    <button class="htab on" onclick="showPg(0,this)" role="tab">首頁</button>
+    <button class="htab" onclick="showPg(1,this)" role="tab">AI分析</button>
+    <button class="htab" onclick="showPg(2,this)" role="tab">數據中心</button>
+    <button class="htab" onclick="showPg(3,this)" role="tab">近期勝績</button>
+    <button class="htab" onclick="showPg(4,this)" role="tab">球隊排名</button>
+    <button class="htab" onclick="showPg(5,this)" role="tab">🔴 場中</button>
+  </div>
+</header>
+
+<!-- PAGE 0: HOME -->
+<div id="pg0" class="pg on">
+  <div class="content">
+    <div class="disc">
+      <span>⚠️</span>
+      <div class="disc-body">
+        <div class="disc-title">投資風險免責聲明</div>
+        本平台資訊僅供參考，不構成投資建議。體育投注涉及財務風險，請謹慎決策，量力而為。
+      </div>
+    </div>
+    <div id="home-te"></div>
+    <div id="home-qs"></div>
+    <div id="home-updated"></div>
+    <div id="home-picks-section">
+      <div style="margin-top:8px">
+        <div class="sk" style="height:20px;width:120px;margin-bottom:12px"></div>
+        <div class="sk" style="height:180px;border-radius:16px;margin-bottom:12px"></div>
+        <div class="sk" style="height:180px;border-radius:16px;margin-bottom:12px"></div>
+        <div class="sk" style="height:180px;border-radius:16px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 1: AI ANALYSIS -->
+<div id="pg1" class="pg">
+  <div class="content">
+    <div id="ai-picks-section"></div>
+  </div>
+</div>
+
+<!-- PAGE 2: DATA CENTER -->
+<div id="pg2" class="pg">
+  <div class="content">
+    <div id="dc-content">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: RECENT HISTORY -->
+<div id="pg3" class="pg">
+  <div class="content">
+    <div id="rh-content">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: STANDINGS -->
+<div id="pg4" class="pg">
+  <div class="content">
+    <div id="std-content">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5: LIVE GAMES -->
+<div id="pg5" class="pg">
+  <div class="content">
+    <div id="live-page-content">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div id="ticker"><div class="ticker-inner" id="ticker-inner">Loading picks...</div></div>
+
+<!-- FAB -->
+<button id="fab" title="立即執行" onclick="openModal()">⚡</button>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3>🚀 觸發 MLB Bot</h3>
+    <p id="modal-desc">輸入 GitHub Personal Access Token 來手動觸發資料更新工作流程。</p>
+    <input class="modal-inp" id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxx">
+    <div class="modal-btns">
+      <button class="mbtn mbtn-cancel" onclick="closeModal()">取消</button>
+      <button class="mbtn mbtn-primary" onclick="triggerBot()">執行</button>
+    </div>
+    <div class="modal-msg" id="modal-msg"></div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="settings-bg" onclick="if(event.target===this)closeSettings()">
+  <div class="modal">
+    <h3>⚙️ 連線設定</h3>
+    <p style="margin-bottom:10px;font-size:11px;color:var(--t2)">Supabase 專案 URL（設定後資料從 Supabase 讀取，不受 GitHub 封鎖影響）</p>
+    <input class="modal-inp" id="sb-url" type="url" placeholder="https://xxxxxxxx.supabase.co">
+    <p style="margin:8px 0 4px;font-size:11px;color:var(--t2)">Bot 觸發密語（Supabase Edge Function 的 TRIGGER_SECRET）</p>
+    <input class="modal-inp" id="sb-secret" type="password" placeholder="可留空">
+    <p style="margin:8px 0 4px;font-size:11px;color:var(--t2)">或使用 GitHub Token（未設定 Supabase 時使用）</p>
+    <input class="modal-inp" id="sb-ghtoken" type="password" placeholder="ghp_xxxxxxxxxxxx">
+    <div class="modal-btns" style="margin-top:4px">
+      <button class="mbtn mbtn-cancel" onclick="closeSettings()">取消</button>
+      <button class="mbtn mbtn-primary" onclick="saveSettings()">儲存</button>
+    </div>
+    <div class="modal-msg" id="settings-msg"></div>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ──────────────────────────────────────────
+var TEAM_ID={'運動家':133,'太空人':117,'藍鳥':141,'勇士':144,'釀酒人':158,'紅雀':138,'小熊':112,'響尾蛇':109,'道奇':119,'巨人':137,'守護者':114,'水手':136,'馬林魚':146,'大都會':121,'國民':120,'金鶯':110,'教士':135,'費城人':143,'海盜':134,'遊騎兵':140,'光芒':139,'紅襪':111,'紅人':113,'落磯':115,'皇家':118,'老虎':116,'雙城':142,'白襪':145,'洋基':147,'天使':108};
+var TEAM_ABBR={'運動家':'OAK','太空人':'HOU','藍鳥':'TOR','勇士':'ATL','釀酒人':'MIL','紅雀':'STL','小熊':'CHC','響尾蛇':'ARI','道奇':'LAD','巨人':'SF','守護者':'CLE','水手':'SEA','馬林魚':'MIA','大都會':'NYM','國民':'WSH','金鶯':'BAL','教士':'SD','費城人':'PHI','海盜':'PIT','遊騎兵':'TEX','光芒':'TB','紅襪':'BOS','紅人':'CIN','落磯':'COL','皇家':'KC','老虎':'DET','雙城':'MIN','白襪':'CWS','洋基':'NYY','天使':'LAA'};
+var BM={'獨贏':'ML','讓分':'RL','大小分':'TOT'};
+var TC={
+  '💎 強注':{l:'💎 強注',c:'#FFB800',bg:'rgba(255,184,0,0.12)'},
+  '🔥 強力':{l:'💎 強注',c:'#FFB800',bg:'rgba(255,184,0,0.12)'},
+  '⭐ 穩定':{l:'⭐ 穩注',c:'#00FF88',bg:'rgba(0,255,136,0.1)'}
+};
+
+var _data=null, _allPicks=[], _curFilter='all', _curPage=0;
+
+// ── UTILS ──────────────────────────────────────────────
+function tid(cn){return TEAM_ID[cn]||null}
+function abbr(s){return s?(TEAM_ABBR[s]||s.slice(0,3).toUpperCase()):'?'}
+function logoUrl(cn){var id=tid(cn);return id?'https://www.mlbstatic.com/team-logos/'+id+'.svg':null}
+function cdnUrl(id){return 'https://img.mlbstatic.com/mlb-photos/image/upload/d_people:generic:headshot:67:current.png/w_200,h_200,c_thumb,g_face/v1/people/'+id+'/headshot/67/current'}
+function fmtOddsUS(dec){if(!dec||dec<1)return '';var u=dec>=2?Math.round((dec-1)*100):Math.round(-100/(dec-1));return u>=0?'+'+u:''+u}
+function kelly(edge,odds){if(!edge||!odds||odds<=1)return '--';var p=edge/100;var q=1-p;var b=odds-1;var k=((b*p-q)/b)*100;return k>0?(k.toFixed(1)+'%'):'--'}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
+function safeNum(v,d){return (v!=null&&!isNaN(v))?Number(v):d}
+
+// ── LOGO IMG ──────────────────────────────────────────
+function logoImg(cn,size){
+  var url=logoUrl(cn);
+  if(url) return '<img src="'+url+'" width="'+size+'" height="'+size+'" alt="'+cn+'" style="object-fit:contain" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'" >'
+    +'<div style="display:none;width:'+size+'px;height:'+size+'px;align-items:center;justify-content:center;font-size:'+(size*0.38)+'px;font-weight:800;color:var(--t2)">'+abbr(cn)+'</div>';
+  return '<div style="width:'+size+'px;height:'+size+'px;display:flex;align-items:center;justify-content:center;font-size:'+(size*0.38)+'px;font-weight:800;color:var(--t2)">'+abbr(cn)+'</div>';
+}
+
+// ── WIN PROBABILITY DONUT ──────────────────────────────
+function wpDonut(awayPct,homePct,awayAb,homeAb){
+  var size=84,r=33;
+  var circ=2*Math.PI*r;
+  var awayArc=circ*(awayPct/100);
+  var homeArc=circ-awayArc;
+  var offset=circ*0.25;
+  var awayWin=awayPct>=homePct;
+  var bigPct=awayWin?awayPct:homePct;
+  var bigAb=awayWin?awayAb:homeAb;
+  var awayC=awayPct>55?'var(--g)':awayPct>50?'var(--c)':'var(--t3)';
+  var homeC=homePct>55?'var(--g)':homePct>50?'var(--c)':'var(--t3)';
+  return '<div class="wp-donut">'
+    +'<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'
+      +'<circle cx="42" cy="42" r="'+r+'" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="7"/>'
+      +'<circle cx="42" cy="42" r="'+r+'" fill="none" stroke="'+awayC+'" stroke-width="7"'
+        +' stroke-dasharray="'+awayArc+' '+homeArc+'" stroke-dashoffset="'+offset+'"'
+        +' class="wp-arc" style="transition:stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1)"/>'
+      +'<circle cx="42" cy="42" r="'+r+'" fill="none" stroke="'+homeC+'" stroke-width="7"'
+        +' stroke-dasharray="'+homeArc+' '+awayArc+'" stroke-dashoffset="'+(offset-awayArc)+'"'
+        +'/>'
+      +'<text x="42" y="39" text-anchor="middle" fill="white" font-size="17" font-weight="800" font-family="Space Grotesk">'+bigPct+'%</text>'
+      +'<text x="42" y="54" text-anchor="middle" fill="rgba(255,255,255,.4)" font-size="8" font-weight="700">'+bigAb+'</text>'
+    +'</svg>'
+    +'<div class="wp-pcts"><span style="color:'+awayC+'">'+awayPct+'%</span><span class="wp-vs">VS</span><span style="color:'+homeC+'">'+homePct+'%</span></div>'
+  +'</div>';
+}
+
+// ── PITCHER AVATAR ─────────────────────────────────────
+function pitcherAv(name,side){
+  var initials=name?name.trim().split(/\s+/).map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase():'??';
+  var tc=side==='a'?'var(--c)':'var(--g)';
+  return '<div class="pit-av" data-pname="'+(name||'')+'" data-side="'+side+'">'
+    +'<div class="pit-inner" style="background:#080f23"><span class="pit-init" style="color:'+tc+'">'+initials+'</span></div>'
+  +'</div>';
+}
+
+// ── MINI CHARTS ────────────────────────────────────────
+function monteCarloChart(edge,conf){
+  var pts=20,h=44,w=130;
+  var mid=h/2;
+  var data=[];
+  for(var i=0;i<pts;i++){
+    var base=mid-(edge||10)/3;
+    var noise=(Math.random()-0.5)*12;
+    var trend=-(i/pts)*8;
+    data.push(clamp(base+noise+trend,4,h-4));
+  }
+  var path='M ';
+  data.forEach(function(y,i){path+=(i*(w/(pts-1)))+','+y+' '});
+  var fillPath=path+'L '+w+','+h+' L 0,'+h+' Z';
+  return '<div class="chart-box">'
+    +'<div class="chart-title">MONTE CARLO ANALYSIS</div>'
+    +'<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'">'
+      +'<defs><linearGradient id="mcg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--c)" stop-opacity=".3"/><stop offset="100%" stop-color="var(--c)" stop-opacity="0"/></linearGradient></defs>'
+      +'<path d="'+fillPath+'" fill="url(#mcg)"/>'
+      +'<polyline points="'+data.map(function(y,i){return (i*(w/(pts-1)))+','+y}).join(' ')+'" fill="none" stroke="var(--c)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'</svg>'
+  +'</div>';
+}
+
+function runsDistChart(predA,predH){
+  var bars=[predA||3,predH||4,(predA+predH)||7];
+  var cols=['var(--c)','var(--g)','var(--y)'];
+  var lbls=['客','主','總'];
+  var maxV=Math.max.apply(null,bars)*1.3||1;
+  var bw=20,gap=12,h=44,total=bars.length*(bw+gap)-gap;
+  var svg='<svg width="'+total+'" height="'+h+'" viewBox="0 0 '+total+' '+h+'">';
+  bars.forEach(function(v,i){
+    var bh=Math.max(2,(v/maxV)*(h-12));
+    var x=i*(bw+gap);
+    svg+='<rect x="'+x+'" y="'+(h-bh)+'" width="'+bw+'" height="'+bh+'" rx="3" fill="'+cols[i]+'" opacity=".8"/>';
+    svg+='<text x="'+(x+bw/2)+'" y="'+(h-bh-3)+'" text-anchor="middle" fill="white" font-size="9" font-weight="700">'+v.toFixed(1)+'</text>';
+    svg+='<text x="'+(x+bw/2)+'" y="'+(h+12)+'" text-anchor="middle" fill="rgba(255,255,255,.4)" font-size="8">'+lbls[i]+'</text>';
+  });
+  svg+='</svg>';
+  return '<div class="chart-box">'
+    +'<div class="chart-title">RUNS DISTRIBUTION</div>'
+    +'<div style="display:flex;justify-content:center">'+svg+'</div>'
+  +'</div>';
+}
+
+// ── BAR HELPER ─────────────────────────────────────────
+function barRow(label,pct,color,valText){
+  var safe=clamp(safeNum(pct,50),0,100);
+  return '<div class="bar-row">'
+    +'<span class="bar-lbl">'+label+'</span>'
+    +'<div class="bar-track"><div class="bar-fill" style="width:0%;background:'+color+'" data-target="'+safe+'%"></div></div>'
+    +'<span class="bar-val" style="color:'+color+'">'+valText+'</span>'
+  +'</div>';
+}
+
+// ── TIER BADGE HTML ────────────────────────────────────
+function tierBadge(tier){
+  var t=TC[tier]||{l:tier,c:'var(--t2)',bg:'rgba(255,255,255,.06)'};
+  return '<span class="tier-badge" style="color:'+t.c+';background:'+t.bg+';border:1px solid '+t.c+'40">'+t.l+'</span>';
+}
+
+// ── MAKE GAME CARD ─────────────────────────────────────
+function makeGCard(pick,idx,showCharts){
+  var awCn=pick.away_cn||pick.away||'客';
+  var hmCn=pick.home_cn||pick.home||'主';
+  var awAb=TEAM_ABBR[awCn]||abbr(awCn)||(pick.away||'').slice(0,3).toUpperCase()||'AWY';
+  var hmAb=TEAM_ABBR[hmCn]||abbr(hmCn)||(pick.home||'').slice(0,3).toUpperCase()||'HME';
+  var awTid=tid(awCn);
+  var hmTid=tid(hmCn);
+
+  // bet team detection
+  var betOnH=!!(pick.bet_label&&pick.home_cn&&pick.bet_label.includes(pick.home_cn));
+
+  // win probability
+  var aiW=safeNum(pick.model_p,null);
+  var homeWP,awayWP;
+  if(aiW!=null){
+    homeWP=betOnH?Math.round(aiW):Math.round(100-aiW);
+    awayWP=100-homeWP;
+  } else {
+    homeWP=50;awayWP=50;
+  }
+
+  // tier
+  var tierKey=pick.tier||'⭐ 穩定';
+  var isGold=tierKey==='💎 強注'||tierKey==='🔥 強力';
+  var btType=BM[pick.btype]||'ML';
+
+  // odds
+  var decOdds=safeNum(pick.bp,null);
+  var usOdds=decOdds?fmtOddsUS(decOdds):'';
+  var oddsStr=decOdds?('@'+decOdds.toFixed(2)):'';
+
+  // bars
+  var edgeV=safeNum(pick.edge,0);
+  var confV=safeNum(pick.conf,0);
+  var awEra=safeNum(pick.away_era,4.5);
+  var hmEra=safeNum(pick.home_era,4.5);
+  var avgEra=(awEra+hmEra)/2;
+  var bullpenPct=clamp(100-(avgEra/6)*80,10,95);
+  var totalPowerPct=clamp(((safeNum(pick.away_rs,4)+safeNum(pick.home_rs,4))/12)*100,15,90);
+  var wxPct=pick.weather_factor!=null?clamp(safeNum(pick.weather_factor,0)*100,0,100):50;
+
+  // kelly
+  var stakeV=safeNum(pick.stake,null);
+  var kv=stakeV!=null?('$'+stakeV.toFixed(0)):kelly(edgeV,decOdds);
+
+  // predicted score
+  var pAway=safeNum(pick.pred_away,null);
+  var pHome=safeNum(pick.pred_home,null);
+
+  // pitcher stats
+  function pitStats(era,fip,k9){
+    var parts=[];
+    if(era!=null)parts.push('ERA '+era.toFixed(2));
+    if(k9!=null)parts.push('K/9 '+k9.toFixed(1));
+    if(fip!=null)parts.push('FIP '+fip.toFixed(2));
+    return parts.join(' · ');
+  }
+
+  var h='<div class="gc fi'+(isGold?' tier-gold':'')+'>';
+
+  // card header
+  h+='<div class="gc-hdr"><div class="gc-hdr-l">'+tierBadge(tierKey)+'</div><div class="gc-time">'+(pick.game_time||'--:--')+'</div></div>';
+
+  // teams row
+  h+='<div class="gc-teams">'
+    +'<div class="gc-team">'
+    +(awTid?('<img class="gc-tl" src="https://www.mlbstatic.com/team-logos/'+awTid+'.svg" alt="'+awCn+'" loading="lazy" onerror="this.style.display=\'none\'">'):'  <div class="gc-tl" style="display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--t2)">'+awAb+'</div>')
+    +'<span class="gc-ab">'+awAb+'</span>'
+    +'<span class="gc-cn">'+awCn+'</span>'
+    +'</div>'
+    +'<span class="gc-vs">VS</span>'
+    +'<div class="gc-team">'
+    +(hmTid?('<img class="gc-tl" src="https://www.mlbstatic.com/team-logos/'+hmTid+'.svg" alt="'+hmCn+'" loading="lazy" onerror="this.style.display=\'none\'">'):'  <div class="gc-tl" style="display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--t2)">'+hmAb+'</div>')
+    +'<span class="gc-ab">'+hmAb+'</span>'
+    +'<span class="gc-cn">'+hmCn+'</span>'
+    +'</div>'
+  +'</div>';
+
+  // win probability row
+  var awayC=awayWP>55?'var(--g)':awayWP>50?'var(--c)':'var(--t2)';
+  var homeC=homeWP>55?'var(--g)':homeWP>50?'var(--c)':'var(--t2)';
+  h+='<div class="gc-wp">'
+    +'<div class="gc-wp-side">'
+    +'<div class="gc-wp-pct" style="color:'+awayC+'">'+awayWP+'%</div>'
+    +'<div class="gc-wp-lbl">客隊勝率</div>'
+    +'</div>'
+    +wpDonut(awayWP,homeWP,awAb,hmAb)
+    +'<div class="gc-wp-side">'
+    +'<div class="gc-wp-pct" style="color:'+homeC+'">'+homeWP+'%</div>'
+    +'<div class="gc-wp-lbl">主隊勝率</div>'
+    +'</div>'
+  +'</div>';
+
+  // pitcher row
+  h+='<div class="gc-pit">'
+    +'<div class="gc-pit-side">'
+    +pitcherAv(pick.away_sp,'a')
+    +'<div class="pit-name">'+(pick.away_sp||'TBD')+'</div>'
+    +'<div class="pit-stats">'+pitStats(pick.away_era,pick.away_fip,pick.away_k9)+'</div>'
+    +'</div>'
+    +'<span class="pit-vs">⚾</span>'
+    +'<div class="gc-pit-side">'
+    +pitcherAv(pick.home_sp,'h')
+    +'<div class="pit-name">'+(pick.home_sp||'TBD')+'</div>'
+    +'<div class="pit-stats">'+pitStats(pick.home_era,pick.home_fip,pick.home_k9)+'</div>'
+    +'</div>'
+  +'</div>';
+
+  // bet row
+  h+='<div class="gc-bet">'
+    +'<span class="bt-badge '+btType+'">'+btType+'</span>'
+    +'<span class="bet-label">'+(pick.bet_label||'')+'</span>'
+    +(decOdds?('<span class="bet-odds">'+oddsStr+'</span>'):'' )
+    +(usOdds?('<span class="bet-odds" style="color:var(--c);font-size:11px;margin-left:2px">('+usOdds+')</span>'):'')
+    +(pick.bk?('<span class="bet-bk">'+pick.bk+'</span>'):'')
+  +'</div>';
+
+  // bars
+  h+='<div class="gc-bars">'
+    +barRow('RUN LINE',clamp(edgeV*5,10,95),'var(--c)',edgeV.toFixed(1)+'%')
+    +barRow('BULL PEN ERA',bullpenPct,'var(--g)',avgEra.toFixed(2))
+    +barRow('TOTAL POWER CLD',totalPowerPct,'var(--y)',(safeNum(pick.away_rs,4)+safeNum(pick.home_rs,4)).toFixed(1))
+    +barRow('WEATHER ADJ',wxPct,'var(--t2)','--')
+  +'</div>';
+
+  // metrics
+  var edgeColor=edgeV>=15?'var(--g)':edgeV>=10?'var(--c)':'var(--y)';
+  var confColor=confV>=75?'var(--g)':confV>=60?'var(--c)':'var(--y)';
+  h+='<div class="gc-metrics">'
+    +'<div class="gc-metric"><div class="gm-lbl">優勢值</div><div class="gm-val" style="color:'+edgeColor+'">'+edgeV.toFixed(1)+'%</div></div>'
+    +'<div class="gc-metric"><div class="gm-lbl">信心度</div><div class="gm-val" style="color:'+confColor+'">'+confV.toFixed(1)+'%</div></div>'
+    +'<div class="gc-metric"><div class="gm-lbl">Kelly</div><div class="gm-val" style="color:var(--y)">'+kv+'</div></div>'
+  +'</div>';
+
+  // predicted score
+  if(pAway!=null&&pHome!=null){
+    h+='<div class="gc-score">'
+      +'<span class="gs-lbl">預測比分</span>'
+      +'<span class="gs-val"><span class="gs-away">'+pAway.toFixed(1)+'</span> <span class="gs-sep">–</span> <span class="gs-home">'+pHome.toFixed(1)+'</span></span>'
+    +'</div>';
+  }
+
+  // charts (first 2 picks only)
+  if(showCharts){
+    h+='<div class="gc-charts">'
+      +monteCarloChart(edgeV,confV)
+      +runsDistChart(pAway,pHome)
+    +'</div>';
+  }
+
+  h+='</div>';
+  return h;
+}
+
+// ── TOP EDGE HERO ──────────────────────────────────────
+function renderTopEdge(picks){
+  if(!picks||!picks.length){
+    document.getElementById('home-te').innerHTML='';
+    return;
+  }
+  // pick highest edge
+  var best=picks.reduce(function(a,b){return (b.edge||0)>(a.edge||0)?b:a},picks[0]);
+  var awCn=best.away_cn||best.away||'客';
+  var hmCn=best.home_cn||best.home||'主';
+  var betOnH=!!(best.bet_label&&best.home_cn&&best.bet_label.includes(best.home_cn));
+  var betCn=betOnH?hmCn:awCn;
+  var betAb=TEAM_ABBR[betCn]||abbr(betCn);
+  var betEn=betOnH?(best.home||''):(best.away||'');
+  var betTid=tid(betCn);
+  var btType=BM[best.btype]||'ML';
+  var decOdds=safeNum(best.bp,null);
+  var tierKey=best.tier||'⭐ 穩定';
+  var tc=TC[tierKey]||{l:tierKey,c:'var(--g)',bg:'rgba(0,255,136,.1)'};
+
+  var h='<div class="te-card fi">'
+    +'<div class="te-body">'
+    +'<div class="te-label"><span class="te-fire">🔥</span> TODAY\'S TOP EDGE '+tierBadge(tierKey)+'</div>'
+    +'<div class="te-content">'
+    +'<div class="te-left">'
+    +'<div class="te-pick">'+betAb+' <span>'+betCn+'</span> '+btType+(decOdds?'<br><span style="color:var(--g);font-size:20px">@'+decOdds.toFixed(2)+'</span>':'')+'</div>'
+    +'<div class="te-stats">'
+    +'<div class="te-stat"><div class="te-sl">AI 勝率</div><div class="te-sv" style="color:var(--g)">'+(safeNum(best.model_p,0).toFixed(1))+'%</div></div>'
+    +'<div class="te-stat"><div class="te-sl">博彩市場</div><div class="te-sv" style="color:var(--c)">'+(decOdds?(decOdds.toFixed(2)):'--')+'</div></div>'
+    +'<div class="te-stat"><div class="te-sl">優勢值</div><div class="te-sv" style="color:var(--y)">'+(safeNum(best.edge,0).toFixed(1))+'%</div></div>'
+    +'<div class="te-stat"><div class="te-sl">信心度</div><div class="te-sv" style="color:var(--c)">'+(safeNum(best.conf,0).toFixed(1))+'%</div></div>'
+    +'</div>'
+    +'<button class="te-btn" onclick="showPg(1,document.querySelectorAll(\'.htab\')[1])">查看完整分析 →</button>'
+    +'</div>'
+    +'<div class="te-right">'
+    +(betTid?('<div class="te-logo"><img src="https://www.mlbstatic.com/team-logos/'+betTid+'.svg" alt="'+betCn+'" loading="lazy" onerror="this.parentNode.innerHTML=\'<div style=\'font-size:24px;font-weight:800;color:var(--t2)\'>'+betAb+'</div>\'"></div>'):'<div class="te-logo" style="font-size:20px;font-weight:800;color:var(--t2)">'+betAb+'</div>')
+    +'</div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="te-meta">'
+    +'<span class="te-meta-item">📅 '+(best.game_date||'--')+'</span>'
+    +'<span class="te-meta-item">🕐 '+(best.game_time||'--')+'</span>'
+    +'<span class="te-meta-item">⚾ '+(best.away_sp?best.away_sp:'TBD')+' vs '+(best.home_sp?best.home_sp:'TBD')+'</span>'
+    +(best.bk?('<span class="te-meta-item">📊 '+best.bk+'</span>'):'')
+    +'</div>'
+  +'</div>';
+
+  document.getElementById('home-te').innerHTML=h;
+}
+
+// ── QUICK STATS ────────────────────────────────────────
+function renderQuickStats(stats){
+  var el=document.getElementById('home-qs');
+  if(!stats){el.innerHTML='';return}
+  var pnlColor=safeNum(stats.total_pnl,0)>=0?'var(--g)':'var(--r)';
+  var roiColor=safeNum(stats.roi,0)>=0?'var(--g)':'var(--r)';
+  var novig=safeNum(stats.pnl_novig,null);
+  var novigHtml='';
+  if(novig!==null){
+    var novigColor=novig>=0?'var(--g)':'var(--r)';
+    var vigCost=safeNum(stats.vig_cost,0);
+    novigHtml='<div class="qs-box" style="border-color:rgba(255,184,0,.25);background:rgba(255,184,0,.04)">'
+      +'<div class="qs-lbl">扣水盈虧</div>'
+      +'<div class="qs-val" style="color:'+novigColor+'">'+(novig>=0?'+':'')+novig.toFixed(0)+'</div>'
+      +'<div class="qs-sub">水費 '+(vigCost>=0?'+':'')+vigCost.toFixed(0)+'</div>'
+    +'</div>';
+  }
+  el.innerHTML='<div class="qs-bar">'
+    +'<div class="qs-box"><div class="qs-lbl">勝敗記錄</div><div class="qs-val" style="color:var(--g)">'+(stats.wins||0)+'-'+(safeNum(stats.settled,0)-safeNum(stats.wins,0))+'</div><div class="qs-sub">'+(stats.settled||0)+' 場</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">AI 分析</div><div class="qs-val" style="color:var(--c)">'+(stats.settled||0)+'</div><div class="qs-sub">已結算</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">勝率</div><div class="qs-val" style="color:var(--g)">'+(safeNum(stats.win_rate,0).toFixed(1))+'%</div><div class="qs-sub">命中率</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">總報酬</div><div class="qs-val" style="color:'+roiColor+'">'+(safeNum(stats.roi,0).toFixed(1))+'%</div><div class="qs-sub">ROI</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">總盈虧</div><div class="qs-val" style="color:'+pnlColor+'">'+(safeNum(stats.total_pnl,0)>=0?'+':'')+safeNum(stats.total_pnl,0).toFixed(0)+'</div><div class="qs-sub">單位</div></div>'
+    +novigHtml
+  +'</div>';
+}
+
+// ── LIVE GAMES ─────────────────────────────────────────
+function renderLive(live){
+  var el=document.getElementById('home-live');
+  if(!live||!live.length){el.innerHTML='';return}
+  var h='<div class="sec-hdr fi"><div class="sec-title"><span class="sec-dot live-dot"></span>場中即時比分</div><span class="sec-count">'+live.length+' 場</span></div>';
+  live.forEach(function(g){
+    var hasBet=g.bet&&g.bet!==null;
+    var awRuns=safeNum(g.away_runs,0);
+    var hmRuns=safeNum(g.home_runs,0);
+    var awColor=awRuns>hmRuns?'var(--g)':'var(--t1)';
+    var hmColor=hmRuns>awRuns?'var(--g)':'var(--t1)';
+    var awCn=g.away_cn||'客';
+    var hmCn=g.home_cn||'主';
+    var awTid=tid(awCn);
+    var hmTid=tid(hmCn);
+    var innStr=(g.top_inning?'▲':'▼')+' '+(g.inning||'?')+' 局';
+    h+='<div class="live-card fi'+(hasBet?' has-bet':'')+">'";
+    h+='<div class="live-score">';
+    h+='<div class="live-team">';
+    h+=(awTid?('<img class="live-logo" src="https://www.mlbstatic.com/team-logos/'+awTid+'.svg" alt="'+awCn+'" loading="lazy" onerror="this.style.display=\'none\'">'):'');
+    h+='<span class="live-tn">'+awCn+'</span>';
+    h+='<span class="live-runs" style="color:'+awColor+'">'+awRuns+'</span>';
+    h+='</div>';
+    h+='<div class="live-mid">';
+    h+='<span class="live-dash">–</span>';
+    h+='<span class="live-inn">'+innStr+'</span>';
+    h+='</div>';
+    h+='<div class="live-team">';
+    h+=(hmTid?('<img class="live-logo" src="https://www.mlbstatic.com/team-logos/'+hmTid+'.svg" alt="'+hmCn+'" loading="lazy" onerror="this.style.display=\'none\'">'):'');
+    h+='<span class="live-tn">'+hmCn+'</span>';
+    h+='<span class="live-runs" style="color:'+hmColor+'">'+hmRuns+'</span>';
+    h+='</div>';
+    h+='</div>';
+    h+='<div class="live-totals">';
+    h+=(g.projected_total!=null?('<span class="live-chip">預測總分 '+safeNum(g.projected_total,0).toFixed(1)+'</span>'):'')
+    h+=(g.market_total!=null?('<span class="live-chip">市場大小 '+safeNum(g.market_total,0).toFixed(1)+'</span>'):'')
+    h+=(hasBet?('<span class="live-chip bet">'+g.bet+'</span>'):'')
+    h+='</div>';
+    h+=(g.reason?('<div class="live-reason">'+g.reason+'</div>'):'')
+    h+='</div>';
+  });
+  el.innerHTML=h;
+}
+
+// ── PICKS SECTION ──────────────────────────────────────
+function renderPicksSection(picks,containerId){
+  var el=document.getElementById(containerId);
+  if(!picks||!picks.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">⚾</div><p>今日暫無預測數據</p></div>';
+    return;
+  }
+  var h='<div class="sec-hdr fi"><div class="sec-title"><span class="sec-dot"></span>今日賽況</div><span class="sec-count">'+picks.length+' 場</span></div>';
+  h+='<div class="filter-bar">'
+    +'<button class="ftab on" onclick="doFilter(\'all\',this)">全部 ('+picks.length+')</button>'
+    +'<button class="ftab" onclick="doFilter(\'ML\',this)">獨贏 ML</button>'
+    +'<button class="ftab" onclick="doFilter(\'RL\',this)">讓分 RL</button>'
+    +'<button class="ftab" onclick="doFilter(\'TOT\',this)">大小分 TOT</button>'
+  +'</div>';
+  h+='<div id="picks-list-'+containerId+'">';
+  picks.forEach(function(p,i){
+    h+=makeGCard(p,i,i<2);
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+// ── FILTER ─────────────────────────────────────────────
+function doFilter(type,btn){
+  _curFilter=type;
+  document.querySelectorAll('.ftab').forEach(function(b){b.classList.remove('on')});
+  if(btn) btn.classList.add('on');
+  var filtered=type==='all'?_allPicks:_allPicks.filter(function(p){return BM[p.btype]===type});
+  var containers=['picks-list-home-picks-section','picks-list-ai-picks-section'];
+  containers.forEach(function(cid){
+    var el=document.getElementById(cid);
+    if(!el)return;
+    if(!filtered.length){
+      el.innerHTML='<div class="empty"><div class="empty-icon">🔍</div><p>無符合條件的賽事</p></div>';
+      return;
+    }
+    var h='';
+    filtered.forEach(function(p,i){h+=makeGCard(p,i,i<2)});
+    el.innerHTML=h;
+    initScrollReveal();
+    animateBars();
+    initPitcherPhotos();
+  });
+}
+
+// ── RECENT HISTORY ─────────────────────────────────────
+function renderRecentHistory(history){
+  var el=document.getElementById('rh-content');
+  if(!history||!history.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">📊</div><p>暫無近期記錄</p></div>';
+    return;
+  }
+  var wins=history.filter(function(h){return h.result==='W'}).length;
+  var rate=(wins/history.length*100).toFixed(1);
+  var h='<div class="qs-bar" style="margin-bottom:14px">'
+    +'<div class="qs-box"><div class="qs-lbl">近期勝率</div><div class="qs-val" style="color:var(--g)">'+rate+'%</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">勝場</div><div class="qs-val" style="color:var(--g)">'+wins+'</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">敗場</div><div class="qs-val" style="color:var(--r)">'+(history.length-wins)+'</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">總場次</div><div class="qs-val">'+history.length+'</div></div>'
+  +'</div>';
+  history.forEach(function(r){
+    var isW=r.result==='W';
+    var awCn=r.away_cn||r.away||'客';
+    var hmCn=r.home_cn||r.home||'主';
+    var lbl=r.label||r.bet_type||'';
+    var price=safeNum(r.price,null);
+    var stake=safeNum(r.stake,null);
+    var pnl=isW&&price&&stake?(price-1)*stake:'';
+    h+='<div class="rh-card fi">'
+      +'<div class="rh-result '+(r.result||'')+'">'+((r.result==='W')?'W':'L')+'</div>'
+      +'<div class="rh-body">'
+        +'<div class="rh-teams">'+awCn+' vs '+hmCn+'</div>'
+        +'<div class="rh-meta">'+(r.date||'')+(lbl?' · '+lbl:'')+(r.edge?' · Edge: '+safeNum(r.edge,0).toFixed(1)+'%':'')+'</div>'
+      +'</div>'
+      +'<div>'
+        +'<div class="rh-price" style="color:'+(isW?'var(--g)':'var(--r)')+'">'+(price?'@'+price.toFixed(2):'')+'</div>'
+        +'<div class="rh-edge">'+(typeof pnl==='number'?(isW?'+':'')+pnl.toFixed(1):'')+'</div>'
+      +'</div>'
+    +'</div>';
+  });
+  el.innerHTML=h;
+}
+
+// ── DATA CENTER ────────────────────────────────────────
+function renderDataCenter(data){
+  var el=document.getElementById('dc-content');
+  if(!data){el.innerHTML='<div class="empty"><div class="empty-icon">📡</div><p>數據載入中...</p></div>';return}
+  var picks=data.picks||[];
+  var stats=data.stats||{};
+  var h='<div class="sec-hdr fi"><div class="sec-title"><span class="sec-dot"></span>數據統計中心</div></div>';
+  h+='<div class="qs-bar fi">'
+    +'<div class="qs-box"><div class="qs-lbl">勝場</div><div class="qs-val" style="color:var(--g)">'+(stats.wins||0)+'</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">已結算</div><div class="qs-val">'+(stats.settled||0)+'</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">勝率</div><div class="qs-val" style="color:var(--g)">'+(safeNum(stats.win_rate,0).toFixed(1))+'%</div></div>'
+    +'<div class="qs-box"><div class="qs-lbl">ROI</div><div class="qs-val" style="color:var(--y)">'+(safeNum(stats.roi,0).toFixed(1))+'%</div></div>'
+  +'</div>';
+
+  // picks table
+  if(picks.length){
+    h+='<div class="sec-hdr fi" style="margin-top:18px"><div class="sec-title"><span class="sec-dot"></span>今日投注明細</div></div>';
+    h+='<div style="overflow-x:auto;border-radius:12px;border:1px solid rgba(255,255,255,.07)">';
+    h+='<table style="width:100%;border-collapse:collapse;font-size:11px">';
+    h+='<thead><tr style="background:rgba(0,0,0,.3)">';
+    ['球隊','類型','賠率','優勢','信心','Kelly'].forEach(function(col){
+      h+='<th style="padding:8px 10px;text-align:left;color:var(--t2);font-size:10px;font-weight:700;letter-spacing:.5px;white-space:nowrap">'+col+'</th>';
+    });
+    h+='</tr></thead><tbody>';
+    picks.forEach(function(p,i){
+      var betOnH=!!(p.bet_label&&p.home_cn&&p.bet_label.includes(p.home_cn));
+      var betCn=betOnH?(p.home_cn||p.home||''):(p.away_cn||p.away||'');
+      var betAb=TEAM_ABBR[betCn]||abbr(betCn);
+      var bt=BM[p.btype]||'ML';
+      var dec=safeNum(p.bp,null);
+      var stakeP=safeNum(p.stake,null);
+      var kv=stakeP!=null?('$'+stakeP.toFixed(0)):kelly(safeNum(p.edge,0),dec);
+      var edgeV=safeNum(p.edge,0);
+      h+='<tr style="border-top:1px solid rgba(255,255,255,.04)'+(i%2===0?';background:rgba(255,255,255,.015)':'')+'">'
+      h+='<td style="padding:8px 10px;color:var(--t1);font-weight:700">'+betAb+' '+betCn+'</td>';
+      h+='<td style="padding:8px 10px"><span class="bt-badge '+bt+'" style="font-size:9px;padding:2px 6px">'+bt+'</span></td>';
+      h+='<td style="padding:8px 10px;color:var(--g);font-weight:700">'+(dec?dec.toFixed(2):'--')+'</td>';
+      h+='<td style="padding:8px 10px;color:'+(edgeV>=15?'var(--g)':'var(--y)')+'">'+(edgeV).toFixed(1)+'%</td>';
+      h+='<td style="padding:8px 10px;color:var(--c)">'+safeNum(p.conf,0).toFixed(1)+'%</td>';
+      h+='<td style="padding:8px 10px;color:var(--y)">'+kv+'</td>';
+      h+='</tr>';
+    });
+    h+='</tbody></table></div>';
+  }
+
+  // generated at
+  if(data.generated_at){
+    h+='<div style="text-align:center;font-size:10px;color:var(--t2);margin-top:16px">更新時間：'+data.generated_at+'</div>';
+  }
+
+  el.innerHTML=h;
+}
+
+// ── STANDINGS ─────────────────────────────────────────
+function renderStandings(std){
+  var el=document.getElementById('std-content');
+  if(!std){el.innerHTML='<div class="std-loading">⏳ 載入中...</div>';return}
+
+  var tabs=[{k:'al',l:'美聯'},{k:'nl',l:'國聯'},{k:'all',l:'全聯盟'}];
+  var h='<div class="standings-tabs">';
+  tabs.forEach(function(t,i){
+    h+='<button class="stab'+(i===0?' on':'')+'" onclick="switchStd(\''+t.k+'\',this)">'+t.l+'</button>';
+  });
+  h+='</div>';
+  h+='<div id="std-body"></div>';
+  if(std.updated) h+='<div class="td-updated">更新時間：'+std.updated+'</div>';
+  el.innerHTML=h;
+  window._std=std;
+  switchStd('al',el.querySelector('.stab'));
+}
+
+window.switchStd=function(key,btn){
+  document.querySelectorAll('.stab').forEach(function(b){b.classList.remove('on')});
+  if(btn) btn.classList.add('on');
+  var std=window._std||{};
+  var raw=std[key]||[];
+  // 'all' is a flat team array; wrap it in a single pseudo-division for unified rendering
+  var divisions=(key==='all'&&raw.length&&!raw[0].teams)?[{division_cn:'全聯盟',teams:raw}]:raw;
+  var body=document.getElementById('std-body');
+  if(!body)return;
+  var h='';
+  divisions.forEach(function(div){
+    h+='<div class="div-group fi"><div class="div-title">'+(div.division_cn||div.division||div.name||'')+'</div>';
+    h+='<table class="standings-tbl"><thead><tr><th>球隊</th><th>W</th><th>L</th><th>勝%</th><th>GB</th><th>近10</th><th>連</th></tr></thead><tbody>';
+    var teams=div.teams||[];
+    teams.forEach(function(t){
+      var tid2=t.team_id||tid(t.team_cn||'');
+      var strk=t.strk||t.streak||'';
+      var strkClass=strk.startsWith('W')?'W':strk.startsWith('L')?'L':'';
+      h+='<tr>'
+        +'<td>'+(tid2?('<img class="td-logo" src="https://www.mlbstatic.com/team-logos/'+tid2+'.svg" alt="'+(t.team_cn||'')+'" loading="lazy" onerror="this.style.display=\'none\'">'):'')+(t.abbr||t.team_cn||'')+'</td>'
+        +'<td>'+(t.w||0)+'</td>'
+        +'<td>'+(t.l||0)+'</td>'
+        +'<td>'+(safeNum(t.pct,0).toFixed(3))+'</td>'
+        +'<td>'+(t.gb||'-')+'</td>'
+        +'<td>'+(t.l10||t.last10||'')+'</td>'
+        +'<td class="td-strk '+strkClass+'">'+strk+'</td>'
+      +'</tr>';
+    });
+    h+='</tbody></table></div>';
+  });
+  body.innerHTML=h||'<div class="std-loading">暫無資料</div>';
+  initScrollReveal();
+};
+
+// ── TICKER ─────────────────────────────────────────────
+function buildTicker(picks,history){
+  var parts=[];
+  if(picks&&picks.length){
+    picks.forEach(function(p){
+      var betOnH=!!(p.bet_label&&p.home_cn&&p.bet_label.includes(p.home_cn));
+      var betCn=betOnH?(p.home_cn||p.home||''):(p.away_cn||p.away||'');
+      var betAb=TEAM_ABBR[betCn]||abbr(betCn);
+      var bt=BM[p.btype]||'ML';
+      var dec=safeNum(p.bp,null);
+      parts.push('<span class="tk-item">⚾ <b>'+betAb+' '+betCn+'</b> '+bt+(dec?' <span class="tk-odds">@'+dec.toFixed(2)+'</span>':'')+'</span><span class="tk-sep">·</span>');
+    });
+  }
+  if(history&&history.length){
+    history.slice(0,8).forEach(function(r){
+      var awCn=r.away_cn||r.away||'客';
+      var hmCn=r.home_cn||r.home||'主';
+      var price=safeNum(r.price,null);
+      parts.push('<span class="tk-item"><span class="tk-'+(r.result==='W'?'w':'l')+'">'+r.result+'</span> '+awCn+' vs '+hmCn+(price?' <span class="tk-odds">@'+price.toFixed(2)+'</span>':'')+'</span><span class="tk-sep">·</span>');
+    });
+  }
+  if(!parts.length){parts.push('<span class="tk-item">MLB AI 預測引擎 · 今日數據更新中...</span>')}
+  var inner=parts.join('')+parts.join('');
+  document.getElementById('ticker-inner').innerHTML=inner;
+}
+
+// ── SCROLL REVEAL (subtle only — no opacity hide) ──────
+var _fo=null;
+function initScrollReveal(){
+  if(!window.IntersectionObserver)return;
+  if(_fo){_fo.disconnect()}
+  _fo=new IntersectionObserver(function(entries){
+    entries.forEach(function(x){if(x.isIntersecting)x.target.classList.add('on')});
+  },{threshold:0.02,rootMargin:'0px 0px 80px 0px'});
+  document.querySelectorAll('.fi:not(.on)').forEach(function(el){_fo.observe(el)});
+}
+
+// ── BAR ANIMATION ─────────────────────────────────────
+function animateBars(){
+  var bars=document.querySelectorAll('.bar-fill');
+  bars.forEach(function(bar){
+    var target=bar.getAttribute('data-target')||'0%';
+    setTimeout(function(){bar.style.width=target},50);
+  });
+}
+
+// ── PITCHER PHOTOS ─────────────────────────────────────
+function initPitcherPhotos(){
+  document.querySelectorAll('.pit-av[data-pname]').forEach(function(el){
+    var name=el.getAttribute('data-pname');
+    if(!name||name==='TBD')return;
+    tryMlbCdn(name,el);
+  });
+}
+
+function tryMlbCdn(name,el){
+  var url='https://statsapi.mlb.com/api/v1/people/search?names='+encodeURIComponent(name)+'&sportId=1&fields=people,id,fullName,primaryPosition,active';
+  fetch(url,{signal:AbortSignal.timeout?AbortSignal.timeout(4000):undefined}).then(function(r){return r.json()}).then(function(d){
+    var people=d&&d.people;
+    if(!people||!people.length)return;
+    var active=people.filter(function(p){return p.active});
+    var person=(active.length?active[0]:people[0]);
+    if(!person||!person.id)return;
+    var imgUrl=cdnUrl(person.id);
+    var inner=el.querySelector('.pit-inner');
+    if(!inner)return;
+    var img=new Image();
+    img.onload=function(){
+      inner.innerHTML='<img src="'+imgUrl+'" alt="'+name+'" style="width:100%;height:100%;object-fit:cover;border-radius:6px">';
+    };
+    img.onerror=function(){};
+    img.src=imgUrl;
+  }).catch(function(){});
+}
+
+// ── LIVE PAGE ──────────────────────────────────────────
+function renderLivePage(live,updatedAt){
+  var el=document.getElementById('live-page-content');
+  if(!el)return;
+  if(!live||!live.length){
+    el.innerHTML='<div class="empty"><div class="empty-icon">⚾</div><p>目前沒有進行中的比賽</p></div>';
+    return;
+  }
+  var h='<div class="sec-hdr fi"><div class="sec-title"><span class="sec-dot live-dot"></span>場中即時比分</div><span class="sec-count">'+live.length+' 場</span></div>';
+  if(updatedAt)h+='<div style="font-size:10px;color:var(--t2);margin-bottom:10px">更新：'+updatedAt+'</div>';
+  live.forEach(function(g){
+    var hasBet=g.bet&&g.bet!==null;
+    var awRuns=safeNum(g.away_runs,0);
+    var hmRuns=safeNum(g.home_runs,0);
+    var awColor=awRuns>hmRuns?'var(--g)':'var(--t1)';
+    var hmColor=hmRuns>awRuns?'var(--g)':'var(--t1)';
+    var awCn=g.away_cn||'客';
+    var hmCn=g.home_cn||'主';
+    var awAb=TEAM_ABBR[awCn]||abbr(awCn);
+    var hmAb=TEAM_ABBR[hmCn]||abbr(hmCn);
+    var innStr=(g.top_inning?'▲':'▼')+' '+(g.inning||'?')+' 局';
+    h+='<div class="live-card fi'+(hasBet?' has-bet':'')+">'";
+    h+='<div class="live-score">';
+    h+='<div class="live-team">';
+    h+=logoImg(awCn,40);
+    h+='<span style="font-size:12px;font-weight:800;color:var(--t1);letter-spacing:.5px">'+awAb+'</span>';
+    h+='<span class="live-tn">'+awCn+'</span>';
+    h+='<span class="live-runs" style="color:'+awColor+'">'+awRuns+'</span>';
+    h+='</div>';
+    h+='<div class="live-mid">';
+    h+='<span class="live-dash">–</span>';
+    h+='<span class="live-inn">'+innStr+'</span>';
+    h+='</div>';
+    h+='<div class="live-team">';
+    h+=logoImg(hmCn,40);
+    h+='<span style="font-size:12px;font-weight:800;color:var(--t1);letter-spacing:.5px">'+hmAb+'</span>';
+    h+='<span class="live-tn">'+hmCn+'</span>';
+    h+='<span class="live-runs" style="color:'+hmColor+'">'+hmRuns+'</span>';
+    h+='</div>';
+    h+='</div>';
+    h+='<div class="live-totals">';
+    h+=(g.projected_total!=null?('<span class="live-chip">模型預測總分 <b style="color:var(--c)">'+safeNum(g.projected_total,0).toFixed(1)+'</b></span>'):'')
+    h+=(g.market_total!=null?('<span class="live-chip">市場大小 <b style="color:var(--t1)">'+safeNum(g.market_total,0).toFixed(1)+'</b></span>'):'')
+    h+=(hasBet?('<span class="live-chip bet">💡 '+g.bet+'</span>'):'')
+    h+='</div>';
+    h+=(g.reason?('<div class="live-reason">'+g.reason+'</div>'):'')
+    h+='</div>';
+  });
+  el.innerHTML=h;
+  initScrollReveal();
+}
+
+// ── PAGE SWITCH ────────────────────────────────────────
+function showPg(n,btn){
+  document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('on')});
+  document.querySelectorAll('.htab').forEach(function(b){b.classList.remove('on')});
+  document.getElementById('pg'+n).classList.add('on');
+  if(btn) btn.classList.add('on');
+  _curPage=n;
+  // lazy render
+  if(n===3&&_data&&_data.recent_history){renderRecentHistory(_data.recent_history)}
+  if(n===2&&_data){renderDataCenter(_data)}
+  if(n===4&&!window._standingsLoaded){loadStandings()}
+  if(n===5&&_data){renderLivePage(_data.live_games||[],_data.live_updated_at)}
+  setTimeout(function(){initScrollReveal();animateBars()},100);
+}
+
+// ── HELPERS ───────────────────────────────────────────
+function forceRefresh(){window.location.href=window.location.pathname+'?v='+Date.now()}
+function _sbBase(){return (localStorage.getItem('mlb_supabase_url')||'').replace(/\/$/,'')}
+function _sbFetch(path,fallback){
+  var base=_sbBase();
+  var urls=base?[base+'/storage/v1/object/public/picks/'+path,fallback]:[fallback];
+  return (function tryNext(list){
+    if(!list.length)return Promise.reject(new Error('all sources failed'));
+    return fetch(list[0]+'?t='+Date.now()).then(function(r){
+      if(!r.ok)throw new Error('HTTP '+r.status);return r.json();
+    }).catch(function(){return tryNext(list.slice(1));});
+  })(urls);
+}
+
+// ── TRIGGER MODAL ─────────────────────────────────────
+function openModal(){
+  var base=_sbBase();
+  document.getElementById('modal-desc').textContent=base
+    ?'輸入觸發密語（TRIGGER_SECRET），透過 Supabase Edge Function 觸發 Bot。'
+    :'輸入 GitHub Personal Access Token 來手動觸發資料更新工作流程。';
+  document.getElementById('gh-token').placeholder=base?'trigger secret (可留空)':'ghp_xxxxxxxxxxxx';
+  var saved=base?localStorage.getItem('mlb_trigger_secret'):localStorage.getItem('mlb_gh_token');
+  document.getElementById('gh-token').value=saved||'';
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');document.getElementById('modal-msg').innerHTML=''}
+function triggerBot(){
+  var base=_sbBase();
+  var tok=(document.getElementById('gh-token').value||'').trim();
+  document.getElementById('modal-msg').innerHTML='<span style="color:var(--y)">⏳ 觸發中...</span>';
+  if(base){
+    // Supabase Edge Function 觸發（不需要 GitHub）
+    var url=base+'/functions/v1/trigger-bot';
+    fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({secret:tok})})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.ok){
+          if(tok)localStorage.setItem('mlb_trigger_secret',tok);
+          document.getElementById('modal-msg').innerHTML='<span style="color:var(--g)">✅ 已成功觸發！Bot 執行中，約 3 分鐘後資料更新。</span>';
+        } else throw new Error(d.error||'unknown');
+      }).catch(function(e){
+        document.getElementById('modal-msg').innerHTML='<span style="color:var(--r)">❌ 失敗：'+e.message+'</span>';
+      });
+  } else {
+    // 原 GitHub API 觸發
+    if(!tok){document.getElementById('modal-msg').innerHTML='<span style="color:var(--r)">請輸入 Token</span>';return}
+    fetch('https://api.github.com/repos/willy0931926721-hub/MLB/actions/workflows/mlb_bot.yml/dispatches',{
+      method:'POST',
+      headers:{Authorization:'Bearer '+tok,'Content-Type':'application/json','Accept':'application/vnd.github+json'},
+      body:JSON.stringify({ref:'main'})
+    }).then(function(r){
+      if(r.status===204||r.ok){
+        localStorage.setItem('mlb_gh_token',tok);
+        document.getElementById('modal-msg').innerHTML='<span style="color:var(--g)">✅ 已成功觸發！工作流程執行中。</span>';
+      } else return r.json().then(function(d){throw new Error(d.message||r.status)});
+    }).catch(function(e){
+      document.getElementById('modal-msg').innerHTML='<span style="color:var(--r)">❌ 失敗：'+e.message+'</span>';
+    });
+  }
+}
+
+// ── SETTINGS MODAL ────────────────────────────────────
+function openSettings(){
+  document.getElementById('sb-url').value=localStorage.getItem('mlb_supabase_url')||'';
+  document.getElementById('sb-secret').value=localStorage.getItem('mlb_trigger_secret')||'';
+  document.getElementById('sb-ghtoken').value=localStorage.getItem('mlb_gh_token')||'';
+  document.getElementById('settings-msg').innerHTML='';
+  document.getElementById('settings-bg').classList.add('open');
+}
+function closeSettings(){document.getElementById('settings-bg').classList.remove('open')}
+function saveSettings(){
+  var url=(document.getElementById('sb-url').value||'').trim().replace(/\/$/,'');
+  var secret=(document.getElementById('sb-secret').value||'').trim();
+  var ghTok=(document.getElementById('sb-ghtoken').value||'').trim();
+  if(url)localStorage.setItem('mlb_supabase_url',url); else localStorage.removeItem('mlb_supabase_url');
+  if(secret)localStorage.setItem('mlb_trigger_secret',secret); else localStorage.removeItem('mlb_trigger_secret');
+  if(ghTok)localStorage.setItem('mlb_gh_token',ghTok); else localStorage.removeItem('mlb_gh_token');
+  document.getElementById('settings-msg').innerHTML='<span style="color:var(--g)">✅ 已儲存。請重整頁面讓設定生效。</span>';
+  setTimeout(function(){closeSettings();forceRefresh();},1200);
+}
+
+// ── LOAD STANDINGS ─────────────────────────────────────
+function loadStandings(){
+  window._standingsLoaded=true;
+  _sbFetch('standings.json','./standings.json').then(function(d){
+    renderStandings(d);
+  }).catch(function(e){
+    document.getElementById('std-content').innerHTML='<div class="error-banner">⚠️ 無法載入排名資料：'+e.message+'</div>';
+  });
+}
+
+// ── MAIN LOAD ─────────────────────────────────────────
+function renderAll(data){
+  _data=data;
+  var picks=data.picks||[];
+  _allPicks=picks;
+  renderTopEdge(picks);
+  renderQuickStats(data.stats);
+  var upEl=document.getElementById('home-updated');
+  if(upEl)upEl.innerHTML=data.generated_at?'<div style="font-size:10px;color:var(--t2);text-align:right;margin:-4px 0 8px;padding-right:2px">🤖 資料更新：'+data.generated_at+'</div>':'';
+  renderPicksSection(picks,'home-picks-section');
+  var aiEl=document.getElementById('ai-picks-section');
+  if(picks.length){
+    var h='<div class="sec-hdr fi"><div class="sec-title"><span class="sec-dot"></span>AI 深度分析</div><span class="sec-count">'+picks.length+' 場</span></div>';
+    h+='<div class="filter-bar">'
+      +'<button class="ftab on" onclick="doFilter(\'all\',this)">全部 ('+picks.length+')</button>'
+      +'<button class="ftab" onclick="doFilter(\'ML\',this)">獨贏 ML</button>'
+      +'<button class="ftab" onclick="doFilter(\'RL\',this)">讓分 RL</button>'
+      +'<button class="ftab" onclick="doFilter(\'TOT\',this)">大小分 TOT</button>'
+    +'</div>';
+    h+='<div id="picks-list-ai-picks-section">';
+    picks.forEach(function(p,i){h+=makeGCard(p,i,i<2)});
+    h+='</div>';
+    aiEl.innerHTML=h;
+  } else {
+    aiEl.innerHTML='<div class="empty"><div class="empty-icon">⚾</div><p>今日暫無 AI 分析</p></div>';
+  }
+  buildTicker(picks,data.recent_history||[]);
+  setTimeout(function(){animateBars();initPitcherPhotos()},200);
+  if(_curPage===5)renderLivePage(data.live_games||[],data.live_updated_at);
+}
+
+(function init(){
+  var pb=document.getElementById('pb');
+  pb.style.width='30%';
+  var _done=false;
+
+  // clear any stale cache from previous versions
+  try{localStorage.removeItem('mlb_picks_cache');}catch(e){}
+
+  // 20s hard fallback — skeleton can never stay forever
+  setTimeout(function(){
+    if(_done)return;
+    _done=true;
+    pb.style.opacity='0';
+    var pks=document.getElementById('home-picks-section');
+    if(pks&&pks.querySelector('.sk'))
+      pks.innerHTML='<div class="empty"><div class="empty-icon">📡</div><p>載入超時，請按 ↻ 重新整理</p></div>';
+  },20000);
+
+  // fetch fresh data — Supabase first, fallback to relative path
+  var _sbBase=(localStorage.getItem('mlb_supabase_url')||'').replace(/\/$/,'');
+  var _urls=_sbBase
+    ?[_sbBase+'/storage/v1/object/public/picks/picks_latest.json','./picks_latest.json']
+    :['./picks_latest.json'];
+  (function tryNext(urls){
+    if(!urls.length){
+      _done=true;pb.style.opacity='0';
+      document.getElementById('home-te').innerHTML='<div class="error-banner">⚠️ 無法載入數據（GitHub/Supabase 均無法連線）<br><small style="color:var(--t2)">請點 ⚙️ 設定 Supabase URL，或等待網路恢復。</small></div>';
+      document.getElementById('home-picks-section').innerHTML='<div class="empty"><div class="empty-icon">📡</div><p>數據載入失敗</p></div>';
+      buildTicker([],[]);return;
+    }
+    var url=urls[0];var rest=urls.slice(1);
+    var ctrl2=typeof AbortController!=='undefined'?new AbortController():null;
+    if(ctrl2)setTimeout(function(){ctrl2.abort()},12000);
+    fetch(url+(url.indexOf('?')<0?'?t=':'.t=')+Date.now(),ctrl2?{signal:ctrl2.signal}:{})
+      .then(function(r){pb.style.width='100%';if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+      .then(function(data){
+        _done=true;setTimeout(function(){pb.style.opacity='0'},300);
+        try{renderAll(data);}catch(err){
+          document.getElementById('home-picks-section').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div><p>渲染錯誤，請按 ↻ 重新整理</p></div>';
+        }
+      })
+      .catch(function(){tryNext(rest);});
+  })(_urls);
+})();
+</script>
+</body>
