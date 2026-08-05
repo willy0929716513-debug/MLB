@@ -1,6 +1,7 @@
 import HeroSection from '@/components/HeroSection'
 import PicksGrid from '@/components/PicksGrid'
 import StatsBar from '@/components/StatsBar'
+import HistoryTrendCharts from '@/components/HistoryTrendChart'
 import { createServiceClient } from '@/lib/supabase-server'
 import { isUnlocked, lockPicks } from '@/lib/entitlement'
 import type { PicksData } from '@/types'
@@ -76,6 +77,12 @@ export default async function HomePage() {
         {data?.recent_history?.length ? (
           <section>
             <SectionHeader title="Recent Performance" sub="Last settled picks" />
+
+            {data.history_trend && data.history_trend.length >= 2 && (
+              <div className="mt-5">
+                <HistoryTrendCharts data={data.history_trend} />
+              </div>
+            )}
 
             {/* Desktop table */}
             <div className="mt-5 rounded-2xl overflow-hidden hidden sm:block" style={{ border: '1px solid var(--border)' }}>

@@ -79,8 +79,8 @@ export default function HeroSection({ stats }: HeroSectionProps) {
     return () => { window.removeEventListener('resize', resize); cancelAnimationFrame(animId) }
   }, [])
 
-  const winRate = stats ? (stats.win_rate * 100).toFixed(1) : '—'
-  const roi     = stats ? (stats.roi >= 0 ? '+' : '') + (stats.roi * 100).toFixed(1) : '—'
+  const winRate = stats ? stats.win_rate.toFixed(1) : '—'
+  const roi     = stats?.roi != null ? (stats.roi >= 0 ? '+' : '') + stats.roi.toFixed(1) : '—'
   const record  = stats ? `${stats.wins}-${stats.settled - stats.wins}` : '—'
 
   return (

@@ -25,10 +25,10 @@ export interface Pick {
 export interface Stats {
   settled: number
   wins: number
-  win_rate: number
+  win_rate: number       // already a percentage, e.g. 71.5 means 71.5% — do not multiply by 100
   total_in?: number
   total_pnl: number
-  roi: number
+  roi: number | null      // already a percentage; null when no stake has settled yet
   by_type: {
     ML?: TypeStat
     RL?: TypeStat
@@ -39,8 +39,8 @@ export interface Stats {
 export interface TypeStat {
   settled: number
   wins: number
-  win_rate: number
-  roi: number
+  win_rate: number        // already a percentage
+  roi: number | null       // already a percentage; null when total stake is 0
 }
 
 export interface HistoryRecord {
@@ -57,10 +57,18 @@ export interface HistoryRecord {
   result: 'W' | 'L' | 'P' | null
 }
 
+export interface HistoryTrendPoint {
+  date: string
+  settled: number
+  win_rate: number
+  roi: number
+}
+
 export interface PicksData {
   picks: Pick[]
   stats: Stats
   recent_history: HistoryRecord[]
+  history_trend?: HistoryTrendPoint[]
   generated_at: string
   date: string
 }
