@@ -167,7 +167,7 @@
       "reason": "第7局僅4分（此時預期8.3分），低分走勢盤口11.5"
     }
   ],
-  "live_updated_ts": 1785964531,
+  "live_updated_ts": 1785964833,
   "game_preds": {
     "astros|blue jays": {
       "home_win_prob": 0.76,
@@ -230,5 +230,5 @@
       "market_total": 7.5
     }
   },
-  "live_updated_at": "2026-08-06 05:15 (台灣時間)"
+  "live_updated_at": "2026-08-06 05:20 (台灣時間)"
 }
