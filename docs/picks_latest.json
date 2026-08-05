@@ -141,21 +141,8 @@
     }
   ],
   "recent_history": [],
-  "live_games": [
-    {
-      "home_cn": "落磯",
-      "away_cn": "光芒",
-      "inning": 9,
-      "top_inning": false,
-      "home_runs": 0,
-      "away_runs": 4,
-      "projected_total": 4.6,
-      "market_total": 11.5,
-      "bet": null,
-      "reason": null
-    }
-  ],
-  "live_updated_ts": 1785966645,
+  "live_games": [],
+  "live_updated_ts": 1785967848,
   "game_preds": {
     "astros|blue jays": {
       "home_win_prob": 0.76,
@@ -218,5 +205,5 @@
       "market_total": 7.5
     }
   },
-  "live_updated_at": "2026-08-06 05:50 (台灣時間)"
+  "live_updated_at": ""
 }
