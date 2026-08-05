@@ -12,7 +12,6 @@ add_picks_to_gist.py     手動補登歷史注單用的一次性腳本
 scripts/
   fetch_standings.py     抓 MLB 戰績榜，寫入 docs/standings.json 並同步 Supabase
   fetch_pitcher_photos.py 抓先發投手照片存到 docs/images/pitchers/
-  add_records.py         手動新增歷史紀錄到 Gist
 docs/                    GitHub Pages 靜態網站（免費看板，公開）
 webapp/                  Next.js 付費會員網站（Supabase 登入 + Stripe 訂閱）
 supabase/
@@ -29,7 +28,7 @@ supabase/
 | `live_update.yml` | 每天固定時段 + 手動 | 比賽期間每 5 分鐘更新即時比分 |
 | `standings.yml` | 每天 UTC 06:30 + 手動 | 更新戰績榜 |
 | `sync_history.yml` | 手動 | 從 Gist 同步歷史戰績、結算注單 |
-| `add_picks.yml` / `add_manual_records.yml` | 手動 | 手動補登歷史資料 |
+| `add_picks.yml` | 手動 | 手動補登歷史注單資料 |
 | `merge_to_main.yml` | push 到特定 feature branch | 自動把非資料檔案合併回 main |
 
 歷史注單資料儲存在一個私有 **GitHub Gist**（`GIST_DESC = "mlb_bot_history"`），第一次執行 `mlb_bot_v101.py` 或 `sync_history.py` 時，若找不到既有 Gist 會自動建立一個新的（需要 `GH_TOKEN` 有 gist 權限）。
