@@ -155,7 +155,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1785966343,
+  "live_updated_ts": 1785966645,
   "game_preds": {
     "astros|blue jays": {
       "home_win_prob": 0.76,
@@ -218,5 +218,5 @@
       "market_total": 7.5
     }
   },
-  "live_updated_at": "2026-08-06 05:45 (台灣時間)"
+  "live_updated_at": "2026-08-06 05:50 (台灣時間)"
 }
