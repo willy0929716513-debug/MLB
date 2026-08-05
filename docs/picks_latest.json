@@ -145,11 +145,11 @@
     {
       "home_cn": "小熊",
       "away_cn": "道奇",
-      "inning": 8,
-      "top_inning": false,
+      "inning": 9,
+      "top_inning": true,
       "home_runs": 7,
       "away_runs": 6,
-      "projected_total": 14.6,
+      "projected_total": 14.1,
       "market_total": 9.5,
       "bet": null,
       "reason": null
@@ -157,17 +157,17 @@
     {
       "home_cn": "落磯",
       "away_cn": "光芒",
-      "inning": 7,
-      "top_inning": false,
+      "inning": 8,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 4,
-      "projected_total": 7.2,
+      "projected_total": 6.6,
       "market_total": 11.5,
       "bet": "大小分 UNDER",
-      "reason": "第7局僅4分（此時預期8.3分），低分走勢盤口11.5"
+      "reason": "第8局僅4分（此時預期8.9分），低分走勢盤口11.5"
     }
   ],
-  "live_updated_ts": 1785964833,
+  "live_updated_ts": 1785965134,
   "game_preds": {
     "astros|blue jays": {
       "home_win_prob": 0.76,
@@ -230,5 +230,5 @@
       "market_total": 7.5
     }
   },
-  "live_updated_at": "2026-08-06 05:20 (台灣時間)"
+  "live_updated_at": "2026-08-06 05:25 (台灣時間)"
 }
