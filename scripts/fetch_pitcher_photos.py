@@ -111,7 +111,7 @@ def main() -> None:
     for pick in data.get("picks", []):
         for key in ("away_sp", "home_sp"):
             n = (pick.get(key) or "").strip()
-            if n:
+            if n and n != "TBD":
                 names.add(n)
 
     if not names:

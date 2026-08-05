@@ -1,7 +1,8 @@
 import HeroSection from '@/components/HeroSection'
-import PickCard from '@/components/PickCard'
+import PicksGrid from '@/components/PicksGrid'
 import StatsBar from '@/components/StatsBar'
 import { createServiceClient } from '@/lib/supabase-server'
+import { isUnlocked, lockPicks } from '@/lib/entitlement'
 import type { PicksData } from '@/types'
 
 export const revalidate = 1800 // re-fetch from Supabase every 30 min; picks update once daily
@@ -20,7 +21,8 @@ async function fetchPicks(): Promise<PicksData | null> {
 }
 
 export default async function HomePage() {
-  const data = await fetchPicks()
+  const [data, unlocked] = await Promise.all([fetchPicks(), isUnlocked()])
+  const picks = data?.picks?.length ? (unlocked ? data.picks : lockPicks(data.picks)) : []
 
   return (
     <>
@@ -59,15 +61,8 @@ export default async function HomePage() {
             generated={data?.generated_at}
           />
 
-          {data?.picks?.length ? (
-            <div
-              className="grid gap-4 mt-5"
-              style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 380px), 1fr))' }}
-            >
-              {data.picks.map((pick, i) => (
-                <PickCard key={i} pick={pick} />
-              ))}
-            </div>
+          {picks.length ? (
+            <PicksGrid picks={picks} locked={!unlocked} />
           ) : (
             <EmptyState
               icon="⚾"

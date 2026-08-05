@@ -1043,8 +1043,23 @@ function initPitcherPhotos(){
   document.querySelectorAll('.pit-av[data-pname]').forEach(function(el){
     var name=el.getAttribute('data-pname');
     if(!name||name==='TBD')return;
-    tryMlbCdn(name,el);
+    tryLocalCache(name,el);
   });
+}
+
+// 先試本機快取（bot 每日跑完後存的 docs/images/pitchers/，同源、免等 API），
+// 失敗（尚未快取到這位投手）再 fallback 到即時 MLB API + CDN。
+function tryLocalCache(name,el){
+  var fname=name.trim().replace(/[^a-zA-Z0-9]/g,'_')+'.jpg';
+  var url='images/pitchers/'+fname;
+  var inner=el.querySelector('.pit-inner');
+  if(!inner)return;
+  var img=new Image();
+  img.onload=function(){
+    inner.innerHTML='<img src="'+url+'" alt="'+name+'" style="width:100%;height:100%;object-fit:cover;border-radius:6px">';
+  };
+  img.onerror=function(){tryMlbCdn(name,el)};
+  img.src=url;
 }
 
 function tryMlbCdn(name,el){
