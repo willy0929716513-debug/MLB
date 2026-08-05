@@ -69,6 +69,7 @@ supabase/
 | `STRIPE_MONTHLY_PRICE_ID` | ✅ | Stripe 「月訂閱」商品的 Price ID（`price_...`） |
 | `STRIPE_DAYPASS_PRICE_ID` | ✅ | Stripe 「單日券」商品的 Price ID（`price_...`） |
 | `NEXT_PUBLIC_APP_URL` | ✅ | 網站正式網址，例如 `https://your-app.vercel.app` |
+| `ADMIN_EMAILS` | 選填 | 網站擁有者信箱，逗號分隔（如 `you@gmail.com`）。用這個信箱登入永遠顯示已解鎖內容，不需訂閱付款 |
 
 ### 3. Supabase Edge Function `trigger-bot`（選填，讓手機也能一鍵觸發 Bot）
 
