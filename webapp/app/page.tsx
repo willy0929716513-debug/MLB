@@ -75,7 +75,7 @@ export default async function HomePage() {
           <section>
             <SectionHeader title="Recent Performance" sub="Last settled picks" />
 
-            {data.history_trend && data.history_trend.length >= 2 && (
+            {data.history_trend && data.history_trend.length >= 1 && (
               <div className="mt-5">
                 <HistoryTrendCharts data={data.history_trend} />
               </div>

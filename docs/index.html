@@ -1019,11 +1019,14 @@ function trendChartBox(uid,points,key,color,suffix,title){
   var lastVal=last[key];
   var valTxt=(key==='roi'?(lastVal>=0?'+':''):'')+lastVal.toFixed(1)+suffix;
   var valColor=key==='roi'?(lastVal>=0?'var(--g)':'var(--r)'):color;
+  // 只有 1 個資料點時畫不出線，改畫一個固定的點，不然圖表區塊會整個空白
+  var singleDot=points.length===1?('<circle cx="'+pts[0][0].toFixed(1)+'" cy="'+pts[0][1].toFixed(1)+'" r="3" fill="'+color+'"/>'):'';
   _trendPoints[uid]=points;
   return '<div class="trend-box" data-uid="'+uid+'" data-key="'+key+'" data-suffix="'+suffix+'" data-color="'+color+'">'
     +'<div class="trend-hdr"><span class="trend-title">'+title+'</span><span class="trend-val" style="color:'+valColor+'">'+valTxt+'</span></div>'
     +'<svg class="trend-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
       +'<path d="'+path+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>'
+      +singleDot
       +'<line class="trend-cross" x1="0" y1="0" x2="0" y2="'+H+'" stroke="rgba(255,255,255,.15)" style="display:none"/>'
       +'<circle class="trend-dot" r="3" fill="'+color+'" style="display:none"/>'
       +'<rect class="trend-hit" x="0" y="0" width="'+W+'" height="'+H+'" fill="transparent"/>'
@@ -1085,7 +1088,7 @@ function renderRecentHistory(history,trend){
   var wins=history.filter(function(h){return h.result==='W'}).length;
   var rate=(wins/history.length*100).toFixed(1);
   var h='';
-  if(trend&&trend.length>=2){
+  if(trend&&trend.length>=1){
     h+='<div class="trend-grid">'
       +trendChartBox('rh-wr',trend,'win_rate','var(--c)','%','累計勝率')
       +trendChartBox('rh-roi',trend,'roi','var(--g)','%','累計 ROI')
