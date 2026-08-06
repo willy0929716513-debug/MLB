@@ -1064,6 +1064,30 @@ function renderDataCenter(data){
     +'<div class="qs-box"><div class="qs-lbl">ROI</div><div class="qs-val" style="color:var(--y)">'+(safeNum(stats.roi,0).toFixed(1))+'%</div></div>'
   +'</div>';
 
+  // 分類戰績（ML/RL/TOT），跟 webapp 的 by-type breakdown 對齊
+  var byType=stats.by_type||{};
+  var btKeys=['ML','RL','TOT'].filter(function(k){return byType[k]});
+  if(btKeys.length){
+    h+='<div class="sec-hdr fi" style="margin-top:18px"><div class="sec-title"><span class="sec-dot"></span>分類戰績</div></div>';
+    h+='<div style="border-radius:12px;border:1px solid rgba(255,255,255,.07);overflow:hidden">';
+    btKeys.forEach(function(k,i){
+      var d=byType[k];
+      var wr=safeNum(d.win_rate,0);
+      var roi=d.roi;
+      h+='<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px'+(i>0?';border-top:1px solid rgba(255,255,255,.05)':'')+'">'
+        +'<div style="display:flex;align-items:center;gap:10px">'
+          +'<span class="bt-badge '+k+'" style="font-size:10px">'+k+'</span>'
+          +'<span style="color:var(--t2);font-size:12px">'+(d.wins||0)+'W / '+((d.settled||0)-(d.wins||0))+'L</span>'
+        +'</div>'
+        +'<div style="display:flex;gap:18px">'
+          +'<div style="text-align:right"><div style="font-size:9px;color:var(--t2);font-weight:700">WIN%</div><div style="font-size:14px;font-weight:800;color:'+(wr>55?'var(--g)':'var(--t1)')+'">'+wr.toFixed(0)+'%</div></div>'
+          +'<div style="text-align:right"><div style="font-size:9px;color:var(--t2);font-weight:700">ROI</div><div style="font-size:14px;font-weight:800;color:'+(roi==null||roi>=0?'var(--g)':'var(--r)')+'">'+(roi!=null?(roi>=0?'+':'')+roi.toFixed(1)+'%':'--')+'</div></div>'
+        +'</div>'
+      +'</div>';
+    });
+    h+='</div>';
+  }
+
   // picks table
   if(picks.length){
     h+='<div class="sec-hdr fi" style="margin-top:18px"><div class="sec-title"><span class="sec-dot"></span>今日投注明細</div></div>';
