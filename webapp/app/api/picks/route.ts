@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase-server'
-import { isUnlocked, lockPicks } from '@/lib/entitlement'
-import type { PicksData } from '@/types'
 
 export async function GET() {
   try {
@@ -15,15 +13,10 @@ export async function GET() {
       return NextResponse.json({ error: 'No picks data' }, { status: 404 })
     }
 
-    const picks = JSON.parse(await data.text()) as PicksData
-    if (picks.picks?.length && !(await isUnlocked())) {
-      picks.picks = lockPicks(picks.picks)
-    }
-    // Response varies per user (locked vs unlocked picks) — must not be
-    // cached by shared/CDN caches, only ever by the requesting browser.
+    const picks = JSON.parse(await data.text())
     return NextResponse.json(picks, {
       headers: {
-        'Cache-Control': 'private, no-store',
+        'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=3600',
       },
     })
   } catch (e) {

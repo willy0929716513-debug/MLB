@@ -3,10 +3,7 @@ import PicksGrid from '@/components/PicksGrid'
 import StatsBar from '@/components/StatsBar'
 import HistoryTrendCharts from '@/components/HistoryTrendChart'
 import { createServiceClient } from '@/lib/supabase-server'
-import { isUnlocked, lockPicks } from '@/lib/entitlement'
 import type { PicksData } from '@/types'
-
-export const revalidate = 1800 // re-fetch from Supabase every 30 min; picks update once daily
 
 async function fetchPicks(): Promise<PicksData | null> {
   try {
@@ -22,8 +19,8 @@ async function fetchPicks(): Promise<PicksData | null> {
 }
 
 export default async function HomePage() {
-  const [data, unlocked] = await Promise.all([fetchPicks(), isUnlocked()])
-  const picks = data?.picks?.length ? (unlocked ? data.picks : lockPicks(data.picks)) : []
+  const data = await fetchPicks()
+  const picks = data?.picks ?? []
 
   return (
     <>
@@ -63,7 +60,7 @@ export default async function HomePage() {
           />
 
           {picks.length ? (
-            <PicksGrid picks={picks} locked={!unlocked} />
+            <PicksGrid picks={picks} />
           ) : (
             <EmptyState
               icon="⚾"
