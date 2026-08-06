@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-06 19:08 (台灣時間)",
+  "generated_at": "2026-08-06 20:31 (台灣時間)",
   "date": "2026-08-06",
   "stats": {
     "settled": 2,
@@ -21,14 +21,14 @@
       "away_cn": "運動家",
       "home_cn": "紅人",
       "bet_label": "運動家 讓分(+1.5)",
-      "bk": "LowVig.ag",
-      "bp": 1.71,
-      "con_p": 1.693,
-      "dv_p": 0.5673,
-      "edge": 12.6,
+      "bk": "MyBookie.ag",
+      "bp": 1.74,
+      "con_p": 1.706,
+      "dv_p": 0.5631,
+      "edge": 13.4,
       "conf": 66.3,
       "stake": 50.0,
-      "model_p": 69.3,
+      "model_p": 69.7,
       "away_sp": "Mason Barnett",
       "home_sp": "Andrew Abbott",
       "away_era": 3.56,
@@ -52,12 +52,12 @@
       "model_total": null,
       "market_total": null,
       "park_factor": 1.07,
-      "weather_factor": 1.05,
+      "weather_factor": 1.044,
       "ump_name": null,
       "ump_adj": null,
       "away_trend": null,
       "home_trend": 0.15,
-      "line_clv": null,
+      "line_clv": -1.01,
       "game_date": "2026-08-07",
       "game_time": "00:40",
       "sp_src": "probable",
@@ -84,11 +84,11 @@
       "away_cn": "老虎",
       "home_cn": "水手",
       "bet_label": "老虎 讓分(+1.5)",
-      "bk": "MyBookie.ag",
+      "bk": "LowVig.ag",
       "bp": 1.52,
-      "con_p": 1.5,
-      "dv_p": 0.6405,
-      "edge": 11.0,
+      "con_p": 1.498,
+      "dv_p": 0.6415,
+      "edge": 10.9,
       "conf": 74.9,
       "stake": 50.0,
       "model_p": 75.0,
@@ -120,7 +120,7 @@
       "ump_adj": null,
       "away_trend": -2.0,
       "home_trend": 3.04,
-      "line_clv": null,
+      "line_clv": 0.0,
       "game_date": "2026-08-07",
       "game_time": "04:11",
       "sp_src": "probable",
@@ -186,43 +186,43 @@
       "market_total": 9.5
     },
     "reds|athletics": {
-      "home_win_prob": 0.4712,
+      "home_win_prob": 0.4716,
       "market_total": 9.5
     },
     "guardians|mets": {
-      "home_win_prob": 0.3526,
+      "home_win_prob": 0.3591,
       "market_total": 7.5
     },
     "brewers|pirates": {
-      "home_win_prob": 0.6589,
+      "home_win_prob": 0.666,
       "market_total": 7.5
     },
     "cubs|blue jays": {
-      "home_win_prob": 0.7093,
+      "home_win_prob": 0.7208,
       "market_total": 7.5
     },
     "mariners|tigers": {
-      "home_win_prob": 0.3196,
+      "home_win_prob": 0.3209,
       "market_total": 7.5
     },
     "phillies|nationals": {
-      "home_win_prob": 0.5477,
+      "home_win_prob": 0.5407,
       "market_total": 9.0
     },
     "red sox|white sox": {
-      "home_win_prob": 0.6662,
+      "home_win_prob": 0.6714,
       "market_total": 9.0
     },
     "braves|marlins": {
-      "home_win_prob": 0.6395,
+      "home_win_prob": 0.6272,
       "market_total": 9.0
     },
     "royals|twins": {
-      "home_win_prob": 0.4521,
-      "market_total": 8.5
+      "home_win_prob": 0.4522,
+      "market_total": 9.0
     },
     "diamondbacks|padres": {
-      "home_win_prob": 0.4459,
+      "home_win_prob": 0.4409,
       "market_total": 9.0
     }
   }
