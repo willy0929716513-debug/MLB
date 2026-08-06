@@ -2570,7 +2570,7 @@ def write_pages_json(picks, hist, now_tw, live_games=None):
     by_type = {}
     for btlabel, btkey in [("ML","獨贏"),("RL","讓分"),("TOT","大小分")]:
         _rs = [r for r in hist if r.get("result") in ("W","L") and r.get("bet_type")==btkey]
-        if len(_rs) >= 3:
+        if len(_rs) >= 1:
             _w = sum(1 for r in _rs if r["result"]=="W")
             _in = sum(r.get("stake",0) for r in _rs)
             _pnl = sum(r.get("stake",0)*(r.get("price",2)-1) if r["result"]=="W"

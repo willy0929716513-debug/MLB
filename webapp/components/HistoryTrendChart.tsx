@@ -62,7 +62,7 @@ function MiniTrend({
               dataKey={dataKey}
               stroke={color}
               strokeWidth={2}
-              dot={false}
+              dot={data.length <= 1 ? { r: 3, strokeWidth: 0, fill: color } : false}
               activeDot={{ r: 4, strokeWidth: 0, fill: color }}
               isAnimationActive={false}
             />

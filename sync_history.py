@@ -184,6 +184,8 @@ def main():
     by_type = {}
     for btlabel, btkey in [("ML","獨贏"),("RL","讓分"),("TOT","大小分")]:
         rs = [r for r in settled_list if r.get("bet_type") == btkey]
+        if not rs:
+            continue
         w  = sum(1 for r in rs if r["result"] == "W")
         _in  = sum(r.get("stake",0) for r in rs)
         _pnl = sum(r.get("stake",0)*(r.get("price",2)-1) if r["result"]=="W" else -r.get("stake",0) for r in rs)
