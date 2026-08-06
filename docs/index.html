@@ -174,6 +174,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .pit-init{font-size:13px;font-weight:800;letter-spacing:-.5px}
 .pit-inner img{width:100%;height:100%;object-fit:cover;border-radius:6px}
 .pit-name{font-size:10px;font-weight:700;color:var(--t1);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px}
+.pit-hand{display:inline-block;font-size:8px;font-weight:800;color:var(--t2);background:rgba(255,255,255,.08);border-radius:4px;padding:0 3px;vertical-align:middle}
 .pit-stats{font-size:9px;color:var(--t2);text-align:center;line-height:1.5}
 .pit-vs{font-size:10px;font-weight:700;color:var(--t3);flex-shrink:0}
 
@@ -188,6 +189,14 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .lu-ord{color:var(--t3);width:14px;flex-shrink:0;font-weight:700}
 .lu-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lu-pos{color:var(--t2);font-size:9px;flex-shrink:0}
+
+/* advanced stats（進階數據）*/
+.gc-adv-toggle{display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 14px;font-size:11px;font-weight:700;color:var(--t2);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);-webkit-tap-highlight-color:transparent;min-height:32px}
+.gc-adv-toggle:hover{color:var(--t1)}
+.gc-adv{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05)}
+.adv-item{background:rgba(0,0,0,.15);padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+.adv-lbl{font-size:9px;color:var(--t2);font-weight:700;letter-spacing:.3px}
+.adv-val{font-size:12px;color:var(--t1);font-weight:700}
 
 /* bet row */
 .gc-bet{display:flex;align-items:center;gap:8px;padding:10px 14px;flex-wrap:wrap}
@@ -625,6 +634,46 @@ function toggleLineup(idx){
   if(arrow)arrow.style.transform=open?'rotate(0deg)':'rotate(180deg)';
 }
 
+// ── ADVANCED STATS（進階數據）─────────────────────────────
+// 把 bot 已經算好、但卡片上沒地方放的欄位（球場因子/主審/CLV/WHIP/主客場勝率…）
+// 整理成一個可展開區塊；每個欄位都是選填，缺值就不顯示，全部缺就整段不顯示
+var SP_SRC_LABEL={probable:'推測（尚未正式公布）',confirmed:'✅ 已確認',gamefeed:'✅ 官方確認',lineup:'✅ 打線卡確認'};
+function advKV(label,value){
+  if(value==null||value==='')return '';
+  return '<div class="adv-item"><span class="adv-lbl">'+label+'</span><span class="adv-val">'+value+'</span></div>';
+}
+function advStatsSection(idx,pick){
+  var pf=safeNum(pick.park_factor,null);
+  var items=[
+    advKV('球場因子',pf!=null?(pf.toFixed(2)+(pf>1.02?'（打者有利）':pf<0.98?'（投手有利）':'（中性）')):null),
+    advKV('主審',pick.ump_name?(pick.ump_name+(pick.ump_adj!=null?'　'+(pick.ump_adj>=0?'+':'')+safeNum(pick.ump_adj,0).toFixed(2):'')):null),
+    advKV('先發狀態',SP_SRC_LABEL[pick.sp_src]||null),
+    advKV('收線變化 CLV',pick.line_clv!=null?((pick.line_clv>=0?'+':'')+safeNum(pick.line_clv,0).toFixed(2)+'%'):null),
+    advKV('模型勝率',pick.model_p!=null?safeNum(pick.model_p,0).toFixed(1)+'%':null),
+    advKV('市場真實機率',pick.dv_p!=null?(safeNum(pick.dv_p,0)*100).toFixed(1)+'%':null),
+    advKV('客投 WHIP',pick.away_whip!=null?safeNum(pick.away_whip,0).toFixed(2):null),
+    advKV('主投 WHIP',pick.home_whip!=null?safeNum(pick.home_whip,0).toFixed(2):null),
+    advKV('客投場均局數',pick.away_avgip!=null?safeNum(pick.away_avgip,0).toFixed(1):null),
+    advKV('主投場均局數',pick.home_avgip!=null?safeNum(pick.home_avgip,0).toFixed(1):null),
+    advKV('主隊主場勝率',pick.home_wpct!=null?(safeNum(pick.home_wpct,0)*100).toFixed(0)+'%':null),
+    advKV('客隊客場勝率',pick.away_road_wpct!=null?(safeNum(pick.away_road_wpct,0)*100).toFixed(0)+'%':null),
+    advKV('客隊連續移動',pick.away_road_days!=null?pick.away_road_days+' 天':null),
+  ].filter(Boolean);
+  if(!items.length)return '';
+  return '<div class="gc-adv-toggle" onclick="toggleAdv(\''+idx+'\')">'
+      +'<span>📊 進階數據</span><span class="gc-lu-arrow" id="adv-arrow-'+idx+'">▾</span>'
+    +'</div>'
+    +'<div class="gc-adv" id="adv-'+idx+'" style="display:none">'+items.join('')+'</div>';
+}
+function toggleAdv(idx){
+  var el=document.getElementById('adv-'+idx);
+  var arrow=document.getElementById('adv-arrow-'+idx);
+  if(!el)return;
+  var open=el.style.display!=='none';
+  el.style.display=open?'none':'grid';
+  if(arrow)arrow.style.transform=open?'rotate(0deg)':'rotate(180deg)';
+}
+
 // ── TIER BADGE HTML ────────────────────────────────────
 function tierBadge(tier){
   var t=TC[tier]||{l:tier,c:'var(--t2)',bg:'rgba(255,255,255,.06)'};
@@ -724,13 +773,13 @@ function makeGCard(pick,idx,showCharts){
   h+='<div class="gc-pit">'
     +'<div class="gc-pit-side">'
     +pitcherAv(pick.away_sp,'a')
-    +'<div class="pit-name">'+(pick.away_sp||'TBD')+'</div>'
+    +'<div class="pit-name">'+(pick.away_sp||'TBD')+(pick.away_hand?' <span class="pit-hand">'+pick.away_hand+'</span>':'')+'</div>'
     +'<div class="pit-stats">'+pitStats(pick.away_era,pick.away_fip,pick.away_k9)+'</div>'
     +'</div>'
     +'<span class="pit-vs">⚾</span>'
     +'<div class="gc-pit-side">'
     +pitcherAv(pick.home_sp,'h')
-    +'<div class="pit-name">'+(pick.home_sp||'TBD')+'</div>'
+    +'<div class="pit-name">'+(pick.home_sp||'TBD')+(pick.home_hand?' <span class="pit-hand">'+pick.home_hand+'</span>':'')+'</div>'
     +'<div class="pit-stats">'+pitStats(pick.home_era,pick.home_fip,pick.home_k9)+'</div>'
     +'</div>'
   +'</div>';
@@ -771,6 +820,9 @@ function makeGCard(pick,idx,showCharts){
       +'<span class="gs-val"><span class="gs-away">'+pAway.toFixed(1)+'</span> <span class="gs-sep">–</span> <span class="gs-home">'+pHome.toFixed(1)+'</span></span>'
     +'</div>';
   }
+
+  // advanced stats（球場因子/主審/CLV/WHIP/主客場勝率…，有值才顯示）
+  h+=advStatsSection(idx,pick);
 
   // charts (first 2 picks only)
   if(showCharts){
