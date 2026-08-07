@@ -277,8 +277,57 @@
       "roi": -16.5
     }
   ],
-  "live_games": [],
-  "live_updated_ts": 1786005173,
+  "live_games": [
+    {
+      "home_cn": "紅襪",
+      "away_cn": "白襪",
+      "inning": 8,
+      "top_inning": true,
+      "home_runs": 6,
+      "away_runs": 7,
+      "projected_total": 15.0,
+      "market_total": 9.0,
+      "bet": "主隊讓分(+1.5)",
+      "reason": "主隊落後1分 第8局，賽前主隊勝率66%"
+    },
+    {
+      "home_cn": "勇士",
+      "away_cn": "馬林魚",
+      "inning": 6,
+      "top_inning": true,
+      "home_runs": 2,
+      "away_runs": 0,
+      "projected_total": 6.0,
+      "market_total": 9.0,
+      "bet": "大小分 UNDER",
+      "reason": "第6局僅2分（此時預期5.0分），低分走勢盤口9.0"
+    },
+    {
+      "home_cn": "皇家",
+      "away_cn": "雙城",
+      "inning": 8,
+      "top_inning": true,
+      "home_runs": 3,
+      "away_runs": 1,
+      "projected_total": 6.0,
+      "market_total": 9.0,
+      "bet": "大小分 UNDER",
+      "reason": "第8局僅4分（此時預期7.0分），低分走勢盤口9.0"
+    },
+    {
+      "home_cn": "響尾蛇",
+      "away_cn": "教士",
+      "inning": 1,
+      "top_inning": false,
+      "home_runs": 0,
+      "away_runs": 1,
+      "projected_total": 9.5,
+      "market_total": 9.0,
+      "bet": null,
+      "reason": null
+    }
+  ],
+  "live_updated_ts": 1786067570,
   "game_preds": {
     "orioles|angels": {
       "home_win_prob": 0.76,
@@ -324,5 +373,6 @@
       "home_win_prob": 0.4362,
       "market_total": 9.0
     }
-  }
+  },
+  "live_updated_at": "2026-08-07 09:52 (台灣時間)"
 }
