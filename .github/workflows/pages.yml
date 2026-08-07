@@ -29,7 +29,9 @@ concurrency:
 
 jobs:
   deploy:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    # 不管上游 workflow 有沒有成功都照樣部署：publish docs/ 是 idempotent
+    # 操作，就算上游因為 runner 沒分配到、timeout 等原因失敗，也可能已經
+    # push 過新 commit，不該讓部署整個被跳過而讓網頁停在舊資料。
     runs-on: ubuntu-latest
     environment:
       name: github-pages
