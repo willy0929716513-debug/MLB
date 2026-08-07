@@ -202,8 +202,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 /* advanced stats（進階數據）*/
 .gc-adv-toggle{display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 14px;font-size:11px;font-weight:700;color:var(--t2);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);-webkit-tap-highlight-color:transparent;min-height:32px}
 .gc-adv-toggle:hover{color:var(--t1)}
-.gc-adv{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05)}
-.adv-item{background:rgba(0,0,0,.15);padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+.gc-adv{border-bottom:1px solid rgba(255,255,255,.05)}
+.adv-game{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:rgba(255,255,255,.05)}
+.adv-teams{display:flex;gap:1px;background:rgba(255,255,255,.05);border-top:1px solid rgba(255,255,255,.05)}
+.adv-col{flex:1;min-width:0;background:rgba(0,0,0,.15)}
+.adv-col-hdr{font-size:10px;font-weight:800;color:var(--t1);letter-spacing:.5px;padding:8px 12px 6px;border-bottom:1px solid rgba(255,255,255,.06)}
+.adv-item{background:rgba(0,0,0,.15);padding:6px 12px;display:flex;flex-direction:column;gap:2px}
 .adv-lbl{font-size:9px;color:var(--t2);font-weight:700;letter-spacing:.3px}
 .adv-val{font-size:12px;color:var(--t1);font-weight:700}
 
@@ -665,40 +669,53 @@ function advKV(label,value){
 }
 function advStatsSection(idx,pick,awAb,hmAb){
   var pf=safeNum(pick.park_factor,null);
-  var items=[
+  // game-level：跟兩隊都無關（球場、主審、CLV、模型機率…），維持原本 2 欄流式排列
+  var gameItems=[
     advKV('球場因子',pf!=null?(pf.toFixed(2)+(pf>1.02?'（打者有利）':pf<0.98?'（投手有利）':'（中性）')):null),
     advKV('主審',pick.ump_name?(pick.ump_name+(pick.ump_adj!=null?'　'+(pick.ump_adj>=0?'+':'')+safeNum(pick.ump_adj,0).toFixed(2):'')):null),
     advKV('先發狀態',SP_SRC_LABEL[pick.sp_src]||null),
     advKV('收線變化 CLV',pick.line_clv!=null?((pick.line_clv>=0?'+':'')+safeNum(pick.line_clv,0).toFixed(2)+'%'):null),
     advKV('模型勝率',pick.model_p!=null?safeNum(pick.model_p,0).toFixed(1)+'%':null),
     advKV('市場真實機率',pick.dv_p!=null?(safeNum(pick.dv_p,0)*100).toFixed(1)+'%':null),
-    advKV(awAb+'（客）投手 WHIP',pick.away_whip!=null?safeNum(pick.away_whip,0).toFixed(2):null),
-    advKV(hmAb+'（主）投手 WHIP',pick.home_whip!=null?safeNum(pick.home_whip,0).toFixed(2):null),
-    advKV(awAb+'（客）投手場均局數',pick.away_avgip!=null?safeNum(pick.away_avgip,0).toFixed(1):null),
-    advKV(hmAb+'（主）投手場均局數',pick.home_avgip!=null?safeNum(pick.home_avgip,0).toFixed(1):null),
-    advKV(hmAb+'（主）主場勝率',pick.home_wpct!=null?(safeNum(pick.home_wpct,0)*100).toFixed(0)+'%':null),
-    advKV(awAb+'（客）客場勝率',pick.away_road_wpct!=null?(safeNum(pick.away_road_wpct,0)*100).toFixed(0)+'%':null),
-    advKV(awAb+'（客）連續移動',pick.away_road_days!=null?pick.away_road_days+' 天':null),
-    advKV(awAb+'（客）投手滯壘率 LOB%',pick.away_lob!=null?safeNum(pick.away_lob,0).toFixed(1)+'%':null),
-    advKV(hmAb+'（主）投手滯壘率 LOB%',pick.home_lob!=null?safeNum(pick.home_lob,0).toFixed(1)+'%':null),
-    advKV(awAb+'（客）投手 BABIP',pick.away_babip!=null?safeNum(pick.away_babip,0).toFixed(3):null),
-    advKV(hmAb+'（主）投手 BABIP',pick.home_babip!=null?safeNum(pick.home_babip,0).toFixed(3):null),
-    advKV(awAb+'（客）投手休息天數',pick.away_rest!=null?pick.away_rest+' 天':null),
-    advKV(hmAb+'（主）投手休息天數',pick.home_rest!=null?pick.home_rest+' 天':null),
-    advKV(awAb+'（客）跨時區',pick.away_tz_cross?'⚠️ 是（可能影響體感/生理時鐘）':null),
   ].filter(Boolean);
-  if(!items.length)return '';
+  // team-level：客隊、主隊各自獨立一欄，不要交錯排列，一眼就知道是哪隊的數據
+  var awayItems=[
+    advKV('投手 WHIP',pick.away_whip!=null?safeNum(pick.away_whip,0).toFixed(2):null),
+    advKV('投手場均局數',pick.away_avgip!=null?safeNum(pick.away_avgip,0).toFixed(1):null),
+    advKV('客場勝率',pick.away_road_wpct!=null?(safeNum(pick.away_road_wpct,0)*100).toFixed(0)+'%':null),
+    advKV('連續移動',pick.away_road_days!=null?pick.away_road_days+' 天':null),
+    advKV('投手滯壘率 LOB%',pick.away_lob!=null?safeNum(pick.away_lob,0).toFixed(1)+'%':null),
+    advKV('投手 BABIP',pick.away_babip!=null?safeNum(pick.away_babip,0).toFixed(3):null),
+    advKV('投手休息天數',pick.away_rest!=null?pick.away_rest+' 天':null),
+    advKV('跨時區',pick.away_tz_cross?'⚠️ 是':null),
+  ].filter(Boolean);
+  var homeItems=[
+    advKV('投手 WHIP',pick.home_whip!=null?safeNum(pick.home_whip,0).toFixed(2):null),
+    advKV('投手場均局數',pick.home_avgip!=null?safeNum(pick.home_avgip,0).toFixed(1):null),
+    advKV('主場勝率',pick.home_wpct!=null?(safeNum(pick.home_wpct,0)*100).toFixed(0)+'%':null),
+    advKV('投手滯壘率 LOB%',pick.home_lob!=null?safeNum(pick.home_lob,0).toFixed(1)+'%':null),
+    advKV('投手 BABIP',pick.home_babip!=null?safeNum(pick.home_babip,0).toFixed(3):null),
+    advKV('投手休息天數',pick.home_rest!=null?pick.home_rest+' 天':null),
+  ].filter(Boolean);
+  if(!gameItems.length&&!awayItems.length&&!homeItems.length)return '';
+  var gameHtml=gameItems.length?('<div class="adv-game">'+gameItems.join('')+'</div>'):'';
+  var teamHtml=(awayItems.length||homeItems.length)?(
+    '<div class="adv-teams">'
+      +(awayItems.length?('<div class="adv-col"><div class="adv-col-hdr">'+awAb+'（客）</div>'+awayItems.join('')+'</div>'):'')
+      +(homeItems.length?('<div class="adv-col"><div class="adv-col-hdr">'+hmAb+'（主）</div>'+homeItems.join('')+'</div>'):'')
+    +'</div>'
+  ):'';
   return '<div class="gc-adv-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="adv-'+idx+'" onclick="toggleAdv(\''+idx+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleAdv(\''+idx+'\')}">'
       +'<span>📊 進階數據</span><span class="gc-lu-arrow" id="adv-arrow-'+idx+'">▾</span>'
     +'</div>'
-    +'<div class="gc-adv" id="adv-'+idx+'" style="display:none">'+items.join('')+'</div>';
+    +'<div class="gc-adv" id="adv-'+idx+'" style="display:none">'+gameHtml+teamHtml+'</div>';
 }
 function toggleAdv(idx){
   var el=document.getElementById('adv-'+idx);
   var arrow=document.getElementById('adv-arrow-'+idx);
   if(!el)return;
   var open=el.style.display!=='none';
-  el.style.display=open?'none':'grid';
+  el.style.display=open?'none':'block';
   if(arrow)arrow.style.transform=open?'rotate(0deg)':'rotate(180deg)';
   var toggle=arrow&&arrow.closest('.gc-adv-toggle');
   if(toggle)toggle.setAttribute('aria-expanded',open?'false':'true');
