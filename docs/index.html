@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <meta name="theme-color" content="#020617">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -189,6 +189,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 /* lineup (打線) */
 .gc-lu-toggle{display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 14px;font-size:11px;font-weight:700;color:var(--t2);cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05);-webkit-tap-highlight-color:transparent;min-height:32px}
 .gc-lu-toggle:hover{color:var(--t1)}
+.gc-lu-toggle:focus-visible,.gc-adv-toggle:focus-visible{outline:2px solid var(--c);outline-offset:-2px}
 .gc-lu-arrow{font-size:9px;transition:transform .2s}
 .gc-lineup{display:flex;gap:4px;padding:10px 14px;background:rgba(0,0,0,.15);border-bottom:1px solid rgba(255,255,255,.05)}
 .lu-col{flex:1;min-width:0}
@@ -635,7 +636,7 @@ function lineupCol(teamAb,players){
 }
 function lineupSection(idx,awayAb,homeAb,awayLineup,homeLineup){
   if(!(awayLineup&&awayLineup.length)&&!(homeLineup&&homeLineup.length))return '';
-  return '<div class="gc-lu-toggle" onclick="toggleLineup(\''+idx+'\')">'
+  return '<div class="gc-lu-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="lu-'+idx+'" onclick="toggleLineup(\''+idx+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleLineup(\''+idx+'\')}">'
       +'<span>🧢 先發打線</span><span class="gc-lu-arrow" id="lu-arrow-'+idx+'">▾</span>'
     +'</div>'
     +'<div class="gc-lineup" id="lu-'+idx+'" style="display:none">'
@@ -650,6 +651,8 @@ function toggleLineup(idx){
   var open=el.style.display!=='none';
   el.style.display=open?'none':'flex';
   if(arrow)arrow.style.transform=open?'rotate(0deg)':'rotate(180deg)';
+  var toggle=arrow&&arrow.closest('.gc-lu-toggle');
+  if(toggle)toggle.setAttribute('aria-expanded',open?'false':'true');
 }
 
 // ── ADVANCED STATS（進階數據）─────────────────────────────
@@ -685,7 +688,7 @@ function advStatsSection(idx,pick){
     advKV('客隊跨時區',pick.away_tz_cross?'⚠️ 是（可能影響體感/生理時鐘）':null),
   ].filter(Boolean);
   if(!items.length)return '';
-  return '<div class="gc-adv-toggle" onclick="toggleAdv(\''+idx+'\')">'
+  return '<div class="gc-adv-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="adv-'+idx+'" onclick="toggleAdv(\''+idx+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleAdv(\''+idx+'\')}">'
       +'<span>📊 進階數據</span><span class="gc-lu-arrow" id="adv-arrow-'+idx+'">▾</span>'
     +'</div>'
     +'<div class="gc-adv" id="adv-'+idx+'" style="display:none">'+items.join('')+'</div>';
@@ -697,6 +700,8 @@ function toggleAdv(idx){
   var open=el.style.display!=='none';
   el.style.display=open?'none':'grid';
   if(arrow)arrow.style.transform=open?'rotate(0deg)':'rotate(180deg)';
+  var toggle=arrow&&arrow.closest('.gc-adv-toggle');
+  if(toggle)toggle.setAttribute('aria-expanded',open?'false':'true');
 }
 
 // ── TIER BADGE HTML ────────────────────────────────────
