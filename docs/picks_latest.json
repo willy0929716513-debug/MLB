@@ -283,9 +283,9 @@
       "away_cn": "白襪",
       "inning": 10,
       "top_inning": false,
-      "home_runs": 8,
+      "home_runs": 9,
       "away_runs": 9,
-      "projected_total": 17.0,
+      "projected_total": 18.0,
       "market_total": 9.0,
       "bet": null,
       "reason": null
@@ -305,17 +305,17 @@
     {
       "home_cn": "響尾蛇",
       "away_cn": "教士",
-      "inning": 3,
-      "top_inning": false,
+      "inning": 4,
+      "top_inning": true,
       "home_runs": 1,
       "away_runs": 3,
-      "projected_total": 10.5,
+      "projected_total": 10.0,
       "market_total": 9.0,
       "bet": null,
       "reason": null
     }
   ],
-  "live_updated_ts": 1786070588,
+  "live_updated_ts": 1786070889,
   "game_preds": {
     "orioles|angels": {
       "home_win_prob": 0.76,
@@ -362,5 +362,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-07 10:43 (台灣時間)"
+  "live_updated_at": "2026-08-07 10:48 (台灣時間)"
 }
