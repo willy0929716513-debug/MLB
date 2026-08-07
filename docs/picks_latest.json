@@ -282,16 +282,16 @@
       "home_cn": "響尾蛇",
       "away_cn": "教士",
       "inning": 7,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 1,
       "away_runs": 5,
-      "projected_total": 9.0,
+      "projected_total": 8.5,
       "market_total": 9.0,
       "bet": "客隊獨贏",
       "reason": "第7局客隊領先4分（賽前客隊勝率56%），大局已定"
     }
   ],
-  "live_updated_ts": 1786074511,
+  "live_updated_ts": 1786074813,
   "game_preds": {
     "orioles|angels": {
       "home_win_prob": 0.76,
@@ -338,5 +338,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-07 11:48 (台灣時間)"
+  "live_updated_at": "2026-08-07 11:53 (台灣時間)"
 }
