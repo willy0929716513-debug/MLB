@@ -282,10 +282,10 @@
       "home_cn": "紅襪",
       "away_cn": "白襪",
       "inning": 8,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 6,
       "away_runs": 7,
-      "projected_total": 15.0,
+      "projected_total": 14.5,
       "market_total": 9.0,
       "bet": "主隊讓分(+1.5)",
       "reason": "主隊落後1分 第8局，賽前主隊勝率66%"
@@ -308,11 +308,11 @@
       "inning": 8,
       "top_inning": true,
       "home_runs": 3,
-      "away_runs": 1,
-      "projected_total": 6.0,
+      "away_runs": 2,
+      "projected_total": 7.0,
       "market_total": 9.0,
-      "bet": "大小分 UNDER",
-      "reason": "第8局僅4分（此時預期7.0分），低分走勢盤口9.0"
+      "bet": "客隊讓分(+1.5)",
+      "reason": "客隊落後1分 第8局，賽前客隊勝率55%"
     },
     {
       "home_cn": "響尾蛇",
@@ -327,7 +327,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1786067570,
+  "live_updated_ts": 1786067872,
   "game_preds": {
     "orioles|angels": {
       "home_win_prob": 0.76,
@@ -374,5 +374,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-07 09:52 (台灣時間)"
+  "live_updated_at": "2026-08-07 09:57 (台灣時間)"
 }
