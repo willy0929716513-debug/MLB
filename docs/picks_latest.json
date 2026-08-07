@@ -306,10 +306,10 @@
       "home_cn": "皇家",
       "away_cn": "雙城",
       "inning": 9,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 3,
       "away_runs": 4,
-      "projected_total": 8.0,
+      "projected_total": 7.5,
       "market_total": 9.0,
       "bet": null,
       "reason": null
@@ -327,7 +327,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1786069079,
+  "live_updated_ts": 1786069381,
   "game_preds": {
     "orioles|angels": {
       "home_win_prob": 0.76,
@@ -374,5 +374,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-07 10:17 (台灣時間)"
+  "live_updated_at": "2026-08-07 10:23 (台灣時間)"
 }
