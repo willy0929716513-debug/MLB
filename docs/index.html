@@ -142,10 +142,17 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .ftab.on{background:rgba(0,229,255,.14);color:var(--c);border-color:rgba(0,229,255,.3)}
 
 /* ── GAME CARDS ── */
-.gc{border-radius:16px;margin-bottom:14px;overflow:hidden;position:relative;background:linear-gradient(160deg,rgba(8,15,35,.98),rgba(5,10,25,.95));border:1px solid rgba(255,255,255,.08)}
+.gc{border-radius:16px;margin-bottom:14px;overflow:hidden;position:relative;background:linear-gradient(160deg,rgba(8,15,35,.98),rgba(5,10,25,.95));border:1px solid rgba(255,255,255,.08);transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease}
+.gc:active{transform:scale(.985);box-shadow:0 4px 20px rgba(0,0,0,.35)}
 .gc.tier-gold{border-color:rgba(255,184,0,.3);animation:gp 3s ease-in-out infinite}
+@media(hover:hover){.gc:hover{border-color:rgba(0,229,255,.25);box-shadow:0 8px 28px rgba(0,0,0,.3)}}
+.gc-wp-pct,.gm-val,.te-sv,.qs-val,.live-runs,.bar-val{font-variant-numeric:tabular-nums}
 .gc-hdr{display:table;width:100%;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2)}
 .gc-hdr-l{display:table-cell;padding:8px 0 8px 14px;vertical-align:middle}
+.gc-hdr-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.gc-top-tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;letter-spacing:.3px;color:var(--y);background:rgba(255,184,0,.14);border:1px solid rgba(255,184,0,.3)}
+.gc-live-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:800;letter-spacing:.3px;color:var(--r);background:rgba(255,51,102,.12);border:1px solid rgba(255,51,102,.3)}
+.live-dot-sm{width:5px;height:5px;border-radius:50%;background:var(--r);animation:pulse-dot 1s ease-in-out infinite;flex-shrink:0}
 .gc-time{display:table-cell;padding:8px 14px 8px 8px;vertical-align:middle;white-space:nowrap;font-size:11px;color:var(--t2);font-weight:600;width:1px}
 .gc-num{font-size:10px;color:var(--t2);background:rgba(255,255,255,.06);padding:2px 7px;border-radius:8px;flex-shrink:0}
 
@@ -176,6 +183,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradi
 .pit-name{font-size:10px;font-weight:700;color:var(--t1);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px}
 .pit-hand{display:inline-block;font-size:8px;font-weight:800;color:var(--t2);background:rgba(255,255,255,.08);border-radius:4px;padding:0 3px;vertical-align:middle}
 .pit-stats{font-size:9px;color:var(--t2);text-align:center;line-height:1.5}
+.pit-trend{font-size:8px;font-weight:800;letter-spacing:.2px;margin-top:1px}
 .pit-vs{font-size:10px;font-weight:700;color:var(--t3);flex-shrink:0}
 
 /* lineup (打線) */
@@ -470,7 +478,17 @@ var TC={
   '⭐ 穩定':{l:'⭐ 穩注',c:'#00FF88',bg:'rgba(0,255,136,0.1)'}
 };
 
-var _data=null, _allPicks=[], _curFilter='all', _curPage=0;
+var _data=null, _allPicks=[], _curFilter='all', _curPage=0, _liveByKey={};
+
+// 把 live_games 依「客隊|主隊」中文名做成查找表，讓推薦卡片能疊上即時比分角標
+function buildLiveLookup(liveGames){
+  var m={};
+  (liveGames||[]).forEach(function(g){m[(g.away_cn||'')+'|'+(g.home_cn||'')]=g});
+  return m;
+}
+function liveGameFor(pick){
+  return _liveByKey[(pick.away_cn||'')+'|'+(pick.home_cn||'')]||null;
+}
 
 // ── UTILS ──────────────────────────────────────────────
 function tid(cn){return TEAM_ID[cn]||null}
@@ -658,6 +676,13 @@ function advStatsSection(idx,pick){
     advKV('主隊主場勝率',pick.home_wpct!=null?(safeNum(pick.home_wpct,0)*100).toFixed(0)+'%':null),
     advKV('客隊客場勝率',pick.away_road_wpct!=null?(safeNum(pick.away_road_wpct,0)*100).toFixed(0)+'%':null),
     advKV('客隊連續移動',pick.away_road_days!=null?pick.away_road_days+' 天':null),
+    advKV('客投滯壘率 LOB%',pick.away_lob!=null?safeNum(pick.away_lob,0).toFixed(1)+'%':null),
+    advKV('主投滯壘率 LOB%',pick.home_lob!=null?safeNum(pick.home_lob,0).toFixed(1)+'%':null),
+    advKV('客投 BABIP',pick.away_babip!=null?safeNum(pick.away_babip,0).toFixed(3):null),
+    advKV('主投 BABIP',pick.home_babip!=null?safeNum(pick.home_babip,0).toFixed(3):null),
+    advKV('客投休息天數',pick.away_rest!=null?pick.away_rest+' 天':null),
+    advKV('主投休息天數',pick.home_rest!=null?pick.home_rest+' 天':null),
+    advKV('客隊跨時區',pick.away_tz_cross?'⚠️ 是（可能影響體感/生理時鐘）':null),
   ].filter(Boolean);
   if(!items.length)return '';
   return '<div class="gc-adv-toggle" onclick="toggleAdv(\''+idx+'\')">'
@@ -681,7 +706,7 @@ function tierBadge(tier){
 }
 
 // ── MAKE GAME CARD ─────────────────────────────────────
-function makeGCard(pick,idx,showCharts){
+function makeGCard(pick,idx,showCharts,liveGame,isTop){
   var awCn=pick.away_cn||pick.away||'客';
   var hmCn=pick.home_cn||pick.home||'主';
   var awAb=TEAM_ABBR[awCn]||abbr(awCn)||(pick.away||'').slice(0,3).toUpperCase()||'AWY';
@@ -733,11 +758,29 @@ function makeGCard(pick,idx,showCharts){
     if(fip!=null)parts.push('FIP '+fip.toFixed(2));
     return parts.join(' · ');
   }
+  // 投手近況走勢：近2場ERA-前3場ERA，<0代表近期改善、>0代表近期惡化（見 mlb_bot_v101.py era_trend）
+  function pitTrend(trend){
+    var t=safeNum(trend,null);
+    if(t==null||Math.abs(t)<0.3)return '';
+    var improving=t<0;
+    var color=improving?'var(--g)':'var(--r)';
+    return '<div class="pit-trend" style="color:'+color+'">'+(improving?'↓ 近況轉佳':'↑ 近況降溫')+'</div>';
+  }
 
   var h='<div class="gc fi'+(isGold?' tier-gold':'')+'>';
 
   // card header
-  h+='<div class="gc-hdr"><div class="gc-hdr-l">'+tierBadge(tierKey)+'</div><div class="gc-time">'+(pick.game_time||'--:--')+'</div></div>';
+  var liveBadge='';
+  if(liveGame){
+    var lAw=safeNum(liveGame.away_runs,0),lHm=safeNum(liveGame.home_runs,0);
+    var lInn=(liveGame.top_inning?'▲':'▼')+(liveGame.inning||'?')+'局';
+    liveBadge='<span class="gc-live-badge"><span class="live-dot-sm"></span>'+lAw+'-'+lHm+' '+lInn+'</span>';
+  }
+  h+='<div class="gc-hdr"><div class="gc-hdr-l"><div class="gc-hdr-badges">'
+    +tierBadge(tierKey)
+    +(isTop?'<span class="gc-top-tag">🏆 今日優勢 #1</span>':'')
+    +liveBadge
+    +'</div></div><div class="gc-time">'+(pick.game_time||'--:--')+'</div></div>';
 
   // teams row
   h+='<div class="gc-teams">'
@@ -775,12 +818,14 @@ function makeGCard(pick,idx,showCharts){
     +pitcherAv(pick.away_sp,'a')
     +'<div class="pit-name">'+(pick.away_sp||'TBD')+(pick.away_hand?' <span class="pit-hand">'+pick.away_hand+'</span>':'')+'</div>'
     +'<div class="pit-stats">'+pitStats(pick.away_era,pick.away_fip,pick.away_k9)+'</div>'
+    +pitTrend(pick.away_trend)
     +'</div>'
     +'<span class="pit-vs">⚾</span>'
     +'<div class="gc-pit-side">'
     +pitcherAv(pick.home_sp,'h')
     +'<div class="pit-name">'+(pick.home_sp||'TBD')+(pick.home_hand?' <span class="pit-hand">'+pick.home_hand+'</span>':'')+'</div>'
     +'<div class="pit-stats">'+pitStats(pick.home_era,pick.home_fip,pick.home_k9)+'</div>'
+    +pitTrend(pick.home_trend)
     +'</div>'
   +'</div>';
 
@@ -913,50 +958,6 @@ function renderQuickStats(stats){
   +'</div>';
 }
 
-// ── LIVE GAMES ─────────────────────────────────────────
-function renderLive(live){
-  var el=document.getElementById('home-live');
-  if(!live||!live.length){el.innerHTML='';return}
-  var h='<div class="sec-hdr fi"><div class="sec-title"><span class="sec-dot live-dot"></span>場中即時比分</div><span class="sec-count">'+live.length+' 場</span></div>';
-  live.forEach(function(g){
-    var hasBet=g.bet&&g.bet!==null;
-    var awRuns=safeNum(g.away_runs,0);
-    var hmRuns=safeNum(g.home_runs,0);
-    var awColor=awRuns>hmRuns?'var(--g)':'var(--t1)';
-    var hmColor=hmRuns>awRuns?'var(--g)':'var(--t1)';
-    var awCn=g.away_cn||'客';
-    var hmCn=g.home_cn||'主';
-    var awTid=tid(awCn);
-    var hmTid=tid(hmCn);
-    var innStr=(g.top_inning?'▲':'▼')+' '+(g.inning||'?')+' 局';
-    h+='<div class="live-card fi'+(hasBet?' has-bet':'')+">'";
-    h+='<div class="live-score">';
-    h+='<div class="live-team">';
-    h+=(awTid?('<img class="live-logo" src="https://www.mlbstatic.com/team-logos/'+awTid+'.svg" alt="'+awCn+'" loading="lazy" onerror="this.style.display=\'none\'">'):'');
-    h+='<span class="live-tn">'+awCn+'</span>';
-    h+='<span class="live-runs" style="color:'+awColor+'">'+awRuns+'</span>';
-    h+='</div>';
-    h+='<div class="live-mid">';
-    h+='<span class="live-dash">–</span>';
-    h+='<span class="live-inn">'+innStr+'</span>';
-    h+='</div>';
-    h+='<div class="live-team">';
-    h+=(hmTid?('<img class="live-logo" src="https://www.mlbstatic.com/team-logos/'+hmTid+'.svg" alt="'+hmCn+'" loading="lazy" onerror="this.style.display=\'none\'">'):'');
-    h+='<span class="live-tn">'+hmCn+'</span>';
-    h+='<span class="live-runs" style="color:'+hmColor+'">'+hmRuns+'</span>';
-    h+='</div>';
-    h+='</div>';
-    h+='<div class="live-totals">';
-    h+=(g.projected_total!=null?('<span class="live-chip">預測總分 '+safeNum(g.projected_total,0).toFixed(1)+'</span>'):'')
-    h+=(g.market_total!=null?('<span class="live-chip">市場大小 '+safeNum(g.market_total,0).toFixed(1)+'</span>'):'')
-    h+=(hasBet?('<span class="live-chip bet">'+g.bet+'</span>'):'')
-    h+='</div>';
-    h+=(g.reason?('<div class="live-reason">'+g.reason+'</div>'):'')
-    h+='</div>';
-  });
-  el.innerHTML=h;
-}
-
 // ── PICKS SECTION ──────────────────────────────────────
 function renderPicksSection(picks,containerId){
   var el=document.getElementById(containerId);
@@ -973,7 +974,7 @@ function renderPicksSection(picks,containerId){
   +'</div>';
   h+='<div id="picks-list-'+containerId+'">';
   picks.forEach(function(p,i){
-    h+=makeGCard(p,containerId+'-'+i,i<2);
+    h+=makeGCard(p,containerId+'-'+i,i<2,liveGameFor(p),i===0);
   });
   h+='</div>';
   el.innerHTML=h;
@@ -985,6 +986,7 @@ function doFilter(type,btn){
   document.querySelectorAll('.ftab').forEach(function(b){b.classList.remove('on')});
   if(btn) btn.classList.add('on');
   var filtered=type==='all'?_allPicks:_allPicks.filter(function(p){return BM[p.btype]===type});
+  var topPick=_allPicks[0];
   var containers=['picks-list-home-picks-section','picks-list-ai-picks-section'];
   containers.forEach(function(cid){
     var el=document.getElementById(cid);
@@ -994,7 +996,7 @@ function doFilter(type,btn){
       return;
     }
     var h='';
-    filtered.forEach(function(p,i){h+=makeGCard(p,cid+'-'+i,i<2)});
+    filtered.forEach(function(p,i){h+=makeGCard(p,cid+'-'+i,i<2,liveGameFor(p),p===topPick)});
     el.innerHTML=h;
     initScrollReveal();
     animateBars();
@@ -1363,7 +1365,7 @@ function renderLivePage(live,updatedAt){
     var awAb=TEAM_ABBR[awCn]||abbr(awCn);
     var hmAb=TEAM_ABBR[hmCn]||abbr(hmCn);
     var innStr=(g.top_inning?'▲':'▼')+' '+(g.inning||'?')+' 局';
-    h+='<div class="live-card fi'+(hasBet?' has-bet':'')+">'";
+    h+='<div class="live-card fi'+(hasBet?' has-bet':'')+'">';
     h+='<div class="live-score">';
     h+='<div class="live-team">';
     h+=logoImg(awCn,40);
@@ -1503,8 +1505,10 @@ function loadStandings(){
 // ── MAIN LOAD ─────────────────────────────────────────
 function renderAll(data){
   _data=data;
-  var picks=data.picks||[];
+  // 優勢值由高到低排序，最值得看的推薦永遠排最前面
+  var picks=(data.picks||[]).slice().sort(function(a,b){return safeNum(b.edge,0)-safeNum(a.edge,0)});
   _allPicks=picks;
+  _liveByKey=buildLiveLookup(data.live_games);
   renderTopEdge(picks);
   renderQuickStats(data.stats);
   var upEl=document.getElementById('home-updated');
@@ -1520,7 +1524,7 @@ function renderAll(data){
       +'<button class="ftab" onclick="doFilter(\'TOT\',this)">大小分 TOT</button>'
     +'</div>';
     h+='<div id="picks-list-ai-picks-section">';
-    picks.forEach(function(p,i){h+=makeGCard(p,'ai-picks-section-'+i,i<2)});
+    picks.forEach(function(p,i){h+=makeGCard(p,'ai-picks-section-'+i,i<2,liveGameFor(p),i===0)});
     h+='</div>';
     aiEl.innerHTML=h;
   } else {
