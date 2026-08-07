@@ -663,7 +663,7 @@ function advKV(label,value){
   if(value==null||value==='')return '';
   return '<div class="adv-item"><span class="adv-lbl">'+label+'</span><span class="adv-val">'+value+'</span></div>';
 }
-function advStatsSection(idx,pick){
+function advStatsSection(idx,pick,awAb,hmAb){
   var pf=safeNum(pick.park_factor,null);
   var items=[
     advKV('球場因子',pf!=null?(pf.toFixed(2)+(pf>1.02?'（打者有利）':pf<0.98?'（投手有利）':'（中性）')):null),
@@ -672,20 +672,20 @@ function advStatsSection(idx,pick){
     advKV('收線變化 CLV',pick.line_clv!=null?((pick.line_clv>=0?'+':'')+safeNum(pick.line_clv,0).toFixed(2)+'%'):null),
     advKV('模型勝率',pick.model_p!=null?safeNum(pick.model_p,0).toFixed(1)+'%':null),
     advKV('市場真實機率',pick.dv_p!=null?(safeNum(pick.dv_p,0)*100).toFixed(1)+'%':null),
-    advKV('客投 WHIP',pick.away_whip!=null?safeNum(pick.away_whip,0).toFixed(2):null),
-    advKV('主投 WHIP',pick.home_whip!=null?safeNum(pick.home_whip,0).toFixed(2):null),
-    advKV('客投場均局數',pick.away_avgip!=null?safeNum(pick.away_avgip,0).toFixed(1):null),
-    advKV('主投場均局數',pick.home_avgip!=null?safeNum(pick.home_avgip,0).toFixed(1):null),
-    advKV('主隊主場勝率',pick.home_wpct!=null?(safeNum(pick.home_wpct,0)*100).toFixed(0)+'%':null),
-    advKV('客隊客場勝率',pick.away_road_wpct!=null?(safeNum(pick.away_road_wpct,0)*100).toFixed(0)+'%':null),
-    advKV('客隊連續移動',pick.away_road_days!=null?pick.away_road_days+' 天':null),
-    advKV('客投滯壘率 LOB%',pick.away_lob!=null?safeNum(pick.away_lob,0).toFixed(1)+'%':null),
-    advKV('主投滯壘率 LOB%',pick.home_lob!=null?safeNum(pick.home_lob,0).toFixed(1)+'%':null),
-    advKV('客投 BABIP',pick.away_babip!=null?safeNum(pick.away_babip,0).toFixed(3):null),
-    advKV('主投 BABIP',pick.home_babip!=null?safeNum(pick.home_babip,0).toFixed(3):null),
-    advKV('客投休息天數',pick.away_rest!=null?pick.away_rest+' 天':null),
-    advKV('主投休息天數',pick.home_rest!=null?pick.home_rest+' 天':null),
-    advKV('客隊跨時區',pick.away_tz_cross?'⚠️ 是（可能影響體感/生理時鐘）':null),
+    advKV(awAb+'（客）投手 WHIP',pick.away_whip!=null?safeNum(pick.away_whip,0).toFixed(2):null),
+    advKV(hmAb+'（主）投手 WHIP',pick.home_whip!=null?safeNum(pick.home_whip,0).toFixed(2):null),
+    advKV(awAb+'（客）投手場均局數',pick.away_avgip!=null?safeNum(pick.away_avgip,0).toFixed(1):null),
+    advKV(hmAb+'（主）投手場均局數',pick.home_avgip!=null?safeNum(pick.home_avgip,0).toFixed(1):null),
+    advKV(hmAb+'（主）主場勝率',pick.home_wpct!=null?(safeNum(pick.home_wpct,0)*100).toFixed(0)+'%':null),
+    advKV(awAb+'（客）客場勝率',pick.away_road_wpct!=null?(safeNum(pick.away_road_wpct,0)*100).toFixed(0)+'%':null),
+    advKV(awAb+'（客）連續移動',pick.away_road_days!=null?pick.away_road_days+' 天':null),
+    advKV(awAb+'（客）投手滯壘率 LOB%',pick.away_lob!=null?safeNum(pick.away_lob,0).toFixed(1)+'%':null),
+    advKV(hmAb+'（主）投手滯壘率 LOB%',pick.home_lob!=null?safeNum(pick.home_lob,0).toFixed(1)+'%':null),
+    advKV(awAb+'（客）投手 BABIP',pick.away_babip!=null?safeNum(pick.away_babip,0).toFixed(3):null),
+    advKV(hmAb+'（主）投手 BABIP',pick.home_babip!=null?safeNum(pick.home_babip,0).toFixed(3):null),
+    advKV(awAb+'（客）投手休息天數',pick.away_rest!=null?pick.away_rest+' 天':null),
+    advKV(hmAb+'（主）投手休息天數',pick.home_rest!=null?pick.home_rest+' 天':null),
+    advKV(awAb+'（客）跨時區',pick.away_tz_cross?'⚠️ 是（可能影響體感/生理時鐘）':null),
   ].filter(Boolean);
   if(!items.length)return '';
   return '<div class="gc-adv-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="adv-'+idx+'" onclick="toggleAdv(\''+idx+'\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();toggleAdv(\''+idx+'\')}">'
@@ -871,8 +871,8 @@ function makeGCard(pick,idx,showCharts,liveGame,isTop){
     +'</div>';
   }
 
-  // advanced stats（球場因子/主審/CLV/WHIP/主客場勝率…，有值才顯示）
-  h+=advStatsSection(idx,pick);
+  // advanced stats（球場因子/主審/CLV/WHIP/主客場勝率…，有值才顯示；每項都標明是哪隊投手）
+  h+=advStatsSection(idx,pick,awAb,hmAb);
 
   // charts (first 2 picks only)
   if(showCharts){
