@@ -291,7 +291,7 @@
       "reason": "第7局客隊領先4分（賽前客隊勝率56%），大局已定"
     }
   ],
-  "live_updated_ts": 1786074813,
+  "live_updated_ts": 1786075115,
   "game_preds": {
     "orioles|angels": {
       "home_win_prob": 0.76,
@@ -338,5 +338,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-07 11:53 (台灣時間)"
+  "live_updated_at": "2026-08-07 11:58 (台灣時間)"
 }
