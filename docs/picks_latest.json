@@ -226,9 +226,9 @@
       "away_cn": "紅人",
       "inning": 3,
       "top_inning": false,
-      "home_runs": 0,
+      "home_runs": 2,
       "away_runs": 0,
-      "projected_total": 6.1,
+      "projected_total": 8.1,
       "market_total": 8.5,
       "bet": null,
       "reason": null
@@ -237,10 +237,10 @@
       "home_cn": "皇家",
       "away_cn": "小熊",
       "inning": 2,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 1,
       "away_runs": 0,
-      "projected_total": 9.4,
+      "projected_total": 8.9,
       "market_total": 9.5,
       "bet": null,
       "reason": null
@@ -261,10 +261,10 @@
       "home_cn": "教士",
       "away_cn": "太空人",
       "inning": 1,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 8.0,
+      "projected_total": 7.6,
       "market_total": 8.0,
       "bet": null,
       "reason": null
@@ -272,11 +272,11 @@
     {
       "home_cn": "巨人",
       "away_cn": "老虎",
-      "inning": 1,
-      "top_inning": false,
+      "inning": 2,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 7.6,
+      "projected_total": 7.1,
       "market_total": 8.0,
       "bet": null,
       "reason": null
@@ -318,7 +318,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1786231664,
+  "live_updated_ts": 1786231966,
   "game_preds": {
     "yankees|braves": {
       "home_win_prob": 0.5585,
@@ -381,5 +381,5 @@
       "market_total": 7.0
     }
   },
-  "live_updated_at": "2026-08-09 07:27 (台灣時間)"
+  "live_updated_at": "2026-08-09 07:32 (台灣時間)"
 }
