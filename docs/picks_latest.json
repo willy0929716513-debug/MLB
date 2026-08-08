@@ -262,11 +262,11 @@
       "inning": 5,
       "top_inning": true,
       "home_runs": 9,
-      "away_runs": 0,
-      "projected_total": 13.7,
+      "away_runs": 1,
+      "projected_total": 14.7,
       "market_total": 8.5,
       "bet": "大小分 OVER",
-      "reason": "第5局已得9分（此時預期3.8分），高分走勢盤口8.5"
+      "reason": "第5局已得10分（此時預期3.8分），高分走勢盤口8.5"
     },
     {
       "home_cn": "馬林魚",
@@ -283,11 +283,11 @@
     {
       "home_cn": "白襪",
       "away_cn": "守護者",
-      "inning": 3,
-      "top_inning": false,
+      "inning": 4,
+      "top_inning": true,
       "home_runs": 1,
       "away_runs": 2,
-      "projected_total": 8.8,
+      "projected_total": 8.3,
       "market_total": 8.0,
       "bet": null,
       "reason": null
@@ -295,14 +295,14 @@
     {
       "home_cn": "釀酒人",
       "away_cn": "雙城",
-      "inning": 3,
-      "top_inning": false,
+      "inning": 4,
+      "top_inning": true,
       "home_runs": 4,
-      "away_runs": 2,
-      "projected_total": 11.8,
+      "away_runs": 3,
+      "projected_total": 12.3,
       "market_total": 8.0,
-      "bet": null,
-      "reason": null
+      "bet": "大小分 OVER",
+      "reason": "第4局已得7分（此時預期2.7分），高分走勢盤口8.0"
     },
     {
       "home_cn": "皇家",
@@ -319,11 +319,11 @@
     {
       "home_cn": "紅雀",
       "away_cn": "落磯",
-      "inning": 1,
-      "top_inning": false,
+      "inning": 2,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 8.0,
+      "projected_total": 7.6,
       "market_total": 8.5,
       "bet": null,
       "reason": null
@@ -334,14 +334,14 @@
       "inning": 2,
       "top_inning": true,
       "home_runs": 0,
-      "away_runs": 0,
-      "projected_total": 6.7,
+      "away_runs": 1,
+      "projected_total": 7.7,
       "market_total": 7.5,
       "bet": null,
       "reason": null
     }
   ],
-  "live_updated_ts": 1786149123,
+  "live_updated_ts": 1786149425,
   "game_preds": {
     "pirates|mets": {
       "home_win_prob": 0.6983,
@@ -404,5 +404,5 @@
       "market_total": 8.5
     }
   },
-  "live_updated_at": "2026-08-08 08:32 (台灣時間)"
+  "live_updated_at": "2026-08-08 08:37 (台灣時間)"
 }
