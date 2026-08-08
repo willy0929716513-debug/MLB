@@ -200,11 +200,11 @@
     {
       "home_cn": "紅襪",
       "away_cn": "運動家",
-      "inning": 7,
-      "top_inning": false,
+      "inning": 8,
+      "top_inning": true,
       "home_runs": 2,
       "away_runs": 6,
-      "projected_total": 10.5,
+      "projected_total": 10.0,
       "market_total": 9.0,
       "bet": null,
       "reason": null
@@ -232,9 +232,21 @@
       "market_total": 9.5,
       "bet": null,
       "reason": null
+    },
+    {
+      "home_cn": "國民",
+      "away_cn": "紅人",
+      "inning": 1,
+      "top_inning": true,
+      "home_runs": 0,
+      "away_runs": 0,
+      "projected_total": 8.5,
+      "market_total": 8.5,
+      "bet": null,
+      "reason": null
     }
   ],
-  "live_updated_ts": 1786227438,
+  "live_updated_ts": 1786227739,
   "game_preds": {
     "yankees|braves": {
       "home_win_prob": 0.5585,
@@ -297,5 +309,5 @@
       "market_total": 7.0
     }
   },
-  "live_updated_at": "2026-08-09 06:17 (台灣時間)"
+  "live_updated_at": "2026-08-09 06:22 (台灣時間)"
 }
