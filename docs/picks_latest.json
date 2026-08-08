@@ -234,7 +234,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1786219287,
+  "live_updated_ts": 1786219589,
   "game_preds": {
     "yankees|braves": {
       "home_win_prob": 0.5585,
@@ -297,5 +297,5 @@
       "market_total": 7.0
     }
   },
-  "live_updated_at": "2026-08-09 04:01 (台灣時間)"
+  "live_updated_at": "2026-08-09 04:06 (台灣時間)"
 }
