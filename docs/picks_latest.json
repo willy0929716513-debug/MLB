@@ -214,12 +214,12 @@
       "away_cn": "大都會",
       "inning": 4,
       "top_inning": false,
-      "home_runs": 5,
+      "home_runs": 6,
       "away_runs": 0,
-      "projected_total": 10.5,
+      "projected_total": 11.5,
       "market_total": 9.0,
       "bet": "大小分 OVER",
-      "reason": "第4局已得5分（此時預期3.5分），高分走勢盤口9.0"
+      "reason": "第4局已得6分（此時預期3.5分），高分走勢盤口9.0"
     },
     {
       "home_cn": "國民",
@@ -273,10 +273,10 @@
       "home_cn": "巨人",
       "away_cn": "老虎",
       "inning": 3,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 6.2,
+      "projected_total": 5.8,
       "market_total": 8.0,
       "bet": null,
       "reason": null
