@@ -272,13 +272,13 @@
       "home_cn": "水手",
       "away_cn": "光芒",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 2,
-      "projected_total": 5.1,
+      "projected_total": 4.7,
       "market_total": 7.0,
       "bet": "大小分 UNDER",
-      "reason": "第6局僅2分（此時預期3.9分），低分走勢盤口7.0"
+      "reason": "第6局僅2分（此時預期4.3分），低分走勢盤口7.0"
     },
     {
       "home_cn": "巨人",
@@ -293,7 +293,7 @@
       "reason": "第4局已得6分（此時預期3.3分），高分走勢盤口8.5"
     }
   ],
-  "live_updated_ts": 1786158776,
+  "live_updated_ts": 1786159078,
   "game_preds": {
     "pirates|mets": {
       "home_win_prob": 0.6983,
@@ -356,5 +356,5 @@
       "market_total": 8.5
     }
   },
-  "live_updated_at": "2026-08-08 11:12 (台灣時間)"
+  "live_updated_at": "2026-08-08 11:17 (台灣時間)"
 }
