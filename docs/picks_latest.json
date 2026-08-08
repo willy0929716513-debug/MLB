@@ -198,18 +198,6 @@
   ],
   "live_games": [
     {
-      "home_cn": "洋基",
-      "away_cn": "勇士",
-      "inning": 9,
-      "top_inning": true,
-      "home_runs": 5,
-      "away_runs": 4,
-      "projected_total": 9.8,
-      "market_total": 7.5,
-      "bet": null,
-      "reason": null
-    },
-    {
       "home_cn": "紅襪",
       "away_cn": "運動家",
       "inning": 6,
@@ -225,13 +213,13 @@
       "home_cn": "馬林魚",
       "away_cn": "天使",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 7,
       "away_runs": 0,
-      "projected_total": 10.3,
+      "projected_total": 9.9,
       "market_total": 7.5,
       "bet": "大小分 OVER",
-      "reason": "第6局已得7分（此時預期4.2分），高分走勢盤口7.5"
+      "reason": "第6局已得7分（此時預期4.6分），高分走勢盤口7.5"
     },
     {
       "home_cn": "費城人",
@@ -246,7 +234,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1786226230,
+  "live_updated_ts": 1786226532,
   "game_preds": {
     "yankees|braves": {
       "home_win_prob": 0.5585,
@@ -309,5 +297,5 @@
       "market_total": 7.0
     }
   },
-  "live_updated_at": "2026-08-09 05:57 (台灣時間)"
+  "live_updated_at": "2026-08-09 06:02 (台灣時間)"
 }
