@@ -224,10 +224,10 @@
       "home_cn": "費城人",
       "away_cn": "藍鳥",
       "inning": 8,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 2,
       "away_runs": 5,
-      "projected_total": 8.7,
+      "projected_total": 8.2,
       "market_total": 7.5,
       "bet": null,
       "reason": null
@@ -247,14 +247,14 @@
     {
       "home_cn": "響尾蛇",
       "away_cn": "道奇",
-      "inning": 6,
-      "top_inning": false,
+      "inning": 7,
+      "top_inning": true,
       "home_runs": 2,
       "away_runs": 1,
-      "projected_total": 6.5,
+      "projected_total": 6.0,
       "market_total": 9.0,
       "bet": "大小分 UNDER",
-      "reason": "第6局僅3分（此時預期5.5分），低分走勢盤口9.0"
+      "reason": "第7局僅3分（此時預期6.0分），低分走勢盤口9.0"
     },
     {
       "home_cn": "教士",
@@ -262,38 +262,38 @@
       "inning": 6,
       "top_inning": true,
       "home_runs": 3,
-      "away_runs": 4,
-      "projected_total": 10.8,
+      "away_runs": 5,
+      "projected_total": 11.8,
       "market_total": 8.5,
       "bet": "大小分 OVER",
-      "reason": "第6局已得7分（此時預期4.7分），高分走勢盤口8.5"
+      "reason": "第6局已得8分（此時預期4.7分），高分走勢盤口8.5"
     },
     {
       "home_cn": "水手",
       "away_cn": "光芒",
-      "inning": 6,
-      "top_inning": false,
+      "inning": 7,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 2,
-      "projected_total": 4.7,
+      "projected_total": 4.3,
       "market_total": 7.0,
       "bet": "大小分 UNDER",
-      "reason": "第6局僅2分（此時預期4.3分），低分走勢盤口7.0"
+      "reason": "第7局僅2分（此時預期4.7分），低分走勢盤口7.0"
     },
     {
       "home_cn": "巨人",
       "away_cn": "老虎",
       "inning": 5,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 4,
       "away_runs": 2,
-      "projected_total": 10.7,
+      "projected_total": 10.2,
       "market_total": 8.5,
       "bet": "大小分 OVER",
-      "reason": "第5局已得6分（此時預期3.8分），高分走勢盤口8.5"
+      "reason": "第5局已得6分（此時預期4.2分），高分走勢盤口8.5"
     }
   ],
-  "live_updated_ts": 1786159380,
+  "live_updated_ts": 1786159681,
   "game_preds": {
     "pirates|mets": {
       "home_win_prob": 0.6983,
@@ -356,5 +356,5 @@
       "market_total": 8.5
     }
   },
-  "live_updated_at": "2026-08-08 11:23 (台灣時間)"
+  "live_updated_at": "2026-08-08 11:28 (台灣時間)"
 }
