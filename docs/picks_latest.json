@@ -238,11 +238,11 @@
       "inning": 8,
       "top_inning": true,
       "home_runs": 0,
-      "away_runs": 0,
-      "projected_total": 1.8,
+      "away_runs": 1,
+      "projected_total": 2.8,
       "market_total": 8.0,
       "bet": "大小分 UNDER",
-      "reason": "第8局僅0分（此時預期6.2分），低分走勢盤口8.0"
+      "reason": "第8局僅1分（此時預期6.2分），低分走勢盤口8.0"
     },
     {
       "home_cn": "響尾蛇",
@@ -260,40 +260,40 @@
       "home_cn": "教士",
       "away_cn": "太空人",
       "inning": 5,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 2,
       "away_runs": 4,
-      "projected_total": 10.7,
+      "projected_total": 10.2,
       "market_total": 8.5,
       "bet": "大小分 OVER",
-      "reason": "第5局已得6分（此時預期3.8分），高分走勢盤口8.5"
+      "reason": "第5局已得6分（此時預期4.2分），高分走勢盤口8.5"
     },
     {
       "home_cn": "水手",
       "away_cn": "光芒",
-      "inning": 5,
-      "top_inning": false,
+      "inning": 6,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 2,
-      "projected_total": 5.5,
+      "projected_total": 5.1,
       "market_total": 7.0,
-      "bet": null,
-      "reason": null
+      "bet": "大小分 UNDER",
+      "reason": "第6局僅2分（此時預期3.9分），低分走勢盤口7.0"
     },
     {
       "home_cn": "巨人",
       "away_cn": "老虎",
-      "inning": 3,
-      "top_inning": false,
+      "inning": 4,
+      "top_inning": true,
       "home_runs": 4,
       "away_runs": 2,
-      "projected_total": 12.1,
+      "projected_total": 11.7,
       "market_total": 8.5,
-      "bet": null,
-      "reason": null
+      "bet": "大小分 OVER",
+      "reason": "第4局已得6分（此時預期2.8分），高分走勢盤口8.5"
     }
   ],
-  "live_updated_ts": 1786158173,
+  "live_updated_ts": 1786158475,
   "game_preds": {
     "pirates|mets": {
       "home_win_prob": 0.6983,
@@ -356,5 +356,5 @@
       "market_total": 8.5
     }
   },
-  "live_updated_at": "2026-08-08 11:02 (台灣時間)"
+  "live_updated_at": "2026-08-08 11:07 (台灣時間)"
 }
