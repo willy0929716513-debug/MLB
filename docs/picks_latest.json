@@ -224,14 +224,14 @@
     {
       "home_cn": "國民",
       "away_cn": "紅人",
-      "inning": 6,
-      "top_inning": false,
+      "inning": 7,
+      "top_inning": true,
       "home_runs": 6,
       "away_runs": 2,
-      "projected_total": 11.3,
+      "projected_total": 10.8,
       "market_total": 8.5,
       "bet": "大小分 OVER",
-      "reason": "第6局已得8分（此時預期5.2分），高分走勢盤口8.5"
+      "reason": "第7局已得8分（此時預期5.7分），高分走勢盤口8.5"
     },
     {
       "home_cn": "皇家",
@@ -260,14 +260,14 @@
     {
       "home_cn": "教士",
       "away_cn": "太空人",
-      "inning": 4,
-      "top_inning": false,
+      "inning": 5,
+      "top_inning": true,
       "home_runs": 3,
       "away_runs": 1,
-      "projected_total": 8.9,
+      "projected_total": 8.4,
       "market_total": 8.0,
       "bet": "客隊讓分(+1.5)",
-      "reason": "客隊落後2分 第4局，賽前客隊勝率68%"
+      "reason": "客隊落後2分 第5局，賽前客隊勝率68%"
     },
     {
       "home_cn": "巨人",
@@ -309,10 +309,10 @@
       "home_cn": "白襪",
       "away_cn": "守護者",
       "inning": 4,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 5.0,
+      "projected_total": 4.6,
       "market_total": 7.5,
       "bet": null,
       "reason": null
