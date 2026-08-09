@@ -210,18 +210,6 @@
       "reason": null
     },
     {
-      "home_cn": "海盜",
-      "away_cn": "大都會",
-      "inning": 9,
-      "top_inning": true,
-      "home_runs": 9,
-      "away_runs": 0,
-      "projected_total": 10.0,
-      "market_total": 9.0,
-      "bet": "主隊獨贏",
-      "reason": "第9局主隊領先9分（賽前主隊勝率68%），大局已定"
-    },
-    {
       "home_cn": "國民",
       "away_cn": "紅人",
       "inning": 8,
@@ -248,11 +236,11 @@
     {
       "home_cn": "釀酒人",
       "away_cn": "雙城",
-      "inning": 6,
-      "top_inning": false,
+      "inning": 7,
+      "top_inning": true,
       "home_runs": 3,
       "away_runs": 3,
-      "projected_total": 9.1,
+      "projected_total": 8.7,
       "market_total": 8.0,
       "bet": null,
       "reason": null
@@ -273,13 +261,13 @@
       "home_cn": "巨人",
       "away_cn": "老虎",
       "inning": 7,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
-      "away_runs": 5,
-      "projected_total": 7.7,
+      "away_runs": 7,
+      "projected_total": 9.2,
       "market_total": 8.0,
       "bet": "客隊獨贏",
-      "reason": "第7局客隊領先5分（賽前客隊勝率58%），大局已定"
+      "reason": "第7局客隊領先7分（賽前客隊勝率58%），大局已定"
     },
     {
       "home_cn": "紅雀",
@@ -296,21 +284,21 @@
     {
       "home_cn": "遊騎兵",
       "away_cn": "金鶯",
-      "inning": 6,
-      "top_inning": false,
+      "inning": 7,
+      "top_inning": true,
       "home_runs": 2,
       "away_runs": 1,
-      "projected_total": 5.9,
+      "projected_total": 5.5,
       "market_total": 7.5,
-      "bet": null,
-      "reason": null
+      "bet": "大小分 UNDER",
+      "reason": "第7局僅3分（此時預期5.0分），低分走勢盤口7.5"
     },
     {
       "home_cn": "白襪",
       "away_cn": "守護者",
       "inning": 6,
       "top_inning": false,
-      "home_runs": 0,
+      "home_runs": 1,
       "away_runs": 2,
       "projected_total": 5.9,
       "market_total": 7.5,
