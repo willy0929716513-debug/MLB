@@ -213,25 +213,25 @@
       "home_cn": "海盜",
       "away_cn": "大都會",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 8,
       "away_runs": 0,
-      "projected_total": 12.0,
+      "projected_total": 11.5,
       "market_total": 9.0,
       "bet": "大小分 OVER",
-      "reason": "第6局已得8分（此時預期5.0分），高分走勢盤口9.0"
+      "reason": "第6局已得8分（此時預期5.5分），高分走勢盤口9.0"
     },
     {
       "home_cn": "國民",
       "away_cn": "紅人",
       "inning": 6,
       "top_inning": false,
-      "home_runs": 3,
+      "home_runs": 6,
       "away_runs": 2,
-      "projected_total": 8.3,
+      "projected_total": 11.3,
       "market_total": 8.5,
-      "bet": null,
-      "reason": null
+      "bet": "大小分 OVER",
+      "reason": "第6局已得8分（此時預期5.2分），高分走勢盤口8.5"
     },
     {
       "home_cn": "皇家",
@@ -262,12 +262,12 @@
       "away_cn": "太空人",
       "inning": 4,
       "top_inning": false,
-      "home_runs": 2,
+      "home_runs": 3,
       "away_runs": 1,
-      "projected_total": 7.9,
+      "projected_total": 8.9,
       "market_total": 8.0,
       "bet": "客隊讓分(+1.5)",
-      "reason": "客隊落後1分 第4局，賽前客隊勝率68%"
+      "reason": "客隊落後2分 第4局，賽前客隊勝率68%"
     },
     {
       "home_cn": "巨人",
@@ -321,10 +321,10 @@
       "home_cn": "響尾蛇",
       "away_cn": "道奇",
       "inning": 2,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 7.6,
+      "projected_total": 7.1,
       "market_total": 8.5,
       "bet": null,
       "reason": null
