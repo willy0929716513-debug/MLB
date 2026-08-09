@@ -226,24 +226,24 @@
       "away_cn": "紅人",
       "inning": 8,
       "top_inning": false,
-      "home_runs": 6,
+      "home_runs": 7,
       "away_runs": 2,
-      "projected_total": 9.4,
+      "projected_total": 10.4,
       "market_total": 8.5,
       "bet": "主隊獨贏",
-      "reason": "第8局主隊領先4分（賽前主隊勝率58%），大局已定"
+      "reason": "第8局主隊領先5分（賽前主隊勝率58%），大局已定"
     },
     {
       "home_cn": "皇家",
       "away_cn": "小熊",
       "inning": 7,
       "top_inning": false,
-      "home_runs": 4,
+      "home_runs": 6,
       "away_runs": 3,
-      "projected_total": 9.6,
+      "projected_total": 11.6,
       "market_total": 9.5,
-      "bet": "客隊讓分(+1.5)",
-      "reason": "客隊落後1分 第7局，賽前客隊勝率74%"
+      "bet": null,
+      "reason": null
     },
     {
       "home_cn": "釀酒人",
@@ -286,12 +286,12 @@
       "away_cn": "落磯",
       "inning": 5,
       "top_inning": false,
-      "home_runs": 2,
+      "home_runs": 3,
       "away_runs": 5,
-      "projected_total": 11.2,
+      "projected_total": 12.2,
       "market_total": 8.5,
       "bet": "大小分 OVER",
-      "reason": "第5局已得7分（此時預期4.2分），高分走勢盤口8.5"
+      "reason": "第5局已得8分（此時預期4.2分），高分走勢盤口8.5"
     },
     {
       "home_cn": "遊騎兵",
@@ -312,25 +312,25 @@
       "top_inning": false,
       "home_runs": 0,
       "away_runs": 2,
-      "projected_total": 5.3,
+      "projected_total": 5.9,
       "market_total": 7.5,
-      "bet": "大小分 UNDER",
-      "reason": "第6局僅2分（此時預期4.2分），低分走勢盤口7.5"
+      "bet": null,
+      "reason": null
     },
     {
       "home_cn": "響尾蛇",
       "away_cn": "道奇",
-      "inning": 4,
-      "top_inning": false,
+      "inning": 5,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 5.2,
+      "projected_total": 4.7,
       "market_total": 8.5,
       "bet": null,
       "reason": null
     }
   ],
-  "live_updated_ts": 1786237519,
+  "live_updated_ts": 1786237821,
   "game_preds": {
     "yankees|braves": {
       "home_win_prob": 0.5585,
@@ -393,5 +393,5 @@
       "market_total": 7.0
     }
   },
-  "live_updated_at": "2026-08-09 09:05 (台灣時間)"
+  "live_updated_at": "2026-08-09 09:10 (台灣時間)"
 }
