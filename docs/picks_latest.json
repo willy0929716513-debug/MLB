@@ -212,14 +212,14 @@
     {
       "home_cn": "海盜",
       "away_cn": "大都會",
-      "inning": 5,
-      "top_inning": false,
+      "inning": 6,
+      "top_inning": true,
       "home_runs": 8,
       "away_runs": 0,
-      "projected_total": 12.5,
+      "projected_total": 12.0,
       "market_total": 9.0,
       "bet": "大小分 OVER",
-      "reason": "第5局已得8分（此時預期4.5分），高分走勢盤口9.0"
+      "reason": "第6局已得8分（此時預期5.0分），高分走勢盤口9.0"
     },
     {
       "home_cn": "國民",
@@ -284,14 +284,14 @@
     {
       "home_cn": "紅雀",
       "away_cn": "落磯",
-      "inning": 3,
-      "top_inning": false,
+      "inning": 4,
+      "top_inning": true,
       "home_runs": 2,
       "away_runs": 4,
-      "projected_total": 12.1,
+      "projected_total": 11.7,
       "market_total": 8.5,
-      "bet": null,
-      "reason": null
+      "bet": "大小分 OVER",
+      "reason": "第4局已得6分（此時預期2.8分），高分走勢盤口8.5"
     },
     {
       "home_cn": "遊騎兵",
@@ -309,10 +309,10 @@
       "home_cn": "白襪",
       "away_cn": "守護者",
       "inning": 3,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 5.8,
+      "projected_total": 5.4,
       "market_total": 7.5,
       "bet": null,
       "reason": null
