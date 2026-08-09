@@ -224,14 +224,14 @@
     {
       "home_cn": "國民",
       "away_cn": "紅人",
-      "inning": 5,
-      "top_inning": false,
+      "inning": 6,
+      "top_inning": true,
       "home_runs": 2,
       "away_runs": 0,
-      "projected_total": 6.2,
+      "projected_total": 5.8,
       "market_total": 8.5,
-      "bet": null,
-      "reason": null
+      "bet": "大小分 UNDER",
+      "reason": "第6局僅2分（此時預期4.7分），低分走勢盤口8.5"
     },
     {
       "home_cn": "皇家",
@@ -260,11 +260,11 @@
     {
       "home_cn": "教士",
       "away_cn": "太空人",
-      "inning": 2,
-      "top_inning": false,
+      "inning": 3,
+      "top_inning": true,
       "home_runs": 1,
       "away_runs": 1,
-      "projected_total": 8.7,
+      "projected_total": 8.2,
       "market_total": 8.0,
       "bet": null,
       "reason": null
@@ -272,11 +272,11 @@
     {
       "home_cn": "巨人",
       "away_cn": "老虎",
-      "inning": 3,
-      "top_inning": false,
+      "inning": 4,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 5.8,
+      "projected_total": 5.3,
       "market_total": 8.0,
       "bet": null,
       "reason": null
@@ -287,8 +287,8 @@
       "inning": 3,
       "top_inning": true,
       "home_runs": 2,
-      "away_runs": 1,
-      "projected_total": 9.6,
+      "away_runs": 4,
+      "projected_total": 12.6,
       "market_total": 8.5,
       "bet": null,
       "reason": null
