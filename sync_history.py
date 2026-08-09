@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """從 Gist 讀取歷史 → 結算待結算比賽 → 更新 picks_latest.json"""
-import json, os, re, requests, datetime
+import json, os, re, sys, requests, datetime
 
 GH_TOKEN  = os.getenv("GH_TOKEN", "")
 GIST_DESC = "mlb_bot_history"
@@ -156,9 +156,19 @@ def main():
     if not gid:
         print("ERROR: Gist not found"); return
 
-    detail  = requests.get("https://api.github.com/gists/" + gid, headers=gh_h(), timeout=15).json()
-    raw_url = list(detail["files"].values())[0]["raw_url"]
-    hist    = requests.get(raw_url, timeout=15).json()
+    detail   = requests.get("https://api.github.com/gists/" + gid, headers=gh_h(), timeout=15).json()
+    raw_url  = list(detail["files"].values())[0]["raw_url"]
+    raw_text = requests.get(raw_url, timeout=15).text
+    try:
+        hist = json.loads(raw_text)
+    except json.JSONDecodeError as e:
+        # 千萬別吞掉這個錯誤繼續往下跑：settle() 若拿到殘缺資料還是會正常結算並存回
+        # Gist，等於把損毀的內容「合法化」。寧可整個 run 失敗，讓人去修 Gist。
+        snippet = raw_text[max(0, e.pos - 80):e.pos + 80]
+        print(f"ERROR: Gist history.json is not valid JSON ({e.msg} at line {e.lineno} col {e.colno}).")
+        print(f"       Near: ...{snippet!r}...")
+        print("       Fix the Gist directly (likely a manual-edit typo), then re-run this workflow.")
+        sys.exit(1)
     print(f"Loaded {len(hist)} records from Gist")
 
     n = settle(hist)

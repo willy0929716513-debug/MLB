@@ -1974,6 +1974,12 @@ def _find_gid(gists):
         elif d in old and not old_id: old_id = g["id"]
     return new_id or old_id
 
+class HistoryLoadError(Exception):
+    """load_hist() 讀不到（或解析不了）既有歷史紀錄時拋出。
+    絕對不能在這種情況下悄悄回傳 []──下游的 save_hist(hist+today_records)
+    會把「空歷史 + 今天新資料」整包存回 Gist，等於永久刪除所有過去紀錄。
+    寧可讓呼叫端明確中止這次執行。"""
+
 def load_hist():
     if not GH_TOKEN: return []
     h = _gh_h()
@@ -1981,9 +1987,9 @@ def load_hist():
         r = requests.get("https://api.github.com/gists", headers=h, timeout=15)
         r.raise_for_status(); gists = r.json()
     except Exception as e:
-        log.warning("load_hist: %s", e); return []
+        raise HistoryLoadError(f"could not list gists: {e}") from e
     gid = _find_gid(gists)
-    if not gid: return []
+    if not gid: return []   # 合法情況：還沒建立過歷史 Gist，之後 save_hist() 會自動建立
     try:
         detail = requests.get("https://api.github.com/gists/"+gid, headers=h, timeout=15).json()
         raw    = list(detail["files"].values())[0]["raw_url"]
@@ -1991,7 +1997,7 @@ def load_hist():
         log.info("Hist loaded: %d records", len(records))
         return _purge(records)
     except Exception as e:
-        log.warning("load_hist parse: %s", e); return []
+        raise HistoryLoadError(f"gist exists but failed to load/parse: {e}") from e
 
 def save_hist(records):
     if not GH_TOKEN: return
@@ -2768,7 +2774,12 @@ def run():
 
     if not ODDS_API_KEY: log.error("ODDS_API_KEY not set"); return
 
-    hist      = load_hist()
+    try:
+        hist = load_hist()
+    except HistoryLoadError as e:
+        log.error("ABORTING: %s (refusing to proceed with empty history and risk overwriting the Gist)", e)
+        send("⚠️ Bot 中止執行：讀取 Gist 歷史紀錄失敗（%s）。為避免覆寫掉所有歷史紀錄，已跳過本次執行，請檢查 Gist 內容是否損毀。" % e)
+        return
     settled_n = settle_hist(hist)       # 結算昨天以前的未結算紀錄
     if settled_n > 0: save_hist(hist)   # 有更新就立即存回 Gist
 
