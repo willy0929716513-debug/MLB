@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-08-09 16:10 (台灣時間)",
-  "date": "2026-08-09",
+  "generated_at": "2026-08-10 00:21 (台灣時間)",
+  "date": "2026-08-10",
   "stats": {
     "settled": 6,
     "wins": 4,
@@ -27,23 +27,178 @@
   },
   "picks": [
     {
-      "tier": "🔥 強力",
-      "btype": "讓分",
+      "tier": "⭐ 穩定",
+      "btype": "獨贏",
+      "away": "reds",
+      "home": "nationals",
+      "away_cn": "紅人",
+      "home_cn": "國民",
+      "bet_label": "國民 獨贏",
+      "bk": "BetUS",
+      "bp": 1.87,
+      "con_p": 1.759,
+      "dv_p": 0.5451,
+      "edge": 16.0,
+      "conf": 70.7,
+      "stake": 50.0,
+      "model_p": 70.5,
+      "away_sp": "Brady Singer",
+      "home_sp": "Brad Lord",
+      "away_era": 3.23,
+      "home_era": 4.2,
+      "away_fip": 2.73,
+      "home_fip": null,
+      "away_k9": 8.3,
+      "home_k9": null,
+      "away_avgip": 5.4,
+      "home_avgip": null,
+      "away_whip": 1.6,
+      "home_whip": null,
+      "away_rest": null,
+      "home_rest": null,
+      "away_rs": 3.67,
+      "home_rs": null,
+      "away_rpg": 4.18,
+      "home_rpg": 5.32,
+      "pred_away": 4.4,
+      "pred_home": 5.9,
+      "model_total": null,
+      "market_total": null,
+      "park_factor": null,
+      "weather_factor": 1.055,
+      "ump_name": null,
+      "ump_adj": null,
+      "away_trend": 3.58,
+      "home_trend": null,
+      "line_clv": 3.72,
+      "game_date": "2026-08-10",
+      "game_time": "00:16",
+      "sp_src": "probable",
+      "home_hand": "R",
+      "away_hand": "R",
+      "home_babip": null,
+      "away_babip": 0.439,
+      "home_lob": null,
+      "away_lob": 61.5,
+      "away_road_days": 2,
+      "away_tz_cross": null,
+      "home_wpct": null,
+      "away_road_wpct": null,
+      "home_l10_wpct": 0.3,
+      "away_l10_wpct": 0.6,
+      "home_lineup": [
+        {
+          "order": 1,
+          "name": "CJ Abrams",
+          "pos": "SS"
+        },
+        {
+          "order": 2,
+          "name": "Abimelec Ortiz",
+          "pos": "1B"
+        },
+        {
+          "order": 3,
+          "name": "José Tena",
+          "pos": "DH"
+        },
+        {
+          "order": 4,
+          "name": "Daylen Lile",
+          "pos": "LF"
+        },
+        {
+          "order": 5,
+          "name": "Dylan Crews",
+          "pos": "RF"
+        },
+        {
+          "order": 6,
+          "name": "Jorbit Vivas",
+          "pos": "3B"
+        },
+        {
+          "order": 7,
+          "name": "Nasim Nuñez",
+          "pos": "2B"
+        },
+        {
+          "order": 8,
+          "name": "Keibert Ruiz",
+          "pos": "C"
+        },
+        {
+          "order": 9,
+          "name": "Jacob Young",
+          "pos": "CF"
+        }
+      ],
+      "away_lineup": [
+        {
+          "order": 1,
+          "name": "Elly De La Cruz",
+          "pos": "SS"
+        },
+        {
+          "order": 2,
+          "name": "Sal Stewart",
+          "pos": "1B"
+        },
+        {
+          "order": 3,
+          "name": "JJ Bleday",
+          "pos": "LF"
+        },
+        {
+          "order": 4,
+          "name": "Tyler Stephenson",
+          "pos": "C"
+        },
+        {
+          "order": 5,
+          "name": "Eugenio Suárez",
+          "pos": "DH"
+        },
+        {
+          "order": 6,
+          "name": "Héctor Rodríguez",
+          "pos": "RF"
+        },
+        {
+          "order": 7,
+          "name": "Dane Myers",
+          "pos": "CF"
+        },
+        {
+          "order": 8,
+          "name": "Matt McLain",
+          "pos": "2B"
+        },
+        {
+          "order": 9,
+          "name": "Ke'Bryan Hayes",
+          "pos": "3B"
+        }
+      ]
+    },
+    {
+      "tier": "⭐ 穩定",
+      "btype": "大小分",
       "away": "blue jays",
       "home": "phillies",
       "away_cn": "藍鳥",
       "home_cn": "費城人",
-      "bet_label": "藍鳥 讓分(+1.5)",
-      "bk": "MyBookie.ag",
-      "bp": 1.81,
-      "con_p": 1.778,
-      "dv_p": 0.5395,
-      "edge": 21.1,
-      "conf": 83.4,
+      "bet_label": "UNDER 8.5",
+      "bk": "LowVig.ag",
+      "bp": 1.93,
+      "con_p": 1.897,
+      "dv_p": 0.5039,
+      "edge": 12.1,
+      "conf": 81.7,
       "stake": 50.0,
-      "model_p": 75.0,
+      "model_p": 62.5,
       "away_sp": "Shane Bieber",
-      "home_sp": "Jesus Luzardo",
+      "home_sp": "Jesús Luzardo",
       "away_era": 1.94,
       "home_era": 3.34,
       "away_fip": 2.11,
@@ -62,18 +217,18 @@
       "home_rpg": 4.43,
       "pred_away": 4.1,
       "pred_home": 3.2,
-      "model_total": null,
-      "market_total": null,
+      "model_total": 7.5,
+      "market_total": 8.5,
       "park_factor": null,
-      "weather_factor": 1.063,
+      "weather_factor": 1.058,
       "ump_name": null,
       "ump_adj": null,
       "away_trend": -4.22,
       "home_trend": 2.88,
-      "line_clv": null,
+      "line_clv": 1.81,
       "game_date": "2026-08-10",
       "game_time": "01:36",
-      "sp_src": "espn",
+      "sp_src": "gamefeed",
       "home_hand": "R",
       "away_hand": "R",
       "home_babip": 0.308,
@@ -86,7 +241,53 @@
       "away_road_wpct": null,
       "home_l10_wpct": 0.5,
       "away_l10_wpct": null,
-      "home_lineup": [],
+      "home_lineup": [
+        {
+          "order": 1,
+          "name": "Kyle Schwarber",
+          "pos": "DH"
+        },
+        {
+          "order": 2,
+          "name": "Trea Turner",
+          "pos": "SS"
+        },
+        {
+          "order": 3,
+          "name": "Bryce Harper",
+          "pos": "RF"
+        },
+        {
+          "order": 4,
+          "name": "Luis Arraez",
+          "pos": "2B"
+        },
+        {
+          "order": 5,
+          "name": "J.T. Realmuto",
+          "pos": "C"
+        },
+        {
+          "order": 6,
+          "name": "Bryson Stott",
+          "pos": "3B"
+        },
+        {
+          "order": 7,
+          "name": "Brandon Marsh",
+          "pos": "LF"
+        },
+        {
+          "order": 8,
+          "name": "Alec Bohm",
+          "pos": "1B"
+        },
+        {
+          "order": 9,
+          "name": "Justin Crawford",
+          "pos": "CF"
+        }
+      ],
       "away_lineup": []
     },
     {
@@ -98,13 +299,13 @@
       "home_cn": "紅雀",
       "bet_label": "落磯 讓分(+1.5)",
       "bk": "LowVig.ag",
-      "bp": 1.7,
-      "con_p": 1.682,
-      "dv_p": 0.5718,
+      "bp": 1.72,
+      "con_p": 1.689,
+      "dv_p": 0.5683,
       "edge": 13.3,
       "conf": 65.6,
       "stake": 50.0,
-      "model_p": 70.4,
+      "model_p": 70.1,
       "away_sp": "Michael Lorenzen",
       "home_sp": "Michael McGreevy",
       "away_era": 3.87,
@@ -124,16 +325,16 @@
       "away_rpg": 4.75,
       "home_rpg": 4.39,
       "pred_away": 5.3,
-      "pred_home": 4.9,
+      "pred_home": 5.0,
       "model_total": null,
       "market_total": null,
       "park_factor": null,
-      "weather_factor": 1.039,
+      "weather_factor": 1.047,
       "ump_name": null,
       "ump_adj": null,
       "away_trend": 0.47,
       "home_trend": 3.31,
-      "line_clv": null,
+      "line_clv": -0.68,
       "game_date": "2026-08-10",
       "game_time": "02:15",
       "sp_src": "probable",
@@ -149,6 +350,161 @@
       "away_road_wpct": null,
       "home_l10_wpct": 0.5,
       "away_l10_wpct": 0.4,
+      "home_lineup": [
+        {
+          "order": 1,
+          "name": "JJ Wetherholt",
+          "pos": "2B"
+        },
+        {
+          "order": 2,
+          "name": "Iván Herrera",
+          "pos": "DH"
+        },
+        {
+          "order": 3,
+          "name": "Alec Burleson",
+          "pos": "1B"
+        },
+        {
+          "order": 4,
+          "name": "Jordan Walker",
+          "pos": "RF"
+        },
+        {
+          "order": 5,
+          "name": "Jimmy Crooks",
+          "pos": "C"
+        },
+        {
+          "order": 6,
+          "name": "Masyn Winn",
+          "pos": "SS"
+        },
+        {
+          "order": 7,
+          "name": "Nathan Church",
+          "pos": "CF"
+        },
+        {
+          "order": 8,
+          "name": "José Fermín",
+          "pos": "3B"
+        },
+        {
+          "order": 9,
+          "name": "Bryan Torres",
+          "pos": "LF"
+        }
+      ],
+      "away_lineup": [
+        {
+          "order": 1,
+          "name": "Jake McCarthy",
+          "pos": "RF"
+        },
+        {
+          "order": 2,
+          "name": "Cole Carrigg",
+          "pos": "CF"
+        },
+        {
+          "order": 3,
+          "name": "TJ Rumfield",
+          "pos": "1B"
+        },
+        {
+          "order": 4,
+          "name": "Hunter Goodman",
+          "pos": "DH"
+        },
+        {
+          "order": 5,
+          "name": "Mickey Moniak",
+          "pos": "LF"
+        },
+        {
+          "order": 6,
+          "name": "Kyle Karros",
+          "pos": "3B"
+        },
+        {
+          "order": 7,
+          "name": "Willi Castro",
+          "pos": "2B"
+        },
+        {
+          "order": 8,
+          "name": "Brett Sullivan",
+          "pos": "C"
+        },
+        {
+          "order": 9,
+          "name": "Ezequiel Tovar",
+          "pos": "SS"
+        }
+      ]
+    },
+    {
+      "tier": "⭐ 穩定",
+      "btype": "讓分",
+      "away": "tigers",
+      "home": "giants",
+      "away_cn": "老虎",
+      "home_cn": "巨人",
+      "bet_label": "巨人 讓分(+1.5)",
+      "bk": "LowVig.ag",
+      "bp": 1.64,
+      "con_p": 1.606,
+      "dv_p": 0.5991,
+      "edge": 12.1,
+      "conf": 88.2,
+      "stake": 50.0,
+      "model_p": 72.0,
+      "away_sp": "Troy Melton",
+      "home_sp": "Logan Webb",
+      "away_era": 3.2,
+      "home_era": 2.05,
+      "away_fip": 3.57,
+      "home_fip": 1.99,
+      "away_k9": 6.6,
+      "home_k9": 8.0,
+      "away_avgip": 6.3,
+      "home_avgip": 6.0,
+      "away_whip": 1.0,
+      "home_whip": 1.11,
+      "away_rest": null,
+      "home_rest": null,
+      "away_rs": 7.33,
+      "home_rs": 7.33,
+      "away_rpg": 4.44,
+      "home_rpg": 4.1,
+      "pred_away": 2.9,
+      "pred_home": 3.3,
+      "model_total": null,
+      "market_total": null,
+      "park_factor": null,
+      "weather_factor": 0.954,
+      "ump_name": null,
+      "ump_adj": null,
+      "away_trend": -1.76,
+      "home_trend": -4.12,
+      "line_clv": -1.52,
+      "game_date": "2026-08-10",
+      "game_time": "04:05",
+      "sp_src": "probable",
+      "home_hand": "R",
+      "away_hand": "R",
+      "home_babip": 0.444,
+      "away_babip": 0.312,
+      "home_lob": 70.0,
+      "away_lob": 96.6,
+      "away_road_days": 6,
+      "away_tz_cross": true,
+      "home_wpct": null,
+      "away_road_wpct": null,
+      "home_l10_wpct": 0.4,
+      "away_l10_wpct": 0.7,
       "home_lineup": [],
       "away_lineup": []
     }
@@ -273,64 +629,81 @@
       "roi": 8.5
     }
   ],
-  "live_games": [],
+  "live_games": [
+    {
+      "home_cn": "國民",
+      "away_cn": "紅人",
+      "inning": 1,
+      "top_inning": true,
+      "home_runs": 0,
+      "away_runs": 0,
+      "projected_total": 9.0,
+      "market_total": 9.0,
+      "bet": null,
+      "reason": null
+    }
+  ],
   "live_updated_ts": 1786248972,
   "game_preds": {
     "nationals|reds": {
-      "home_win_prob": 0.7091,
+      "home_win_prob": 0.7051,
       "market_total": 9.0
     },
     "red sox|athletics": {
-      "home_win_prob": 0.4368,
-      "market_total": 10.5
+      "home_win_prob": 0.4672,
+      "market_total": 9.5
     },
     "yankees|braves": {
-      "home_win_prob": 0.6164,
+      "home_win_prob": 0.6306,
       "market_total": 8.5
     },
     "pirates|mets": {
-      "home_win_prob": 0.5008,
-      "market_total": 8.5
+      "home_win_prob": 0.5151,
+      "market_total": 8.0
     },
     "phillies|blue jays": {
-      "home_win_prob": 0.3643,
+      "home_win_prob": 0.3624,
       "market_total": 8.5
     },
     "marlins|angels": {
-      "home_win_prob": 0.581,
+      "home_win_prob": 0.5862,
       "market_total": 8.5
     },
     "royals|cubs": {
-      "home_win_prob": 0.3846,
-      "market_total": 10.0
+      "home_win_prob": 0.3821,
+      "market_total": 10.5
     },
     "white sox|guardians": {
-      "home_win_prob": 0.3999,
+      "home_win_prob": 0.3952,
       "market_total": 8.5
     },
     "brewers|twins": {
-      "home_win_prob": 0.746,
-      "market_total": 7.5
+      "home_win_prob": 0.742,
+      "market_total": 7.0
     },
     "cardinals|rockies": {
-      "home_win_prob": 0.4563,
-      "market_total": 9.5
+      "home_win_prob": 0.451,
+      "market_total": 9.0
     },
     "rangers|orioles": {
-      "home_win_prob": 0.6324,
-      "market_total": 8.5
+      "home_win_prob": 0.5059,
+      "market_total": 8.0
     },
     "giants|tigers": {
-      "home_win_prob": 0.5739,
+      "home_win_prob": 0.574,
       "market_total": 7.5
     },
     "diamondbacks|dodgers": {
-      "home_win_prob": 0.6011,
-      "market_total": 8.5
+      "home_win_prob": 0.5993,
+      "market_total": 9.0
+    },
+    "mariners|rays": {
+      "home_win_prob": 0.2517,
+      "market_total": 7.5
     },
     "padres|astros": {
-      "home_win_prob": 0.6458,
-      "market_total": 8.5
+      "home_win_prob": 0.641,
+      "market_total": 9.0
     }
   }
 }
