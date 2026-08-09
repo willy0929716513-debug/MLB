@@ -200,11 +200,11 @@
     {
       "home_cn": "費城人",
       "away_cn": "藍鳥",
-      "inning": 6,
-      "top_inning": false,
+      "inning": 7,
+      "top_inning": true,
       "home_runs": 4,
       "away_runs": 2,
-      "projected_total": 9.7,
+      "projected_total": 9.2,
       "market_total": 9.5,
       "bet": "主隊獨贏",
       "reason": "第7局主隊領先2分（賽前主隊勝率57%），大局已定"
@@ -228,7 +228,7 @@
       "top_inning": false,
       "home_runs": 2,
       "away_runs": 2,
-      "projected_total": 7.8,
+      "projected_total": 8.3,
       "market_total": 8.5,
       "bet": null,
       "reason": null
@@ -272,11 +272,11 @@
     {
       "home_cn": "巨人",
       "away_cn": "老虎",
-      "inning": 4,
-      "top_inning": false,
+      "inning": 5,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 4.9,
+      "projected_total": 4.4,
       "market_total": 8.0,
       "bet": null,
       "reason": null
@@ -321,10 +321,10 @@
       "home_cn": "響尾蛇",
       "away_cn": "道奇",
       "inning": 1,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 8.5,
+      "projected_total": 8.0,
       "market_total": 8.5,
       "bet": null,
       "reason": null
