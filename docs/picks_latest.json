@@ -237,7 +237,7 @@
       "home_cn": "皇家",
       "away_cn": "小熊",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 4,
       "away_runs": 3,
       "projected_total": 11.2,
@@ -275,11 +275,11 @@
       "inning": 6,
       "top_inning": true,
       "home_runs": 0,
-      "away_runs": 0,
-      "projected_total": 3.6,
+      "away_runs": 1,
+      "projected_total": 4.6,
       "market_total": 8.0,
       "bet": "大小分 UNDER",
-      "reason": "第6局僅0分（此時預期4.4分），低分走勢盤口8.0"
+      "reason": "第6局僅1分（此時預期4.4分），低分走勢盤口8.0"
     },
     {
       "home_cn": "紅雀",
@@ -308,11 +308,11 @@
     {
       "home_cn": "白襪",
       "away_cn": "守護者",
-      "inning": 4,
-      "top_inning": false,
+      "inning": 5,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 4.6,
+      "projected_total": 4.2,
       "market_total": 7.5,
       "bet": null,
       "reason": null
