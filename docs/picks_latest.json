@@ -1090,10 +1090,10 @@
       "home_cn": "釀酒人",
       "away_cn": "雙城",
       "inning": 8,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 3,
       "away_runs": 3,
-      "projected_total": 7.6,
+      "projected_total": 7.2,
       "market_total": 7.0,
       "bet": null,
       "reason": null
@@ -1101,35 +1101,35 @@
     {
       "home_cn": "紅雀",
       "away_cn": "落磯",
-      "inning": 7,
-      "top_inning": false,
+      "inning": 8,
+      "top_inning": true,
       "home_runs": 4,
-      "away_runs": 3,
-      "projected_total": 9.5,
+      "away_runs": 4,
+      "projected_total": 10.0,
       "market_total": 9.0,
-      "bet": "客隊讓分(+1.5)",
-      "reason": "客隊落後1分 第7局，賽前客隊勝率55%"
+      "bet": null,
+      "reason": null
     },
     {
       "home_cn": "遊騎兵",
       "away_cn": "金鶯",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 3,
       "away_runs": 9,
-      "projected_total": 15.6,
+      "projected_total": 15.1,
       "market_total": 8.0,
       "bet": "大小分 OVER",
-      "reason": "第6局已得12分（此時預期4.4分），高分走勢盤口8.0"
+      "reason": "第6局已得12分（此時預期4.9分），高分走勢盤口8.0"
     },
     {
       "home_cn": "巨人",
       "away_cn": "老虎",
       "inning": 3,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 5.8,
+      "projected_total": 5.4,
       "market_total": 7.5,
       "bet": null,
       "reason": null
@@ -1138,10 +1138,10 @@
       "home_cn": "響尾蛇",
       "away_cn": "道奇",
       "inning": 2,
-      "top_inning": true,
-      "home_runs": 2,
+      "top_inning": false,
+      "home_runs": 3,
       "away_runs": 0,
-      "projected_total": 10.0,
+      "projected_total": 10.5,
       "market_total": 9.0,
       "bet": null,
       "reason": null
@@ -1159,7 +1159,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1786307814,
+  "live_updated_ts": 1786308116,
   "game_preds": {
     "nationals|reds": {
       "home_win_prob": 0.7051,
@@ -1222,5 +1222,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-10 04:36 (台灣時間)"
+  "live_updated_at": "2026-08-10 04:41 (台灣時間)"
 }
