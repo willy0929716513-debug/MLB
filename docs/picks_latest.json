@@ -213,10 +213,10 @@
       "home_cn": "海盜",
       "away_cn": "大都會",
       "inning": 8,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 9,
       "away_runs": 0,
-      "projected_total": 11.0,
+      "projected_total": 10.5,
       "market_total": 9.0,
       "bet": "主隊獨贏",
       "reason": "第8局主隊領先9分（賽前主隊勝率68%），大局已定"
@@ -275,11 +275,11 @@
       "inning": 7,
       "top_inning": true,
       "home_runs": 0,
-      "away_runs": 2,
-      "projected_total": 4.7,
+      "away_runs": 3,
+      "projected_total": 5.7,
       "market_total": 8.0,
       "bet": "大小分 UNDER",
-      "reason": "第7局僅2分（此時預期5.3分），低分走勢盤口8.0"
+      "reason": "第7局僅3分（此時預期5.3分），低分走勢盤口8.0"
     },
     {
       "home_cn": "紅雀",
@@ -297,10 +297,10 @@
       "home_cn": "遊騎兵",
       "away_cn": "金鶯",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 2,
       "away_runs": 1,
-      "projected_total": 6.3,
+      "projected_total": 5.9,
       "market_total": 7.5,
       "bet": null,
       "reason": null
@@ -321,10 +321,10 @@
       "home_cn": "響尾蛇",
       "away_cn": "道奇",
       "inning": 4,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 5.7,
+      "projected_total": 5.2,
       "market_total": 8.5,
       "bet": null,
       "reason": null
