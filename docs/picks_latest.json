@@ -1051,18 +1051,6 @@
   ],
   "live_games": [
     {
-      "home_cn": "海盜",
-      "away_cn": "大都會",
-      "inning": 9,
-      "top_inning": false,
-      "home_runs": 1,
-      "away_runs": 11,
-      "projected_total": 12.4,
-      "market_total": 8.0,
-      "bet": "客隊獨贏",
-      "reason": "第9局客隊領先10分（賽前客隊勝率48%），大局已定"
-    },
-    {
       "home_cn": "費城人",
       "away_cn": "藍鳥",
       "inning": 10,
@@ -1126,34 +1114,34 @@
       "home_cn": "紅雀",
       "away_cn": "落磯",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 4,
       "away_runs": 3,
-      "projected_total": 11.0,
+      "projected_total": 10.5,
       "market_total": 9.0,
-      "bet": "大小分 OVER",
-      "reason": "第6局已得7分（此時預期5.0分），高分走勢盤口9.0"
+      "bet": "客隊讓分(+1.5)",
+      "reason": "客隊落後1分 第6局，賽前客隊勝率55%"
     },
     {
       "home_cn": "遊騎兵",
       "away_cn": "金鶯",
       "inning": 5,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 3,
       "away_runs": 7,
-      "projected_total": 14.4,
+      "projected_total": 14.0,
       "market_total": 8.0,
       "bet": "大小分 OVER",
-      "reason": "第5局已得10分（此時預期3.6分），高分走勢盤口8.0"
+      "reason": "第5局已得10分（此時預期4.0分），高分走勢盤口8.0"
     },
     {
       "home_cn": "巨人",
       "away_cn": "老虎",
-      "inning": 1,
-      "top_inning": false,
+      "inning": 2,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 7.1,
+      "projected_total": 6.7,
       "market_total": 7.5,
       "bet": null,
       "reason": null
@@ -1162,10 +1150,10 @@
       "home_cn": "響尾蛇",
       "away_cn": "道奇",
       "inning": 1,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 0,
-      "projected_total": 9.0,
+      "projected_total": 8.5,
       "market_total": 9.0,
       "bet": null,
       "reason": null
@@ -1183,7 +1171,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1786306606,
+  "live_updated_ts": 1786306908,
   "game_preds": {
     "nationals|reds": {
       "home_win_prob": 0.7051,
@@ -1246,5 +1234,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-10 04:16 (台灣時間)"
+  "live_updated_at": "2026-08-10 04:21 (台灣時間)"
 }
