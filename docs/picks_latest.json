@@ -1061,33 +1061,9 @@
       "market_total": 8.5,
       "bet": null,
       "reason": null
-    },
-    {
-      "home_cn": "巨人",
-      "away_cn": "老虎",
-      "inning": 10,
-      "top_inning": false,
-      "home_runs": 1,
-      "away_runs": 3,
-      "projected_total": 4.0,
-      "market_total": 7.5,
-      "bet": null,
-      "reason": null
-    },
-    {
-      "home_cn": "水手",
-      "away_cn": "光芒",
-      "inning": 9,
-      "top_inning": false,
-      "home_runs": 1,
-      "away_runs": 4,
-      "projected_total": 5.4,
-      "market_total": 7.5,
-      "bet": "客隊獨贏",
-      "reason": "第9局客隊領先3分（賽前客隊勝率75%），大局已定"
     }
   ],
-  "live_updated_ts": 1786315968,
+  "live_updated_ts": 1786316270,
   "game_preds": {
     "nationals|reds": {
       "home_win_prob": 0.7051,
@@ -1150,5 +1126,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-10 06:52 (台灣時間)"
+  "live_updated_at": "2026-08-10 06:57 (台灣時間)"
 }
