@@ -213,13 +213,13 @@
       "home_cn": "海盜",
       "away_cn": "大都會",
       "inning": 5,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 8,
       "away_runs": 0,
-      "projected_total": 13.0,
+      "projected_total": 12.5,
       "market_total": 9.0,
       "bet": "大小分 OVER",
-      "reason": "第5局已得8分（此時預期4.0分），高分走勢盤口9.0"
+      "reason": "第5局已得8分（此時預期4.5分），高分走勢盤口9.0"
     },
     {
       "home_cn": "國民",
@@ -239,11 +239,11 @@
       "inning": 4,
       "top_inning": true,
       "home_runs": 4,
-      "away_runs": 0,
-      "projected_total": 10.3,
+      "away_runs": 2,
+      "projected_total": 12.3,
       "market_total": 9.5,
-      "bet": null,
-      "reason": null
+      "bet": "大小分 OVER",
+      "reason": "第4局已得6分（此時預期3.2分），高分走勢盤口9.5"
     },
     {
       "home_cn": "釀酒人",
@@ -261,10 +261,10 @@
       "home_cn": "教士",
       "away_cn": "太空人",
       "inning": 3,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 1,
       "away_runs": 1,
-      "projected_total": 8.2,
+      "projected_total": 7.8,
       "market_total": 8.0,
       "bet": null,
       "reason": null
@@ -330,7 +330,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1786233900,
+  "live_updated_ts": 1786234201,
   "game_preds": {
     "yankees|braves": {
       "home_win_prob": 0.5585,
@@ -393,5 +393,5 @@
       "market_total": 7.0
     }
   },
-  "live_updated_at": "2026-08-09 08:05 (台灣時間)"
+  "live_updated_at": "2026-08-09 08:10 (台灣時間)"
 }
