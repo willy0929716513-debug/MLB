@@ -203,11 +203,11 @@
       "inning": 8,
       "top_inning": true,
       "home_runs": 4,
-      "away_runs": 2,
-      "projected_total": 8.1,
+      "away_runs": 4,
+      "projected_total": 10.1,
       "market_total": 9.5,
-      "bet": "主隊獨贏",
-      "reason": "第8局主隊領先2分（賽前主隊勝率57%），大局已定"
+      "bet": null,
+      "reason": null
     },
     {
       "home_cn": "海盜",
@@ -273,13 +273,13 @@
       "home_cn": "巨人",
       "away_cn": "老虎",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 1,
-      "projected_total": 4.6,
+      "projected_total": 4.1,
       "market_total": 8.0,
       "bet": "大小分 UNDER",
-      "reason": "第6局僅1分（此時預期4.4分），低分走勢盤口8.0"
+      "reason": "第6局僅1分（此時預期4.9分），低分走勢盤口8.0"
     },
     {
       "home_cn": "紅雀",
