@@ -1054,10 +1054,10 @@
       "home_cn": "紅襪",
       "away_cn": "運動家",
       "inning": 7,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 3,
       "away_runs": 2,
-      "projected_total": 8.2,
+      "projected_total": 7.6,
       "market_total": 9.5,
       "bet": null,
       "reason": null
@@ -1066,13 +1066,13 @@
       "home_cn": "海盜",
       "away_cn": "大都會",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 1,
       "away_runs": 10,
-      "projected_total": 14.6,
+      "projected_total": 14.1,
       "market_total": 8.0,
       "bet": "大小分 OVER",
-      "reason": "第6局已得11分（此時預期4.4分），高分走勢盤口8.0"
+      "reason": "第6局已得11分（此時預期4.9分），高分走勢盤口8.0"
     },
     {
       "home_cn": "費城人",
@@ -1089,35 +1089,35 @@
     {
       "home_cn": "洋基",
       "away_cn": "勇士",
-      "inning": 7,
-      "top_inning": false,
+      "inning": 8,
+      "top_inning": true,
       "home_runs": 0,
       "away_runs": 1,
-      "projected_total": 3.4,
+      "projected_total": 2.9,
       "market_total": 8.5,
       "bet": "大小分 UNDER",
-      "reason": "第7局僅1分（此時預期6.1分），低分走勢盤口8.5"
+      "reason": "第8局僅1分（此時預期6.6分），低分走勢盤口8.5"
     },
     {
       "home_cn": "馬林魚",
       "away_cn": "天使",
-      "inning": 5,
-      "top_inning": false,
+      "inning": 6,
+      "top_inning": true,
       "home_runs": 10,
       "away_runs": 2,
-      "projected_total": 16.2,
+      "projected_total": 15.8,
       "market_total": 8.5,
       "bet": "大小分 OVER",
-      "reason": "第5局已得12分（此時預期4.2分），高分走勢盤口8.5"
+      "reason": "第6局已得12分（此時預期4.7分），高分走勢盤口8.5"
     },
     {
       "home_cn": "皇家",
       "away_cn": "小熊",
       "inning": 5,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 2,
       "away_runs": 4,
-      "projected_total": 11.8,
+      "projected_total": 11.2,
       "market_total": 10.5,
       "bet": null,
       "reason": null
@@ -1139,9 +1139,9 @@
       "away_cn": "雙城",
       "inning": 5,
       "top_inning": false,
-      "home_runs": 2,
+      "home_runs": 3,
       "away_runs": 1,
-      "projected_total": 6.5,
+      "projected_total": 7.5,
       "market_total": 7.0,
       "bet": null,
       "reason": null
@@ -1162,16 +1162,16 @@
       "home_cn": "遊騎兵",
       "away_cn": "金鶯",
       "inning": 3,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 5,
-      "projected_total": 11.2,
+      "projected_total": 10.8,
       "market_total": 8.0,
       "bet": null,
       "reason": null
     }
   ],
-  "live_updated_ts": 1786303585,
+  "live_updated_ts": 1786303888,
   "game_preds": {
     "nationals|reds": {
       "home_win_prob": 0.7051,
@@ -1234,5 +1234,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-10 03:26 (台灣時間)"
+  "live_updated_at": "2026-08-10 03:31 (台灣時間)"
 }
