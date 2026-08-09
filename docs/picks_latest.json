@@ -1053,17 +1053,17 @@
     {
       "home_cn": "白襪",
       "away_cn": "守護者",
-      "inning": 7,
-      "top_inning": false,
+      "inning": 8,
+      "top_inning": true,
       "home_runs": 5,
       "away_runs": 2,
-      "projected_total": 9.4,
+      "projected_total": 8.9,
       "market_total": 8.5,
       "bet": null,
       "reason": null
     }
   ],
-  "live_updated_ts": 1786316572,
+  "live_updated_ts": 1786316875,
   "game_preds": {
     "nationals|reds": {
       "home_win_prob": 0.7051,
@@ -1126,5 +1126,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-10 07:02 (台灣時間)"
+  "live_updated_at": "2026-08-10 07:07 (台灣時間)"
 }
