@@ -2,30 +2,30 @@
   "generated_at": "2026-08-10 00:21 (台灣時間)",
   "date": "2026-08-10",
   "stats": {
-    "settled": 135,
+    "settled": 138,
     "wins": 97,
-    "win_rate": 71.9,
-    "total_in": 6427.9,
-    "total_pnl": 1824.5,
-    "roi": 28.4,
+    "win_rate": 70.3,
+    "total_in": 6577.9,
+    "total_pnl": 1686.0,
+    "roi": 25.6,
     "by_type": {
       "ML": {
-        "settled": 40,
-        "wins": 25,
-        "win_rate": 62.5,
-        "roi": 3.0
+        "settled": 41,
+        "wins": 26,
+        "win_rate": 63.4,
+        "roi": 5.2
       },
       "RL": {
-        "settled": 61,
-        "wins": 50,
-        "win_rate": 82.0,
-        "roi": 45.9
+        "settled": 62,
+        "wins": 49,
+        "win_rate": 79.0,
+        "roi": 40.7
       },
       "TOT": {
-        "settled": 34,
+        "settled": 35,
         "wins": 22,
-        "win_rate": 64.7,
-        "roi": 26.5
+        "win_rate": 62.9,
+        "roi": 22.7
       }
     }
   },
@@ -525,7 +525,7 @@
       "price": 1.72,
       "stake": 50.0,
       "edge": 13.3,
-      "result": null
+      "result": "L"
     },
     {
       "date": "2026-08-10",
@@ -538,7 +538,7 @@
       "price": 1.64,
       "stake": 50.0,
       "edge": 12.1,
-      "result": "W"
+      "result": "L"
     },
     {
       "date": "2026-08-10",
@@ -551,7 +551,7 @@
       "price": 1.87,
       "stake": 50.0,
       "edge": 16.0,
-      "result": null
+      "result": "W"
     },
     {
       "date": "2026-08-10",
@@ -564,7 +564,7 @@
       "price": 1.93,
       "stake": 50.0,
       "edge": 12.1,
-      "result": null
+      "result": "L"
     },
     {
       "date": "2026-08-09",
@@ -1044,9 +1044,9 @@
     },
     {
       "date": "2026-08-10",
-      "settled": 135,
-      "win_rate": 71.9,
-      "roi": 28.4
+      "settled": 138,
+      "win_rate": 70.3,
+      "roi": 25.6
     }
   ],
   "live_games": [
