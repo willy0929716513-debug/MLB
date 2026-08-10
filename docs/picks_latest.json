@@ -1063,7 +1063,7 @@
       "reason": "主隊落後1分 第4局，賽前主隊勝率64%"
     }
   ],
-  "live_updated_ts": 1786325141,
+  "live_updated_ts": 1786325442,
   "game_preds": {
     "nationals|reds": {
       "home_win_prob": 0.7051,
@@ -1126,5 +1126,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-10 09:25 (台灣時間)"
+  "live_updated_at": "2026-08-10 09:30 (台灣時間)"
 }
