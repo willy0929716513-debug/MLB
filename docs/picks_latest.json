@@ -1054,16 +1054,16 @@
       "home_cn": "教士",
       "away_cn": "太空人",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 4,
       "away_runs": 2,
-      "projected_total": 10.0,
+      "projected_total": 9.5,
       "market_total": 9.0,
       "bet": null,
       "reason": null
     }
   ],
-  "live_updated_ts": 1786326650,
+  "live_updated_ts": 1786326951,
   "game_preds": {
     "nationals|reds": {
       "home_win_prob": 0.7051,
@@ -1126,5 +1126,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-10 09:50 (台灣時間)"
+  "live_updated_at": "2026-08-10 09:55 (台灣時間)"
 }
