@@ -1063,7 +1063,7 @@
       "reason": null
     }
   ],
-  "live_updated_ts": 1786326046,
+  "live_updated_ts": 1786326348,
   "game_preds": {
     "nationals|reds": {
       "home_win_prob": 0.7051,
@@ -1126,5 +1126,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-10 09:40 (台灣時間)"
+  "live_updated_at": "2026-08-10 09:45 (台灣時間)"
 }
