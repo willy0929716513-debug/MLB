@@ -727,7 +727,7 @@
     }
   ],
   "live_games": [],
-  "live_updated_ts": 1786340322,
+  "live_updated_ts": 1786394073,
   "game_preds": {
     "blue jays|red sox": {
       "home_win_prob": 0.2989,
@@ -769,5 +769,6 @@
       "home_win_prob": 0.5828,
       "market_total": 7.5
     }
-  }
+  },
+  "live_updated_at": ""
 }
