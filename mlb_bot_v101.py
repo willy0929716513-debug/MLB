@@ -2487,7 +2487,13 @@ def kelly_stake(edge, model_p, price, conf=1.0, dv_p=None):
     kp = (model_p*(1-KELLY_BAYES_W) + dv_p*KELLY_BAYES_W) if dv_p else model_p
     raw_k = (b*kp - (1-kp)) / b
     if raw_k<=0: return 0.0
-    dyn_k = max(0.08, min(0.30, KELLY*conf))
+    # 歷史結算（138場）顯示 conf 分數在高端不可靠：60-70%實際勝率79.2%／
+    # 70-80%為72.6%／80%+反而只有60.0%（樣本數24/73/40）。現有信心分數
+    # 不能拿來當作「越高越該加碼」的依據，超過0.80後不再讓它繼續放大注碼——
+    # 這只調整下注金額，不影響選注/推薦邏輯本身。等累積更多結算資料、
+    # 找出信心分數本身哪裡失準後，這個上限可以重新檢討。
+    stake_conf = min(conf, 0.80)
+    dyn_k = max(0.08, min(0.30, KELLY*stake_conf))
     return round(max(0.0, min(KELLY_MAX, dyn_k*raw_k*BANK)), 1)
 
 def calc_perf(hist):
