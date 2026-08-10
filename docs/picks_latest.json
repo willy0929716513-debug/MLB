@@ -1053,17 +1053,17 @@
     {
       "home_cn": "教士",
       "away_cn": "太空人",
-      "inning": 4,
-      "top_inning": false,
-      "home_runs": 1,
+      "inning": 5,
+      "top_inning": true,
+      "home_runs": 4,
       "away_runs": 2,
-      "projected_total": 8.5,
+      "projected_total": 11.0,
       "market_total": 9.0,
-      "bet": "主隊讓分(+1.5)",
-      "reason": "主隊落後1分 第4局，賽前主隊勝率64%"
+      "bet": "大小分 OVER",
+      "reason": "第5局已得6分（此時預期4.0分），高分走勢盤口9.0"
     }
   ],
-  "live_updated_ts": 1786325442,
+  "live_updated_ts": 1786325744,
   "game_preds": {
     "nationals|reds": {
       "home_win_prob": 0.7051,
@@ -1126,5 +1126,5 @@
       "market_total": 9.0
     }
   },
-  "live_updated_at": "2026-08-10 09:30 (台灣時間)"
+  "live_updated_at": "2026-08-10 09:35 (台灣時間)"
 }
