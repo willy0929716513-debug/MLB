@@ -4145,6 +4145,10 @@ def run():
                     "label":   p.get("hist_label",""),
                     "market_total": p.get("hist_mkt_total"),
                     "sp_src":  p.get("sp_src","probable"),
+                    # ★ 提前下注時數：這筆推薦產生當下距離開賽還有幾小時，
+                    # 供之後回測「提前多久下注、命中率會不會比較差」用（見 scripts/analyze_lead_time.py）。
+                    # 舊紀錄沒有這欄位（值為None），只有這次上線之後新產生的紀錄才會累積。
+                    "hours_before_game": round((game_dt_tw - now_tw).total_seconds()/3600, 1) if game_dt_tw else None,
                 })
 
     total_settled,wins,wr=calc_perf(hist)
