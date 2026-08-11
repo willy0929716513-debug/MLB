@@ -730,11 +730,11 @@
     {
       "home_cn": "紅雀",
       "away_cn": "費城人",
-      "inning": 8,
-      "top_inning": false,
+      "inning": 9,
+      "top_inning": true,
       "home_runs": 5,
       "away_runs": 6,
-      "projected_total": 12.5,
+      "projected_total": 12.0,
       "market_total": 9.0,
       "bet": null,
       "reason": null
@@ -755,10 +755,10 @@
       "home_cn": "響尾蛇",
       "away_cn": "落磯",
       "inning": 3,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 7,
       "away_runs": 0,
-      "projected_total": 14.0,
+      "projected_total": 13.5,
       "market_total": 9.0,
       "bet": null,
       "reason": null
@@ -778,11 +778,11 @@
     {
       "home_cn": "教士",
       "away_cn": "釀酒人",
-      "inning": 3,
-      "top_inning": false,
+      "inning": 4,
+      "top_inning": true,
       "home_runs": 1,
       "away_runs": 2,
-      "projected_total": 8.1,
+      "projected_total": 7.7,
       "market_total": 7.0,
       "bet": null,
       "reason": null
@@ -803,16 +803,16 @@
       "home_cn": "道奇",
       "away_cn": "皇家",
       "inning": 2,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 0,
       "away_runs": 1,
-      "projected_total": 7.7,
+      "projected_total": 7.2,
       "market_total": 7.5,
       "bet": null,
       "reason": null
     }
   ],
-  "live_updated_ts": 1786415632,
+  "live_updated_ts": 1786415934,
   "game_preds": {
     "blue jays|red sox": {
       "home_win_prob": 0.2989,
@@ -855,5 +855,5 @@
       "market_total": 7.5
     }
   },
-  "live_updated_at": "2026-08-11 10:33 (台灣時間)"
+  "live_updated_at": "2026-08-11 10:38 (台灣時間)"
 }
