@@ -12,7 +12,7 @@
   },
   "2026-08-12|marlins|pirates": {
     "ts": "2026-08-11",
-    "home_ml": 2.06,
+    "home_ml": 2.04,
     "away_ml": 1.89,
     "rl_h": 1.59,
     "rl_a": 2.55,
@@ -113,8 +113,8 @@
     "ts": "2026-08-11",
     "home_ml": 1.6,
     "away_ml": 2.65,
-    "rl_h": 2.22,
-    "rl_a": 1.76,
+    "rl_h": 2.18,
+    "rl_a": 1.78,
     "rl_h_25": null,
     "rl_a_25": null,
     "over": 2.0,
@@ -123,9 +123,9 @@
   "2026-08-12|athletics|rays": {
     "ts": "2026-08-11",
     "home_ml": 2.52,
-    "away_ml": 1.62,
+    "away_ml": 1.61,
     "rl_h": 1.92,
-    "rl_a": 2.01,
+    "rl_a": 1.97,
     "rl_h_25": null,
     "rl_a_25": null,
     "over": 1.98,
@@ -151,7 +151,7 @@
     "rl_h_25": null,
     "rl_a_25": null,
     "over": 1.95,
-    "under": 1.94
+    "under": 1.98
   },
   "2026-08-12|dodgers|royals": {
     "ts": "2026-08-11",
@@ -161,7 +161,7 @@
     "rl_a": 2.05,
     "rl_h_25": null,
     "rl_a_25": null,
-    "over": 1.97,
+    "over": 1.98,
     "under": 2.06
   }
 }
