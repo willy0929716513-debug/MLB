@@ -58,6 +58,8 @@ FIP_ERA_UNDER_GAP= 0.80 # UNDER: 任一SP的FIP比ERA高超過此值 → 幸運E
 RL_HOME_ACE_ERA  = 2.00 # 主場王牌ERA門檻：+1.5讓分依賴王牌，一旦爆投便大輸
 RL_OPP_RS_THRESH = 4.0  # 客隊近期RS ≥此值 → 進攻力足以在王牌爆投時擴大分差，主場+1.5風險高
 # SLUMP_RL_CONF_MIN 已移除：低迷期縮注由全局 SLUMP_KELLY_MUL 管理，不另設RL conf門檻
+SP_UNCONFIRMED_FAR_HOURS = 8.0   # 先發來源仍為probable（未經牛棚卡/正式先發卡確認）且離開賽還早於此時數
+SP_UNCONFIRMED_CONF_MULT = 0.93  # → 信心打折：先發臨場更換是常態，此時ERA/FIP優勢基礎本身就不穩固
 ODDS_SNAP_PATH = "docs/odds_snapshot.json"
 LEAGUE_ERA     = 4.20
 HIST_TTL       = 90
@@ -2113,19 +2115,25 @@ def get_pitcher_era(key):
         era_out = round(era_out*(1-RELIEVER_SP_REGRESS) + LEAGUE_ERA*RELIEVER_SP_REGRESS, 2)
 
     # ── Step 4：BABIP/LOB% 運氣修正 ──────────────────────────────
-    # 僅在 avgIP≥5.5 時啟用：小樣本的BABIP/LOB波動極大，不代表真實運氣
+    # 舊邏輯（漏洞）：avgIP≥5.5才啟用，硬門檻 → avgIP剛好卡在4.0~5.5的先發
+    # （近期最常見的樣本區間，且最容易出現極端BABIP/LOB）完全吃不到修正，
+    # 而這正是最需要修正的族群：局數少 → BABIP/LOB波動大 → 更可能是運氣而非實力。
+    # 新邏輯：4.0局（_fetch_recent_era的「完整先發」門檻）起線性生效，5.5局後權重滿。
     babip   = _PITCHER_BABIP.get(k)
     lob     = _PITCHER_LOB_PCT.get(k)
     avg_ip  = _PITCHER_IP.get(k, 6.0)
     extra_fip_w = 0.0
-    if avg_ip >= 5.5:  # 只有足夠局數樣本才信任BABIP/LOB
+    IP_LUCK_GATE_MIN  = 4.0   # 低於此局數：非完整先發樣本，不修正
+    IP_LUCK_GATE_FULL = 5.5   # 達此局數：修正權重100%
+    if avg_ip >= IP_LUCK_GATE_MIN:
+        ip_scale = min(1.0, (avg_ip - IP_LUCK_GATE_MIN) / (IP_LUCK_GATE_FULL - IP_LUCK_GATE_MIN))
         if babip is not None:
             babip_dev = abs(babip - BABIP_LG_AVG) / 0.030
             extra_fip_w += babip_dev * BABIP_FIP_BONUS
         if lob is not None:
             lob_dev = abs(lob - LOB_LG_AVG) / 5.0
             extra_fip_w += lob_dev * LOB_FIP_BONUS
-        extra_fip_w = min(extra_fip_w, 0.20)  # 小樣本保護：上限從0.30降至0.20
+        extra_fip_w = min(extra_fip_w, 0.20) * ip_scale  # 小樣本保護：上限0.20，再依局數線性縮放
     if extra_fip_w > 0 and fip is not None:
         era_out = round(era_out*(1-extra_fip_w) + fip*extra_fip_w, 2)
 
@@ -3176,12 +3184,19 @@ def run():
         best_pick=None
         _h_era_v = get_pitcher_era(home_sp)
         _a_era_v = get_pitcher_era(away_sp)
+        # ★ 先發未確認折扣：_sp_src仍為probable（僅MLB官方預告，未經牛棚卡/正式先發卡確認）
+        # 且離開賽還早 → 先發臨場更換風險較高，此時的ERA/FIP優勢基礎本身就不穩固，
+        # 過去只把這狀態顯示成⚠️文字標籤，卻從未真正反映在信心/Edge計算裡，此處補上。
+        _hours_to_game = ((game_dt - now_tw).total_seconds()/3600) if game_dt else 0
+        _sp_unconfirmed_mult = (SP_UNCONFIRMED_CONF_MULT
+                                 if (_sp_src == "probable" and _hours_to_game > SP_UNCONFIRMED_FAR_HOURS)
+                                 else 1.0)
         for btype,bside,bteam,bp,bk,model_p,edge_min,blend_p,con_p,conf_mult in candidates:
             if bp is None or bp<=0 or con_p is None or con_p<=0: continue
             if bp/con_p - 1 > MAX_PRICE_GAP: continue  # 賠率偏離共識>25%，疑似錯誤或過時報價
             # ★ TOT使用conf_tot（pure_total_tot基礎，RS影響更低）；ML/RL用conf
             _base_conf = conf_tot if btype == BET_TOT else conf
-            bet_conf = _base_conf*conf_mult
+            bet_conf = _base_conf*conf_mult*_sp_unconfirmed_mult
             raw_edge = model_p - _dv.get(bside, 1/bp)  # ★ Devigged edge
             # ★ 分類型歷史勝率校正（需 ≥MIN_SAMPLE_CALIB 才生效，防小樣本過擬合）
             _wr_hist = wr_by_type.get(btype)
