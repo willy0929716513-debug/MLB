@@ -58,6 +58,12 @@ FIP_ERA_UNDER_GAP= 0.80 # UNDER: 任一SP的FIP比ERA高超過此值 → 幸運E
 RL_HOME_ACE_ERA  = 2.00 # 主場王牌ERA門檻：+1.5讓分依賴王牌，一旦爆投便大輸
 RL_OPP_RS_THRESH = 4.0  # 客隊近期RS ≥此值 → 進攻力足以在王牌爆投時擴大分差，主場+1.5風險高
 # SLUMP_RL_CONF_MIN 已移除：低迷期縮注由全局 SLUMP_KELLY_MUL 管理，不另設RL conf門檻
+SP_UNCONFIRMED_FAR_HOURS = 8.0   # 先發來源仍為probable（未經牛棚卡/正式先發卡確認）且離開賽還早於此時數
+SP_UNCONFIRMED_CONF_MULT = 0.93  # → 信心打折：先發臨場更換是常態，此時ERA/FIP優勢基礎本身就不穩固
+# ── Sharp book 加權：低利潤／效率高的書商開盤比大眾書更準，共識賠率不該對所有書商一視同仁 ──
+# 書名須對應 Odds API 回傳的 bookmaker title（小寫比對）；名單以外一律視為 square book，權重1.0。
+SHARP_BOOKS = {"pinnacle","circa sports","lowvig.ag","betonline.ag","bookmaker.eu","bovada"}
+SHARP_BOOK_WEIGHT = 2.5   # sharp book 在共識賠率計算中的權重（square book固定為1.0）
 ODDS_SNAP_PATH = "docs/odds_snapshot.json"
 LEAGUE_ERA     = 4.20
 HIST_TTL       = 90
@@ -114,6 +120,8 @@ LEAGUE_OBP       = 0.315 # MLB聯盟平均上壘率
 BULLPEN_DYN_W    = 0.50  # 動態牛棚ERA混入比重（靜態50% + 動態50%）
 BULL_FATIGUE_IP  = 5.0   # 近1天牛棚IP超過此值開始計疲勞懲罰
 BULL_FATIGUE_ERA = 0.06  # 每超出1局的ERA等效懲罰
+BULL_B2B_ERA_PER = 0.15  # 每一位「昨天+前天連兩天都登板」的牛棚投手，額外ERA等效懲罰
+BULL_B2B_CAP     = 3     # 連兩天上場人數超過此值不再加成（避免極端值失真）
 WIND_OUT_W       = 0.010 # 每m/s順風（吹向外野）→ 得分+1.0%
 UMP_W            = 1.0   # 裁判run調整使用倍率（1.0=直接使用dict值）
 # ── ★ 校正 ───────────────────────────────────────────────
@@ -123,6 +131,20 @@ MIN_SAMPLE_CALIB = 20    # 分類型勝率校正所需最少樣本
 LR_OPS_W        = 0.14   # 球隊打擊 vs 左/右投 OPS 調整幅度（相對聯盟均值）
 LG_OPS_AVG      = 0.720  # 聯盟平均 OPS（基準）
 PITCHER_HAND_DEF= "R"    # 未知投手慣用手預設右投（MLB ~70% 為右投）
+
+# ── ★ 今日實際先發打線強度（vs 整季全隊平均） ─────────────────
+LINEUP_OPS_W       = 0.16  # 今日打線OPS偏離聯盟均值的得分調整幅度
+MIN_LINEUP_BATTERS = 7     # 9位先發中至少要有這麼多人查得到本季OPS才採用
+MIN_BATTER_PA       = 20   # 打席數低於此值的OPS太小樣本，視為無資料
+
+# ── ★ 打者 vs 今日對戰先發投手（歷史對戰）───────────────────────
+# Sabermetrics界共識：BvP樣本天生就小、噪音極大，20打席以下幾乎無預測力，
+# 就算樣本數達標也不該全信——門檻比一般OPS更嚴，且會大量收縮回聯盟均值，
+# 只留一小部分當微調訊號，避免單一離群對戰紀錄主導預測。
+BVP_MIN_PA        = 15    # 單一打者對這位投手至少要有這麼多歷史打席才採用
+MIN_BVP_BATTERS   = 4     # 今日打線裡至少要有這麼多人達標才採用整體調整
+BVP_KEEP_FRAC     = 0.35  # 就算達標，也只保留BvP偏離聯盟均值幅度的35%，其餘視為雜訊收縮掉
+BVP_ADJ_W         = 0.05  # 收縮後的BvP偏離值對得分的最終調整幅度（刻意設得比其他訊號小很多）
 
 # ── ★ BABIP/LOB% 幸運修正 ────────────────────────────────────
 BABIP_LG_AVG    = 0.300  # 聯盟平均 BABIP（投手運氣中性值）
@@ -135,6 +157,8 @@ TRAVEL_ROAD_PEN    = 0.035  # 每天連續客場 ERA 懲罰（轉換為對手得
 TRAVEL_TZ_PEN      = 0.10   # 跨三個時區額外懲罰（東西岸）
 TRAVEL_MAX_PEN     = 0.28   # 旅行疲勞 ERA 懲罰上限
 TRAVEL_LOOKBACK    = 7      # 往回查幾天的賽程
+GETAWAY_PEN         = 0.05  # Getaway day（今天系列賽最後一場，賽後要移動）ERA等效懲罰
+DAY_AFTER_NIGHT_PEN = 0.06  # 日夜連戰（昨夜比賽、今天日賽）ERA等效懲罰
 CONS_GAME_THRESH   = 7      # 連戰超過此天數後啟動打線疲勞
 CONS_GAME_OFF_PEN  = 0.025  # 每超額一天的打線得分懲罰
 
@@ -442,6 +466,7 @@ _PITCHER_TREND   = {}  # pitcher_key → era_trend（近2場ERA − 前3場ERA�
 _TEAM_OBP        = {}  # team_key → OBP float（MLB API動態本賽季）
 _BULLPEN_ERA_DYN = {}  # team_key → 本賽季牛棚ERA（MLB API動態）
 _BULLPEN_LOAD    = {}  # team_key → 昨日牛棚使用局數（疲勞度代理指標）
+_BULLPEN_B2B     = {}  # team_key → 昨天+前天連兩天都登板的牛棚投手人數（連續作戰疲勞）
 _GAME_UMP        = {}  # (home_key, away_key) → (ump_name, run_adj)（主審裁判偏好）
 _ALL_GAME_PREDS  = {}  # (home_key, away_key) → 預測結果 dict（供場中推薦使用）
 _PITCHER_ID_MAP  = {}  # pitcher_key → MLB pitcher_id（用於賽季ERA補抓）
@@ -456,7 +481,9 @@ _TEAM_VS_RHP_OPS   = {}  # team_key -> OPS vs RHP
 _TEAM_HOME_WPCT    = {}  # team_key -> 主場勝率 (float 0.0-1.0)
 _TEAM_ROAD_WPCT    = {}  # team_key -> 客場勝率 (float 0.0-1.0)
 _TEAM_L10_WPCT     = {}  # team_key -> 近10場勝率 (float 0.0-1.0)
-_TEAM_LINEUP       = {}  # team_key -> [{"order":int,"name":str,"pos":str}] 打線順序
+_TEAM_LINEUP       = {}  # team_key -> [{"order":int,"name":str,"pos":str,"id":int}] 打線順序
+_BATTER_OPS        = {}  # name_key -> 本季OPS（今日先發打線強度用，見_lineup_batting_strength）
+_BVP_CACHE         = {}  # (batter_id,pitcher_id) -> {"ops":float,"pa":int} 或 None（打者對戰投手歷史，含快取）
 _TRAVEL_CONTEXT    = {}  # team_key -> {"road_days": int, "tz_cross": bool}
 
 
@@ -1072,21 +1099,31 @@ def fetch_probable_pitchers():
                 log.info("SP(probable): %s vs %s | H=%s A=%s", hs, as_, _name_to_key(hp), _name_to_key(ap))
 
     # ── 第二來源：RotoWire probable pitchers（編輯維護，更新比 MLB API 快）
+    # 舊邏輯（漏洞）：只有「改名」才算數，RotoWire跟MLB官方公告一致（=兩獨立來源互相
+    # 印證，其實是最強的確認訊號）時完全不記錄，_src繼續停在probable，被誤標未確認。
+    # 新邏輯：改名（override）或一致（confirm）都算確認，都把_src升級。
     for key, roto in _ROTO_SP.items():
         if key not in result: continue
         entry   = result[key]
-        changed = []
+        changed = []; confirmed = []
         for side, is_home in [("home",True),("away",False)]:
             rname = roto.get("home" if is_home else "away")
-            if rname and rname != entry["home_name" if is_home else "away_name"]:
+            if not rname: continue
+            cur = entry["home_name" if is_home else "away_name"]
+            if rname != cur:
                 if is_home:
                     entry.update({"home_name":rname,"home_pitcher":_name_to_key(rname),"home_pitcher_id":None})
                 else:
                     entry.update({"away_name":rname,"away_pitcher":_name_to_key(rname),"away_pitcher_id":None})
                 changed.append(("H" if is_home else "A")+":"+rname)
-        if changed:
+            else:
+                confirmed.append(("H" if is_home else "A")+":"+rname)
+        if changed or confirmed:
             entry["_src"] = "rotowire"
-            log.info("SP(RotoWire override): %s vs %s | %s", key[0], key[1], ", ".join(changed))
+            if changed:
+                log.info("SP(RotoWire override): %s vs %s | %s", key[0], key[1], ", ".join(changed))
+            if confirmed:
+                log.info("SP(RotoWire confirm): %s vs %s | %s", key[0], key[1], ", ".join(confirmed))
 
     # ── 第三來源：ESPN Scoreboard probables ───────────────────
     try:
@@ -1111,16 +1148,26 @@ def fetch_probable_pitchers():
                 key = (home_k, away_k)
                 if key not in result: continue
                 entry = result[key]
-                changed = []
-                if home_sp and home_sp != entry["home_name"]:
-                    entry.update({"home_name":home_sp,"home_pitcher":_name_to_key(home_sp),"home_pitcher_id":None})
-                    changed.append("H:"+home_sp)
-                if away_sp and away_sp != entry["away_name"]:
-                    entry.update({"away_name":away_sp,"away_pitcher":_name_to_key(away_sp),"away_pitcher_id":None})
-                    changed.append("A:"+away_sp)
-                if changed:
+                # 同RotoWire：一致(confirm)跟改名(override)都算確認訊號，都要升級_src
+                changed = []; confirmed = []
+                if home_sp:
+                    if home_sp != entry["home_name"]:
+                        entry.update({"home_name":home_sp,"home_pitcher":_name_to_key(home_sp),"home_pitcher_id":None})
+                        changed.append("H:"+home_sp)
+                    else:
+                        confirmed.append("H:"+home_sp)
+                if away_sp:
+                    if away_sp != entry["away_name"]:
+                        entry.update({"away_name":away_sp,"away_pitcher":_name_to_key(away_sp),"away_pitcher_id":None})
+                        changed.append("A:"+away_sp)
+                    else:
+                        confirmed.append("A:"+away_sp)
+                if changed or confirmed:
                     entry["_src"] = "espn"
-                    log.info("SP(ESPN override): %s vs %s | %s", home_k, away_k, ", ".join(changed))
+                    if changed:
+                        log.info("SP(ESPN override): %s vs %s | %s", home_k, away_k, ", ".join(changed))
+                    if confirmed:
+                        log.info("SP(ESPN confirm): %s vs %s | %s", home_k, away_k, ", ".join(confirmed))
     except Exception as e:
         log.warning("ESPN scoreboard SP failed: %s", e)
 
@@ -1147,7 +1194,9 @@ def fetch_probable_pitchers():
             if not feed: continue
             bs    = feed.get("liveData",{}).get("boxscore",{}).get("teams",{})
             entry = result[key]
-            changed = []
+            # 同RotoWire/ESPN：官方牛棚卡/正式先發卡跟已知先發一致(confirm)也要算確認，
+            # 不能只有改名(override)才升級_src，否則名字一開始就對的場次永遠標「未確認」。
+            changed = []; confirmed = []
             for side, is_home in [("home",True),("away",False)]:
                 t            = bs.get(side,{})
                 pitchers_ids = t.get("pitchers",[])
@@ -1176,9 +1225,14 @@ def fetch_probable_pitchers():
                         else:
                             entry.update({"away_name":name,"away_pitcher":_name_to_key(name),"away_pitcher_id":pid_found})
                         changed.append(("H" if is_home else "A")+":"+name)
-            if changed:
+                    else:
+                        confirmed.append(("H" if is_home else "A")+":"+name)
+            if changed or confirmed:
                 entry["_src"] = "gamefeed"
-                log.info("SP(gamefeed ✅): %s vs %s | %s", key[0], key[1], ", ".join(changed))
+                if changed:
+                    log.info("SP(gamefeed ✅ override): %s vs %s | %s", key[0], key[1], ", ".join(changed))
+                if confirmed:
+                    log.info("SP(gamefeed ✅ confirm): %s vs %s | %s", key[0], key[1], ", ".join(confirmed))
         except Exception as e:
             log.warning("Game feed SP failed gpk=%s: %s", gpk, e)
 
@@ -1307,26 +1361,25 @@ def fetch_game_umpires(today_str):
     log.info("Umpires fetched: %d games", len(result))
 
 
-def fetch_bullpen_load():
-    """拉取昨日各隊牛棚使用局數（IP），作為疲勞度指標。
-    高使用量 → bullpen_adj 加入ERA懲罰。"""
-    global _BULLPEN_LOAD
-    d = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
+def _bullpen_day_appearances(d):
+    """單日各隊牛棚（非先發）使用局數與登板投手名單。
+    回傳 {team_key: {"ip": float, "pitchers": set(name_key)}}"""
     sched = safe_get(
         "https://statsapi.mlb.com/api/v1/schedule",
         params={"date": d, "sportId": 1, "gameType": "R",
                 "fields": "dates,games,gamePk,status,abstractGameState"},
         timeout=8,
     )
-    if not sched: return False
+    if not sched: return {}
     pks = [g.get("gamePk") for db in sched.get("dates",[])
            for g in db.get("games",[])
            if g.get("status",{}).get("abstractGameState") == "Final" and g.get("gamePk")]
-    load = {}
+    out = {}
     for gpk in pks[:16]:
         box = safe_get(
             "https://statsapi.mlb.com/api/v1/game/%d/boxscore" % gpk,
-            params={"fields":"teams,home,away,team,name,pitchers,players,stats,pitching,inningsPitched,gamesStarted"},
+            params={"fields":"teams,home,away,team,name,pitchers,players,person,fullName,"
+                             "stats,pitching,inningsPitched,gamesStarted"},
             timeout=5,
         )
         if not box: continue
@@ -1341,17 +1394,105 @@ def fetch_bullpen_load():
                 stat  = pdata.get("stats",{}).get("pitching",{})
                 if int(stat.get("gamesStarted",0) or 0) > 0: continue
                 ip_s = str(stat.get("inningsPitched","0") or "0")
+                name = pdata.get("person",{}).get("fullName","")
                 try:
                     parts = ip_s.split(".")
                     ip = int(parts[0]) + (int(parts[1])/3 if len(parts)>1 and parts[1] else 0)
-                    if ip > 0: load[tkey] = load.get(tkey, 0) + ip
-                except: pass
+                except (ValueError, IndexError): ip = 0
+                if ip <= 0 and not name: continue
+                entry = out.setdefault(tkey, {"ip": 0.0, "pitchers": set()})
+                entry["ip"] += ip
+                if name: entry["pitchers"].add(_name_to_key(name))
+    return out
+
+def fetch_bullpen_load():
+    """拉取昨日、前日各隊牛棚使用局數與登板投手，計算兩項疲勞指標：
+    1. _BULLPEN_LOAD：昨日牛棚使用局數（原有，疲勞度代理指標）
+    2. _BULLPEN_B2B：昨天+前天『連兩天都登板』的牛棚投手人數——這是終結者/主力
+       後援連續作戰、隔天可用性與品質打折的直接信號，比單看昨日總局數更貼近
+       「牛棚今天還剩多少子彈」。"""
+    global _BULLPEN_LOAD, _BULLPEN_B2B
+    d1 = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
+    d2 = (datetime.date.today() - datetime.timedelta(days=2)).isoformat()
+    day1 = _bullpen_day_appearances(d1)
+    day2 = _bullpen_day_appearances(d2)
+
+    load = {tk: v["ip"] for tk, v in day1.items()}
+    b2b  = {}
+    for tk, v1 in day1.items():
+        v2 = day2.get(tk)
+        if not v2: continue
+        overlap = v1["pitchers"] & v2["pitchers"]
+        if overlap: b2b[tk] = len(overlap)
+
     if load:
         _BULLPEN_LOAD = load
         log.info("Bullpen load(1d): %s",
                  {k:round(v,1) for k,v in sorted(load.items(),key=lambda x:-x[1])[:8]})
+    _BULLPEN_B2B = b2b
+    if b2b:
+        log.info("Bullpen back-to-back fatigue: %s", b2b)
     return bool(load)
 
+
+def _fetch_batter_ops(batter_id):
+    """針對單一打者ID，抓取本賽季整體OPS（打席數過少視為無資料）。
+    與 _fetch_pitcher_season_era 用同一套 stats API 解析方式。"""
+    if not batter_id: return None
+    year = datetime.date.today().year
+    data = safe_get(
+        "https://statsapi.mlb.com/api/v1/people/%d/stats" % batter_id,
+        params={"stats":"season","group":"hitting","season":year,"gameType":"R","sportId":1},
+        timeout=8,
+    )
+    if not data: return None
+    try:
+        splits = []
+        for s in data.get("stats", []):
+            if s.get("sport", {}).get("id") == 1:
+                splits = s.get("splits", [])
+                break
+        if not splits:
+            for s in data.get("stats", []): splits = s.get("splits", []); break
+        if not splits: return None
+        stat = splits[0].get("stat", {})
+        ops  = float(stat.get("ops","0") or "0")
+        pa   = int(float(stat.get("plateAppearances", 0) or 0))
+        if pa >= MIN_BATTER_PA and 0.300 <= ops <= 1.500:
+            return round(ops, 3)
+    except Exception: pass
+    return None
+
+def _fetch_batter_vs_pitcher(batter_id, pitcher_id):
+    """打者對特定投手的生涯歷史對戰OPS（stats=vsPlayer，同一套 people/{id}/stats API，
+    只是把 stats 值換成 vsPlayer 並帶 opposingPlayerId）。結果含快取，同一輪次內
+    同一對打者/投手不重複打API。樣本數低於BVP_MIN_PA視為無資料——BvP本身就是
+    小樣本雜訊很大的統計，門檻比一般季OPS更嚴，且用到時還會再收縮大部分權重。"""
+    if not batter_id or not pitcher_id: return None
+    ck = (batter_id, pitcher_id)
+    if ck in _BVP_CACHE: return _BVP_CACHE[ck]
+    result = None
+    data = safe_get(
+        "https://statsapi.mlb.com/api/v1/people/%d/stats" % batter_id,
+        params={"stats":"vsPlayer","opposingPlayerId":pitcher_id,"group":"hitting","sportId":1},
+        timeout=8,
+    )
+    if data:
+        try:
+            splits = []
+            for s in data.get("stats", []):
+                splits = s.get("splits", [])
+                if splits: break
+            if splits:
+                stat = splits[0].get("stat", {})
+                ops  = float(stat.get("ops","0") or "0")
+                pa   = int(float(stat.get("plateAppearances", 0) or 0))
+                if pa >= BVP_MIN_PA and 0.0 <= ops <= 3.000:
+                    result = {"ops": round(ops, 3), "pa": pa}
+        except Exception:
+            result = None
+    _BVP_CACHE[ck] = result
+    return result
 
 def fetch_lineup():
     """從 MLB game feed 抓取今日各隊打線順序（Pre-Game 後才有資料）。
@@ -1410,8 +1551,9 @@ def fetch_lineup():
                             continue
                         name = pdata.get("person", {}).get("fullName", "")
                         pos  = pdata.get("position", {}).get("abbreviation", "")
+                        pid  = pdata.get("person", {}).get("id")
                         if name:
-                            batters.append({"order": order, "name": name, "pos": pos})
+                            batters.append({"order": order, "name": name, "pos": pos, "id": pid})
                     if batters:
                         batters.sort(key=lambda x: x["order"])
                         lineup_tmp[tkey] = batters[:9]
@@ -1421,6 +1563,20 @@ def fetch_lineup():
     if lineup_tmp:
         _TEAM_LINEUP.update(lineup_tmp)
         log.info("Lineup fetched: %d teams", len(lineup_tmp))
+        # ★ 補抓今日先發打線各打者本季OPS（用於predict()的打線強度修正）
+        # 同一輪次內已快取的打者不重抓；resolve失敗的打者留空，predict()端會用
+        # MIN_LINEUP_BATTERS門檻自動忽略資料不全的隊伍，不會半套資料誤導模型。
+        _new_ops = 0
+        for batters in lineup_tmp.values():
+            for b in batters:
+                nk = _name_to_key(b["name"])
+                if nk in _BATTER_OPS or not b.get("id"):
+                    continue
+                ops = _fetch_batter_ops(b["id"])
+                if ops is not None:
+                    _BATTER_OPS[nk] = ops
+                    _new_ops += 1
+        log.info("Batter OPS fetched: %d new (cache=%d)", _new_ops, len(_BATTER_OPS))
 
 
 def fetch_pitcher_lr_splits(pitcher_id_map):
@@ -1505,18 +1661,23 @@ _CITY_TZ_UTC = {
 }
 
 def fetch_schedule_context(today_str, teams_today):
-    """分析近 TRAVEL_LOOKBACK 天的賽程，計算每支球隊的旅行疲勞與連戰天數。
+    """分析近 TRAVEL_LOOKBACK 天(往前)+1天(往後)的賽程，計算每支球隊的：
+    - 旅行疲勞（連續客場天數、跨時區，沿用原邏輯）
+    - getaway day：今天是系列賽最後一場，明天要移動去打不同對手
+    - day_after_night：昨晚是夜間賽（主場地當地時間≥18:00開打），今天是日間賽（<17:00開打）
     teams_today: set of team_key that play today。"""
     global _TRAVEL_CONTEXT
     if not teams_today: return
     start = (datetime.date.today() - datetime.timedelta(days=TRAVEL_LOOKBACK)).isoformat()
+    tomorrow_str = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
     data = safe_get(
         "https://statsapi.mlb.com/api/v1/schedule",
-        params={"sportId":1,"startDate":start,"endDate":today_str,"gameType":"R"},
+        params={"sportId":1,"startDate":start,"endDate":tomorrow_str,"gameType":"R"},
         timeout=12,
     )
     # Build per-team game history: [(date_str, home_team_key, away_team_key)]
     game_hist = []
+    game_dt_by_key = {}  # (date_str, home_key, away_key) -> game UTC datetime（naive）
     for de in (data or {}).get("dates",[]):
         d = de.get("date","")
         for g in de.get("games",[]):
@@ -1526,9 +1687,34 @@ def fetch_schedule_context(today_str, teams_today):
             ak = norm_team(TEAM_ALIAS.get(ad.lower(), ad.lower().split()[-1] if ad else ""))
             if hk and ak:
                 game_hist.append((d, hk, ak))
+                try:
+                    gd = g.get("gameDate","")
+                    game_dt_by_key[(d, hk, ak)] = datetime.datetime.fromisoformat(
+                        gd.replace("Z","+00:00")).replace(tzinfo=None)
+                except Exception:
+                    pass
     game_hist.sort()
     today = datetime.date.today().isoformat()
+
+    def _local_hour(d, hk, ak, venue_key):
+        dt_utc = game_dt_by_key.get((d, hk, ak))
+        if dt_utc is None: return None
+        return (dt_utc + datetime.timedelta(hours=_CITY_TZ_UTC.get(venue_key, -5))).hour
+
     for team in teams_today:
+        # ── getaway day：比對「今天球場」跟「明天球場」是否同一個城市 ──
+        # 用venue（=hk，主場方）而不是對手來判斷：主場今天打完明天換新對手但還是
+        # 同一個主場，球隊沒有移動，不算getaway；venue變了（不論主客怎麼換）才算。
+        # ★ 這一段獨立於「過去賽程」計算，不能被下面「無過去出賽紀錄」的early-exit擋掉，
+        #   否則球季初期/剛從全明星賽假期回來、過去7天沒比賽的隊伍會永遠判定getaway=False。
+        today_venue = tomorrow_venue = None
+        for (d, hk, ak) in game_hist:
+            if d == today and (hk == team or ak == team):
+                today_venue = hk
+            elif d == tomorrow_str and (hk == team or ak == team):
+                tomorrow_venue = hk
+        getaway = bool(today_venue and tomorrow_venue and today_venue != tomorrow_venue)
+
         # Get ordered list of (date, is_home) for this team
         appearances = []
         for (d, hk, ak) in game_hist:
@@ -1536,7 +1722,8 @@ def fetch_schedule_context(today_str, teams_today):
             if hk == team: appearances.append((d, True))
             elif ak == team: appearances.append((d, False))
         if not appearances:
-            _TRAVEL_CONTEXT[team] = {"road_days": 0, "tz_cross": False}
+            _TRAVEL_CONTEXT[team] = {"road_days": 0, "tz_cross": False,
+                                      "getaway": getaway, "day_after_night": False}
             continue
         # Count consecutive road days ending yesterday
         road_days = 0
@@ -1545,19 +1732,40 @@ def fetch_schedule_context(today_str, teams_today):
             if is_home: break
             road_days += 1
         # Check timezone crossing: compare yesterday's city vs today's city
-        if appearances:
-            last_d, last_home = appearances[-1]
-            if not last_home:
-                # Yesterday was away game; find the home team (venue) of that game
-                for (d, hk, ak) in game_hist:
-                    if d == last_d and ak == team:
-                        last_tz = _CITY_TZ_UTC.get(hk, -5)
-                        home_tz = _CITY_TZ_UTC.get(team, -5)
-                        if abs(last_tz - home_tz) >= 3:
-                            tz_cross = True
-                        break
-        _TRAVEL_CONTEXT[team] = {"road_days": road_days, "tz_cross": tz_cross}
-    log.info("Travel context: %d teams analyzed", len(_TRAVEL_CONTEXT))
+        last_d, last_home = appearances[-1]
+        if not last_home:
+            # Yesterday was away game; find the home team (venue) of that game
+            for (d, hk, ak) in game_hist:
+                if d == last_d and ak == team:
+                    last_tz = _CITY_TZ_UTC.get(hk, -5)
+                    home_tz = _CITY_TZ_UTC.get(team, -5)
+                    if abs(last_tz - home_tz) >= 3:
+                        tz_cross = True
+                    break
+
+        # ── day-after-night：昨天是這隊最近一場比賽，且昨晚夜賽、今天日賽 ──
+        day_after_night = False
+        yesterday = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
+        if last_d == yesterday:
+            last_hk = last_ak = today_hk = today_ak = None
+            for (d, hk, ak) in game_hist:
+                if d == last_d and (hk == team or ak == team):
+                    last_hk, last_ak = hk, ak; break
+            for (d, hk, ak) in game_hist:
+                if d == today and (hk == team or ak == team):
+                    today_hk, today_ak = hk, ak; break
+            if last_hk and today_hk:
+                last_hour  = _local_hour(last_d, last_hk, last_ak, last_hk)
+                today_hour = _local_hour(today, today_hk, today_ak, today_hk)
+                if last_hour is not None and today_hour is not None:
+                    day_after_night = (last_hour >= 18 and today_hour < 17)
+
+        _TRAVEL_CONTEXT[team] = {"road_days": road_days, "tz_cross": tz_cross,
+                                  "getaway": getaway, "day_after_night": day_after_night}
+    n_getaway = sum(1 for v in _TRAVEL_CONTEXT.values() if v.get("getaway"))
+    n_dan     = sum(1 for v in _TRAVEL_CONTEXT.values() if v.get("day_after_night"))
+    log.info("Travel context: %d teams analyzed (getaway=%d, day_after_night=%d)",
+             len(_TRAVEL_CONTEXT), n_getaway, n_dan)
 
 
 def fetch_team_l10():
@@ -2113,19 +2321,25 @@ def get_pitcher_era(key):
         era_out = round(era_out*(1-RELIEVER_SP_REGRESS) + LEAGUE_ERA*RELIEVER_SP_REGRESS, 2)
 
     # ── Step 4：BABIP/LOB% 運氣修正 ──────────────────────────────
-    # 僅在 avgIP≥5.5 時啟用：小樣本的BABIP/LOB波動極大，不代表真實運氣
+    # 舊邏輯（漏洞）：avgIP≥5.5才啟用，硬門檻 → avgIP剛好卡在4.0~5.5的先發
+    # （近期最常見的樣本區間，且最容易出現極端BABIP/LOB）完全吃不到修正，
+    # 而這正是最需要修正的族群：局數少 → BABIP/LOB波動大 → 更可能是運氣而非實力。
+    # 新邏輯：4.0局（_fetch_recent_era的「完整先發」門檻）起線性生效，5.5局後權重滿。
     babip   = _PITCHER_BABIP.get(k)
     lob     = _PITCHER_LOB_PCT.get(k)
     avg_ip  = _PITCHER_IP.get(k, 6.0)
     extra_fip_w = 0.0
-    if avg_ip >= 5.5:  # 只有足夠局數樣本才信任BABIP/LOB
+    IP_LUCK_GATE_MIN  = 4.0   # 低於此局數：非完整先發樣本，不修正
+    IP_LUCK_GATE_FULL = 5.5   # 達此局數：修正權重100%
+    if avg_ip >= IP_LUCK_GATE_MIN:
+        ip_scale = min(1.0, (avg_ip - IP_LUCK_GATE_MIN) / (IP_LUCK_GATE_FULL - IP_LUCK_GATE_MIN))
         if babip is not None:
             babip_dev = abs(babip - BABIP_LG_AVG) / 0.030
             extra_fip_w += babip_dev * BABIP_FIP_BONUS
         if lob is not None:
             lob_dev = abs(lob - LOB_LG_AVG) / 5.0
             extra_fip_w += lob_dev * LOB_FIP_BONUS
-        extra_fip_w = min(extra_fip_w, 0.20)  # 小樣本保護：上限從0.30降至0.20
+        extra_fip_w = min(extra_fip_w, 0.20) * ip_scale  # 小樣本保護：上限0.20，再依局數線性縮放
     if extra_fip_w > 0 and fip is not None:
         era_out = round(era_out*(1-extra_fip_w) + fip*extra_fip_w, 2)
 
@@ -2166,6 +2380,9 @@ def bullpen_adj(team):
     # 昨日疲勞懲罰：牛棚使用局數超出基準值 → ERA等效上升（壓制力下降）
     recent_ip   = _BULLPEN_LOAD.get(t, 0.0)
     fatigue_era = max(0.0, (recent_ip - BULL_FATIGUE_IP) * BULL_FATIGUE_ERA)
+    # 連兩天上場懲罰：昨天+前天都登板的投手，今天大機率降級使用或直接不能用
+    b2b_cnt      = min(_BULLPEN_B2B.get(t, 0), BULL_B2B_CAP)
+    fatigue_era += b2b_cnt * BULL_B2B_ERA_PER
     effective_era = era + fatigue_era
     # ★ 修正符號：好牛棚（ERA < 聯盟均值）→ 正值 → 對手得分減少
     return round((LEAGUE_BULL_ERA - effective_era) * 0.20 * depth, 3)
@@ -2276,6 +2493,33 @@ def monte_carlo_game(h_exp, a_exp, h_sigma=0.0, a_sigma=0.0,
         rl_probs = {sp: round(cnt / n_sims, 4) for sp, cnt in rl_cnts.items()}
         return wins / n_sims, over_p, mean_t, 0.0, rl_probs
 
+def _lineup_batting_strength(team_key):
+    """今日先發打線9人本季OPS平均值；打線未公布或有效資料不足MIN_LINEUP_BATTERS人時回傳None。"""
+    batters = _TEAM_LINEUP.get(team_key)
+    if not batters: return None
+    vals = [_BATTER_OPS[nk] for nk in (_name_to_key(b["name"]) for b in batters) if nk in _BATTER_OPS]
+    if len(vals) < MIN_LINEUP_BATTERS: return None
+    return round(sum(vals)/len(vals), 3)
+
+def _lineup_vs_pitcher_factor(team_key, opp_sp_key):
+    """今日打線對「今天對戰先發投手」的歷史對戰OPS，大量收縮回聯盟均值後回傳。
+    打線未公布、對方先發未知、或達標打者數不足MIN_BVP_BATTERS時回傳None（不調整）。"""
+    if not opp_sp_key: return None
+    pid = _PITCHER_ID_MAP.get(opp_sp_key)
+    if not pid: return None
+    batters = _TEAM_LINEUP.get(team_key)
+    if not batters: return None
+    vals = []
+    for b in batters:
+        bid = b.get("id")
+        if not bid: continue
+        bvp = _fetch_batter_vs_pitcher(bid, pid)
+        if bvp: vals.append(bvp["ops"])
+    if len(vals) < MIN_BVP_BATTERS: return None
+    raw_ops = sum(vals) / len(vals)
+    shrunk  = LG_OPS_AVG + (raw_ops - LG_OPS_AVG) * BVP_KEEP_FRAC
+    return round(shrunk, 3)
+
 def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
     hr = get_rating(home)
     ar = get_rating(away)
@@ -2341,6 +2585,28 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
     if home_ops_vs_a and LG_OPS_AVG > 0:
         h_exp = round(h_exp * (1.0 + (home_ops_vs_a - LG_OPS_AVG) / LG_OPS_AVG * LR_OPS_W), 3)
 
+    # ⑥c2 ★ 今日實際先發打線強度（vs 聯盟均值OPS）
+    # 舊邏輯的缺口：hr["off"]/ar["off"]是整季全隊平均打擊力，代表不了「今天主力輪休/
+    # 傷兵替補上陣」的實際打線。fetch_lineup()已經在抓打線名單，只是從未接進predict()。
+    # 只有≥MIN_LINEUP_BATTERS位打者有本季OPS資料才採用，避免資料不全時被少數值主導；
+    # 資料不足（多數場次仍在賽前，打線卡未公布）時直接跳過，不影響原本的整季基準。
+    h_lineup_ops = _lineup_batting_strength(home)
+    a_lineup_ops = _lineup_batting_strength(away)
+    if h_lineup_ops:
+        h_exp = round(h_exp * (1.0 + (h_lineup_ops - LG_OPS_AVG) / LG_OPS_AVG * LINEUP_OPS_W), 3)
+    if a_lineup_ops:
+        a_exp = round(a_exp * (1.0 + (a_lineup_ops - LG_OPS_AVG) / LG_OPS_AVG * LINEUP_OPS_W), 3)
+
+    # ⑥c3 ★ 打線對今日對戰先發的歷史對戰（BvP，重度收縮回聯盟均值後的微調訊號）
+    # BvP樣本天生小、雜訊大，_lineup_vs_pitcher_factor已經做過大量收縮，這裡再用
+    # 很小的BVP_ADJ_W，雙重保守——即使資料/收縮有誤差，對整體預測的影響也有限。
+    h_bvp_ops = _lineup_vs_pitcher_factor(home, away_sp)
+    a_bvp_ops = _lineup_vs_pitcher_factor(away, home_sp)
+    if h_bvp_ops:
+        h_exp = round(h_exp * (1.0 + (h_bvp_ops - LG_OPS_AVG) / LG_OPS_AVG * BVP_ADJ_W), 3)
+    if a_bvp_ops:
+        a_exp = round(a_exp * (1.0 + (a_bvp_ops - LG_OPS_AVG) / LG_OPS_AVG * BVP_ADJ_W), 3)
+
     # ⑥d ★ 投手隊友得分支援（run support/GS vs 隊伍場均）
     # 若這投手先發時隊伍習慣多/少得分，微調期望得分
     # ML/RL使用完整RS_BLEND_W；大小分使用極低RS_BLEND_W_TOT（防RS拉高Over）
@@ -2393,6 +2659,21 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
                          TRAVEL_MAX_PEN)
         a_exp = round(a_exp - travel_pen * 0.35, 3)  # 換算為得分懲罰（ERA的0.35係數）
         a_exp_tot = round(a_exp_tot - travel_pen * 0.35, 3)
+
+    # ⑩b ★ Getaway day / Day-after-night 疲勞（不分主客，任一隊今天符合條件都扣分）
+    # getaway：今天系列賽最後一場，賽後要換城市 → 賽前心思/後段體力都打折
+    # day-after-night：昨晚夜間賽（本地時間≥18:00開打）、今天日間賽（<17:00開打）→ 休息不足
+    # 兩者都是球圈公認的疲勞因子，跟旅行天數/跨時區獨立，因此不分主客各自判定
+    h_ctx = _TRAVEL_CONTEXT.get(home, {})
+    a_ctx = _TRAVEL_CONTEXT.get(away, {})
+    if h_ctx.get("getaway"):
+        h_exp = round(h_exp - GETAWAY_PEN * 0.35, 3); h_exp_tot = round(h_exp_tot - GETAWAY_PEN * 0.35, 3)
+    if h_ctx.get("day_after_night"):
+        h_exp = round(h_exp - DAY_AFTER_NIGHT_PEN * 0.35, 3); h_exp_tot = round(h_exp_tot - DAY_AFTER_NIGHT_PEN * 0.35, 3)
+    if a_ctx.get("getaway"):
+        a_exp = round(a_exp - GETAWAY_PEN * 0.35, 3); a_exp_tot = round(a_exp_tot - GETAWAY_PEN * 0.35, 3)
+    if a_ctx.get("day_after_night"):
+        a_exp = round(a_exp - DAY_AFTER_NIGHT_PEN * 0.35, 3); a_exp_tot = round(a_exp_tot - DAY_AFTER_NIGHT_PEN * 0.35, 3)
 
     # ⑪ ★ 近10場勝率修正（熱手/冷手效應，比賽季整體勝率更即時）
     h_l10 = _TEAM_L10_WPCT.get(home.lower())
@@ -2469,6 +2750,10 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
         "mc_rl_probs":    mc_rl_probs,             # MC讓分概率: {spread: P(h-a > spread)}
         "h_l10_wpct":     h_l10,                   # 主隊近10場勝率
         "a_l10_wpct":     a_l10,                   # 客隊近10場勝率
+        "h_lineup_ops":   h_lineup_ops,             # 主隊今日先發打線OPS（None=打線未公布/樣本不足）
+        "a_lineup_ops":   a_lineup_ops,             # 客隊今日先發打線OPS
+        "h_bvp_ops":      h_bvp_ops,                # 主隊打線對客隊先發歷史對戰OPS（已收縮，None=無資料）
+        "a_bvp_ops":      a_bvp_ops,                # 客隊打線對主隊先發歷史對戰OPS
     }
 
 def runline_prob(margin, spread, dyn_std):
@@ -3026,7 +3311,15 @@ def run():
         else:
             h_gives = (rl_h_pts is None or rl_h_pts < 0)
 
-        def _con_avg(bids): return round(sum(p for p,_ in bids)/len(bids),3) if bids else None
+        def _con_avg(bids):
+            # ★ Sharp book加權平均：舊邏輯把DraftKings/FanDuel這種大眾書跟Pinnacle/
+            # LowVig.ag這種低利潤sharp book一視同仁做算術平均，稀釋了sharp book的訊號。
+            if not bids: return None
+            wsum = psum = 0.0
+            for p, bk in bids:
+                w = SHARP_BOOK_WEIGHT if (bk or "").strip().lower() in SHARP_BOOKS else 1.0
+                wsum += w; psum += p*w
+            return round(psum/wsum, 3) if wsum > 0 else None
         def _best_valid(bids, con):
             # 排除超過共識 MAX_PRICE_GAP 的離群賠率，取剩餘最高值
             if not bids: return None, None
@@ -3068,16 +3361,18 @@ def run():
         }
         prev_game = prev_snap.get(snap_key, {})
 
-        con_h = round(sum(con_h_prices)/len(con_h_prices),3) if con_h_prices else home_price
-        con_a = round(sum(con_a_prices)/len(con_a_prices),3) if con_a_prices else away_price
+        # ★ 沿用上面已用sharp book加權算好的 _con_h/_con_a/...，不再另外算一次普通平均
+        # （舊版con_h/con_a等是獨立用con_h_prices等plain list算普通平均，等於sharp加權白做了）
+        con_h = _con_h if _con_h is not None else home_price
+        con_a = _con_a if _con_a is not None else away_price
         if con_h <= 0 or con_a <= 0: continue  # guard: 防止除以零
 
-        con_rl_h_p = round(sum(con_rl_h)/len(con_rl_h),3) if con_rl_h else rl_h_price
-        con_rl_a_p = round(sum(con_rl_a)/len(con_rl_a),3) if con_rl_a else rl_a_price
-        con_rl_h_p_25 = round(sum(con_rl_h_25)/len(con_rl_h_25),3) if con_rl_h_25 else rl_h_price_25
-        con_rl_a_p_25 = round(sum(con_rl_a_25)/len(con_rl_a_25),3) if con_rl_a_25 else rl_a_price_25
-        con_ov_p   = round(sum(con_over)/len(con_over),3) if con_over else over_price
-        con_un_p   = round(sum(con_under)/len(con_under),3) if con_under else under_price
+        con_rl_h_p    = _con_rl_h    if _con_rl_h    is not None else rl_h_price
+        con_rl_a_p    = _con_rl_a    if _con_rl_a    is not None else rl_a_price
+        con_rl_h_p_25 = _con_rl_h_25 if _con_rl_h_25 is not None else rl_h_price_25
+        con_rl_a_p_25 = _con_rl_a_25 if _con_rl_a_25 is not None else rl_a_price_25
+        con_ov_p      = _con_ov      if _con_ov      is not None else over_price
+        con_un_p      = _con_un      if _con_un      is not None else under_price
 
         pred    = predict(home,away,home_sp,away_sp,market_total=market_total,game_dt=game_dt)
         _ALL_GAME_PREDS[(home, away)] = {
@@ -3176,12 +3471,19 @@ def run():
         best_pick=None
         _h_era_v = get_pitcher_era(home_sp)
         _a_era_v = get_pitcher_era(away_sp)
+        # ★ 先發未確認折扣：_sp_src仍為probable（僅MLB官方預告，未經牛棚卡/正式先發卡確認）
+        # 且離開賽還早 → 先發臨場更換風險較高，此時的ERA/FIP優勢基礎本身就不穩固，
+        # 過去只把這狀態顯示成⚠️文字標籤，卻從未真正反映在信心/Edge計算裡，此處補上。
+        _hours_to_game = ((game_dt - now_tw).total_seconds()/3600) if game_dt else 0
+        _sp_unconfirmed_mult = (SP_UNCONFIRMED_CONF_MULT
+                                 if (_sp_src == "probable" and _hours_to_game > SP_UNCONFIRMED_FAR_HOURS)
+                                 else 1.0)
         for btype,bside,bteam,bp,bk,model_p,edge_min,blend_p,con_p,conf_mult in candidates:
             if bp is None or bp<=0 or con_p is None or con_p<=0: continue
             if bp/con_p - 1 > MAX_PRICE_GAP: continue  # 賠率偏離共識>25%，疑似錯誤或過時報價
             # ★ TOT使用conf_tot（pure_total_tot基礎，RS影響更低）；ML/RL用conf
             _base_conf = conf_tot if btype == BET_TOT else conf
-            bet_conf = _base_conf*conf_mult
+            bet_conf = _base_conf*conf_mult*_sp_unconfirmed_mult
             raw_edge = model_p - _dv.get(bside, 1/bp)  # ★ Devigged edge
             # ★ 分類型歷史勝率校正（需 ≥MIN_SAMPLE_CALIB 才生效，防小樣本過擬合）
             _wr_hist = wr_by_type.get(btype)
