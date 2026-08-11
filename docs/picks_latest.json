@@ -756,12 +756,12 @@
       "away_cn": "光芒",
       "inning": 7,
       "top_inning": false,
-      "home_runs": 3,
+      "home_runs": 5,
       "away_runs": 2,
-      "projected_total": 7.8,
+      "projected_total": 9.8,
       "market_total": 10.0,
-      "bet": null,
-      "reason": null
+      "bet": "主隊獨贏",
+      "reason": "第7局主隊領先3分（賽前主隊勝率63%），大局已定"
     },
     {
       "home_cn": "教士",
@@ -791,16 +791,16 @@
       "home_cn": "道奇",
       "away_cn": "皇家",
       "inning": 5,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 2,
       "away_runs": 3,
-      "projected_total": 9.2,
+      "projected_total": 8.8,
       "market_total": 7.5,
-      "bet": "大小分 OVER",
-      "reason": "第5局已得5分（此時預期3.3分），高分走勢盤口7.5"
+      "bet": "主隊讓分(+1.5)",
+      "reason": "主隊落後1分 第5局，賽前主隊勝率58%"
     }
   ],
-  "live_updated_ts": 1786419250,
+  "live_updated_ts": 1786419552,
   "game_preds": {
     "blue jays|red sox": {
       "home_win_prob": 0.2989,
@@ -843,5 +843,5 @@
       "market_total": 7.5
     }
   },
-  "live_updated_at": "2026-08-11 11:34 (台灣時間)"
+  "live_updated_at": "2026-08-11 11:39 (台灣時間)"
 }
