@@ -137,6 +137,15 @@ LINEUP_OPS_W       = 0.16  # 今日打線OPS偏離聯盟均值的得分調整幅
 MIN_LINEUP_BATTERS = 7     # 9位先發中至少要有這麼多人查得到本季OPS才採用
 MIN_BATTER_PA       = 20   # 打席數低於此值的OPS太小樣本，視為無資料
 
+# ── ★ 打者 vs 今日對戰先發投手（歷史對戰）───────────────────────
+# Sabermetrics界共識：BvP樣本天生就小、噪音極大，20打席以下幾乎無預測力，
+# 就算樣本數達標也不該全信——門檻比一般OPS更嚴，且會大量收縮回聯盟均值，
+# 只留一小部分當微調訊號，避免單一離群對戰紀錄主導預測。
+BVP_MIN_PA        = 15    # 單一打者對這位投手至少要有這麼多歷史打席才採用
+MIN_BVP_BATTERS   = 4     # 今日打線裡至少要有這麼多人達標才採用整體調整
+BVP_KEEP_FRAC     = 0.35  # 就算達標，也只保留BvP偏離聯盟均值幅度的35%，其餘視為雜訊收縮掉
+BVP_ADJ_W         = 0.05  # 收縮後的BvP偏離值對得分的最終調整幅度（刻意設得比其他訊號小很多）
+
 # ── ★ BABIP/LOB% 幸運修正 ────────────────────────────────────
 BABIP_LG_AVG    = 0.300  # 聯盟平均 BABIP（投手運氣中性值）
 LOB_LG_AVG      = 72.0   # 聯盟平均殘壘率%（中性值）
@@ -474,6 +483,7 @@ _TEAM_ROAD_WPCT    = {}  # team_key -> 客場勝率 (float 0.0-1.0)
 _TEAM_L10_WPCT     = {}  # team_key -> 近10場勝率 (float 0.0-1.0)
 _TEAM_LINEUP       = {}  # team_key -> [{"order":int,"name":str,"pos":str,"id":int}] 打線順序
 _BATTER_OPS        = {}  # name_key -> 本季OPS（今日先發打線強度用，見_lineup_batting_strength）
+_BVP_CACHE         = {}  # (batter_id,pitcher_id) -> {"ops":float,"pa":int} 或 None（打者對戰投手歷史，含快取）
 _TRAVEL_CONTEXT    = {}  # team_key -> {"road_days": int, "tz_cross": bool}
 
 
@@ -1452,6 +1462,37 @@ def _fetch_batter_ops(batter_id):
             return round(ops, 3)
     except Exception: pass
     return None
+
+def _fetch_batter_vs_pitcher(batter_id, pitcher_id):
+    """打者對特定投手的生涯歷史對戰OPS（stats=vsPlayer，同一套 people/{id}/stats API，
+    只是把 stats 值換成 vsPlayer 並帶 opposingPlayerId）。結果含快取，同一輪次內
+    同一對打者/投手不重複打API。樣本數低於BVP_MIN_PA視為無資料——BvP本身就是
+    小樣本雜訊很大的統計，門檻比一般季OPS更嚴，且用到時還會再收縮大部分權重。"""
+    if not batter_id or not pitcher_id: return None
+    ck = (batter_id, pitcher_id)
+    if ck in _BVP_CACHE: return _BVP_CACHE[ck]
+    result = None
+    data = safe_get(
+        "https://statsapi.mlb.com/api/v1/people/%d/stats" % batter_id,
+        params={"stats":"vsPlayer","opposingPlayerId":pitcher_id,"group":"hitting","sportId":1},
+        timeout=8,
+    )
+    if data:
+        try:
+            splits = []
+            for s in data.get("stats", []):
+                splits = s.get("splits", [])
+                if splits: break
+            if splits:
+                stat = splits[0].get("stat", {})
+                ops  = float(stat.get("ops","0") or "0")
+                pa   = int(float(stat.get("plateAppearances", 0) or 0))
+                if pa >= BVP_MIN_PA and 0.0 <= ops <= 3.000:
+                    result = {"ops": round(ops, 3), "pa": pa}
+        except Exception:
+            result = None
+    _BVP_CACHE[ck] = result
+    return result
 
 def fetch_lineup():
     """從 MLB game feed 抓取今日各隊打線順序（Pre-Game 後才有資料）。
@@ -2460,6 +2501,25 @@ def _lineup_batting_strength(team_key):
     if len(vals) < MIN_LINEUP_BATTERS: return None
     return round(sum(vals)/len(vals), 3)
 
+def _lineup_vs_pitcher_factor(team_key, opp_sp_key):
+    """今日打線對「今天對戰先發投手」的歷史對戰OPS，大量收縮回聯盟均值後回傳。
+    打線未公布、對方先發未知、或達標打者數不足MIN_BVP_BATTERS時回傳None（不調整）。"""
+    if not opp_sp_key: return None
+    pid = _PITCHER_ID_MAP.get(opp_sp_key)
+    if not pid: return None
+    batters = _TEAM_LINEUP.get(team_key)
+    if not batters: return None
+    vals = []
+    for b in batters:
+        bid = b.get("id")
+        if not bid: continue
+        bvp = _fetch_batter_vs_pitcher(bid, pid)
+        if bvp: vals.append(bvp["ops"])
+    if len(vals) < MIN_BVP_BATTERS: return None
+    raw_ops = sum(vals) / len(vals)
+    shrunk  = LG_OPS_AVG + (raw_ops - LG_OPS_AVG) * BVP_KEEP_FRAC
+    return round(shrunk, 3)
+
 def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
     hr = get_rating(home)
     ar = get_rating(away)
@@ -2536,6 +2596,16 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
         h_exp = round(h_exp * (1.0 + (h_lineup_ops - LG_OPS_AVG) / LG_OPS_AVG * LINEUP_OPS_W), 3)
     if a_lineup_ops:
         a_exp = round(a_exp * (1.0 + (a_lineup_ops - LG_OPS_AVG) / LG_OPS_AVG * LINEUP_OPS_W), 3)
+
+    # ⑥c3 ★ 打線對今日對戰先發的歷史對戰（BvP，重度收縮回聯盟均值後的微調訊號）
+    # BvP樣本天生小、雜訊大，_lineup_vs_pitcher_factor已經做過大量收縮，這裡再用
+    # 很小的BVP_ADJ_W，雙重保守——即使資料/收縮有誤差，對整體預測的影響也有限。
+    h_bvp_ops = _lineup_vs_pitcher_factor(home, away_sp)
+    a_bvp_ops = _lineup_vs_pitcher_factor(away, home_sp)
+    if h_bvp_ops:
+        h_exp = round(h_exp * (1.0 + (h_bvp_ops - LG_OPS_AVG) / LG_OPS_AVG * BVP_ADJ_W), 3)
+    if a_bvp_ops:
+        a_exp = round(a_exp * (1.0 + (a_bvp_ops - LG_OPS_AVG) / LG_OPS_AVG * BVP_ADJ_W), 3)
 
     # ⑥d ★ 投手隊友得分支援（run support/GS vs 隊伍場均）
     # 若這投手先發時隊伍習慣多/少得分，微調期望得分
@@ -2682,6 +2752,8 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
         "a_l10_wpct":     a_l10,                   # 客隊近10場勝率
         "h_lineup_ops":   h_lineup_ops,             # 主隊今日先發打線OPS（None=打線未公布/樣本不足）
         "a_lineup_ops":   a_lineup_ops,             # 客隊今日先發打線OPS
+        "h_bvp_ops":      h_bvp_ops,                # 主隊打線對客隊先發歷史對戰OPS（已收縮，None=無資料）
+        "a_bvp_ops":      a_bvp_ops,                # 客隊打線對主隊先發歷史對戰OPS
     }
 
 def runline_prob(margin, spread, dyn_std):
