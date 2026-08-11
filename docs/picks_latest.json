@@ -742,26 +742,26 @@
     {
       "home_cn": "勇士",
       "away_cn": "大都會",
-      "inning": 5,
-      "top_inning": false,
+      "inning": 6,
+      "top_inning": true,
       "home_runs": 5,
       "away_runs": 7,
-      "projected_total": 16.2,
+      "projected_total": 15.8,
       "market_total": 8.5,
       "bet": "大小分 OVER",
-      "reason": "第5局已得12分（此時預期4.2分），高分走勢盤口8.5"
+      "reason": "第6局已得12分（此時預期4.7分），高分走勢盤口8.5"
     },
     {
       "home_cn": "雙城",
       "away_cn": "金鶯",
       "inning": 6,
-      "top_inning": true,
+      "top_inning": false,
       "home_runs": 2,
       "away_runs": 1,
-      "projected_total": 6.8,
+      "projected_total": 6.3,
       "market_total": 8.5,
-      "bet": "客隊讓分(+1.5)",
-      "reason": "客隊落後1分 第6局，賽前客隊勝率71%"
+      "bet": "大小分 UNDER",
+      "reason": "第6局僅3分（此時預期5.2分），低分走勢盤口8.5"
     },
     {
       "home_cn": "紅雀",
@@ -774,9 +774,21 @@
       "market_total": 9.0,
       "bet": null,
       "reason": null
+    },
+    {
+      "home_cn": "天使",
+      "away_cn": "遊騎兵",
+      "inning": 1,
+      "top_inning": true,
+      "home_runs": 0,
+      "away_runs": 0,
+      "projected_total": 8.0,
+      "market_total": 8.0,
+      "bet": null,
+      "reason": null
     }
   ],
-  "live_updated_ts": 1786410505,
+  "live_updated_ts": 1786410807,
   "game_preds": {
     "blue jays|red sox": {
       "home_win_prob": 0.2989,
@@ -819,5 +831,5 @@
       "market_total": 7.5
     }
   },
-  "live_updated_at": "2026-08-11 09:08 (台灣時間)"
+  "live_updated_at": "2026-08-11 09:13 (台灣時間)"
 }
