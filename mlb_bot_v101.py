@@ -60,6 +60,10 @@ RL_OPP_RS_THRESH = 4.0  # 客隊近期RS ≥此值 → 進攻力足以在王牌�
 # SLUMP_RL_CONF_MIN 已移除：低迷期縮注由全局 SLUMP_KELLY_MUL 管理，不另設RL conf門檻
 SP_UNCONFIRMED_FAR_HOURS = 8.0   # 先發來源仍為probable（未經牛棚卡/正式先發卡確認）且離開賽還早於此時數
 SP_UNCONFIRMED_CONF_MULT = 0.93  # → 信心打折：先發臨場更換是常態，此時ERA/FIP優勢基礎本身就不穩固
+# ── Sharp book 加權：低利潤／效率高的書商開盤比大眾書更準，共識賠率不該對所有書商一視同仁 ──
+# 書名須對應 Odds API 回傳的 bookmaker title（小寫比對）；名單以外一律視為 square book，權重1.0。
+SHARP_BOOKS = {"pinnacle","circa sports","lowvig.ag","betonline.ag","bookmaker.eu","bovada"}
+SHARP_BOOK_WEIGHT = 2.5   # sharp book 在共識賠率計算中的權重（square book固定為1.0）
 ODDS_SNAP_PATH = "docs/odds_snapshot.json"
 LEAGUE_ERA     = 4.20
 HIST_TTL       = 90
@@ -125,6 +129,11 @@ MIN_SAMPLE_CALIB = 20    # 分類型勝率校正所需最少樣本
 LR_OPS_W        = 0.14   # 球隊打擊 vs 左/右投 OPS 調整幅度（相對聯盟均值）
 LG_OPS_AVG      = 0.720  # 聯盟平均 OPS（基準）
 PITCHER_HAND_DEF= "R"    # 未知投手慣用手預設右投（MLB ~70% 為右投）
+
+# ── ★ 今日實際先發打線強度（vs 整季全隊平均） ─────────────────
+LINEUP_OPS_W       = 0.16  # 今日打線OPS偏離聯盟均值的得分調整幅度
+MIN_LINEUP_BATTERS = 7     # 9位先發中至少要有這麼多人查得到本季OPS才採用
+MIN_BATTER_PA       = 20   # 打席數低於此值的OPS太小樣本，視為無資料
 
 # ── ★ BABIP/LOB% 幸運修正 ────────────────────────────────────
 BABIP_LG_AVG    = 0.300  # 聯盟平均 BABIP（投手運氣中性值）
@@ -458,7 +467,8 @@ _TEAM_VS_RHP_OPS   = {}  # team_key -> OPS vs RHP
 _TEAM_HOME_WPCT    = {}  # team_key -> 主場勝率 (float 0.0-1.0)
 _TEAM_ROAD_WPCT    = {}  # team_key -> 客場勝率 (float 0.0-1.0)
 _TEAM_L10_WPCT     = {}  # team_key -> 近10場勝率 (float 0.0-1.0)
-_TEAM_LINEUP       = {}  # team_key -> [{"order":int,"name":str,"pos":str}] 打線順序
+_TEAM_LINEUP       = {}  # team_key -> [{"order":int,"name":str,"pos":str,"id":int}] 打線順序
+_BATTER_OPS        = {}  # name_key -> 本季OPS（今日先發打線強度用，見_lineup_batting_strength）
 _TRAVEL_CONTEXT    = {}  # team_key -> {"road_days": int, "tz_cross": bool}
 
 
@@ -1382,6 +1392,34 @@ def fetch_bullpen_load():
     return bool(load)
 
 
+def _fetch_batter_ops(batter_id):
+    """針對單一打者ID，抓取本賽季整體OPS（打席數過少視為無資料）。
+    與 _fetch_pitcher_season_era 用同一套 stats API 解析方式。"""
+    if not batter_id: return None
+    year = datetime.date.today().year
+    data = safe_get(
+        "https://statsapi.mlb.com/api/v1/people/%d/stats" % batter_id,
+        params={"stats":"season","group":"hitting","season":year,"gameType":"R","sportId":1},
+        timeout=8,
+    )
+    if not data: return None
+    try:
+        splits = []
+        for s in data.get("stats", []):
+            if s.get("sport", {}).get("id") == 1:
+                splits = s.get("splits", [])
+                break
+        if not splits:
+            for s in data.get("stats", []): splits = s.get("splits", []); break
+        if not splits: return None
+        stat = splits[0].get("stat", {})
+        ops  = float(stat.get("ops","0") or "0")
+        pa   = int(float(stat.get("plateAppearances", 0) or 0))
+        if pa >= MIN_BATTER_PA and 0.300 <= ops <= 1.500:
+            return round(ops, 3)
+    except Exception: pass
+    return None
+
 def fetch_lineup():
     """從 MLB game feed 抓取今日各隊打線順序（Pre-Game 後才有資料）。
     結果存入 _TEAM_LINEUP: team_key -> [{"order":int,"name":str,"pos":str}]
@@ -1439,8 +1477,9 @@ def fetch_lineup():
                             continue
                         name = pdata.get("person", {}).get("fullName", "")
                         pos  = pdata.get("position", {}).get("abbreviation", "")
+                        pid  = pdata.get("person", {}).get("id")
                         if name:
-                            batters.append({"order": order, "name": name, "pos": pos})
+                            batters.append({"order": order, "name": name, "pos": pos, "id": pid})
                     if batters:
                         batters.sort(key=lambda x: x["order"])
                         lineup_tmp[tkey] = batters[:9]
@@ -1450,6 +1489,20 @@ def fetch_lineup():
     if lineup_tmp:
         _TEAM_LINEUP.update(lineup_tmp)
         log.info("Lineup fetched: %d teams", len(lineup_tmp))
+        # ★ 補抓今日先發打線各打者本季OPS（用於predict()的打線強度修正）
+        # 同一輪次內已快取的打者不重抓；resolve失敗的打者留空，predict()端會用
+        # MIN_LINEUP_BATTERS門檻自動忽略資料不全的隊伍，不會半套資料誤導模型。
+        _new_ops = 0
+        for batters in lineup_tmp.values():
+            for b in batters:
+                nk = _name_to_key(b["name"])
+                if nk in _BATTER_OPS or not b.get("id"):
+                    continue
+                ops = _fetch_batter_ops(b["id"])
+                if ops is not None:
+                    _BATTER_OPS[nk] = ops
+                    _new_ops += 1
+        log.info("Batter OPS fetched: %d new (cache=%d)", _new_ops, len(_BATTER_OPS))
 
 
 def fetch_pitcher_lr_splits(pitcher_id_map):
@@ -2311,6 +2364,14 @@ def monte_carlo_game(h_exp, a_exp, h_sigma=0.0, a_sigma=0.0,
         rl_probs = {sp: round(cnt / n_sims, 4) for sp, cnt in rl_cnts.items()}
         return wins / n_sims, over_p, mean_t, 0.0, rl_probs
 
+def _lineup_batting_strength(team_key):
+    """今日先發打線9人本季OPS平均值；打線未公布或有效資料不足MIN_LINEUP_BATTERS人時回傳None。"""
+    batters = _TEAM_LINEUP.get(team_key)
+    if not batters: return None
+    vals = [_BATTER_OPS[nk] for nk in (_name_to_key(b["name"]) for b in batters) if nk in _BATTER_OPS]
+    if len(vals) < MIN_LINEUP_BATTERS: return None
+    return round(sum(vals)/len(vals), 3)
+
 def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
     hr = get_rating(home)
     ar = get_rating(away)
@@ -2375,6 +2436,18 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
     home_ops_vs_a = (_TEAM_VS_LHP_OPS.get(home) if a_hand=="L" else _TEAM_VS_RHP_OPS.get(home))
     if home_ops_vs_a and LG_OPS_AVG > 0:
         h_exp = round(h_exp * (1.0 + (home_ops_vs_a - LG_OPS_AVG) / LG_OPS_AVG * LR_OPS_W), 3)
+
+    # ⑥c2 ★ 今日實際先發打線強度（vs 聯盟均值OPS）
+    # 舊邏輯的缺口：hr["off"]/ar["off"]是整季全隊平均打擊力，代表不了「今天主力輪休/
+    # 傷兵替補上陣」的實際打線。fetch_lineup()已經在抓打線名單，只是從未接進predict()。
+    # 只有≥MIN_LINEUP_BATTERS位打者有本季OPS資料才採用，避免資料不全時被少數值主導；
+    # 資料不足（多數場次仍在賽前，打線卡未公布）時直接跳過，不影響原本的整季基準。
+    h_lineup_ops = _lineup_batting_strength(home)
+    a_lineup_ops = _lineup_batting_strength(away)
+    if h_lineup_ops:
+        h_exp = round(h_exp * (1.0 + (h_lineup_ops - LG_OPS_AVG) / LG_OPS_AVG * LINEUP_OPS_W), 3)
+    if a_lineup_ops:
+        a_exp = round(a_exp * (1.0 + (a_lineup_ops - LG_OPS_AVG) / LG_OPS_AVG * LINEUP_OPS_W), 3)
 
     # ⑥d ★ 投手隊友得分支援（run support/GS vs 隊伍場均）
     # 若這投手先發時隊伍習慣多/少得分，微調期望得分
@@ -2504,6 +2577,8 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
         "mc_rl_probs":    mc_rl_probs,             # MC讓分概率: {spread: P(h-a > spread)}
         "h_l10_wpct":     h_l10,                   # 主隊近10場勝率
         "a_l10_wpct":     a_l10,                   # 客隊近10場勝率
+        "h_lineup_ops":   h_lineup_ops,             # 主隊今日先發打線OPS（None=打線未公布/樣本不足）
+        "a_lineup_ops":   a_lineup_ops,             # 客隊今日先發打線OPS
     }
 
 def runline_prob(margin, spread, dyn_std):
@@ -3061,7 +3136,15 @@ def run():
         else:
             h_gives = (rl_h_pts is None or rl_h_pts < 0)
 
-        def _con_avg(bids): return round(sum(p for p,_ in bids)/len(bids),3) if bids else None
+        def _con_avg(bids):
+            # ★ Sharp book加權平均：舊邏輯把DraftKings/FanDuel這種大眾書跟Pinnacle/
+            # LowVig.ag這種低利潤sharp book一視同仁做算術平均，稀釋了sharp book的訊號。
+            if not bids: return None
+            wsum = psum = 0.0
+            for p, bk in bids:
+                w = SHARP_BOOK_WEIGHT if (bk or "").strip().lower() in SHARP_BOOKS else 1.0
+                wsum += w; psum += p*w
+            return round(psum/wsum, 3) if wsum > 0 else None
         def _best_valid(bids, con):
             # 排除超過共識 MAX_PRICE_GAP 的離群賠率，取剩餘最高值
             if not bids: return None, None
@@ -3103,16 +3186,18 @@ def run():
         }
         prev_game = prev_snap.get(snap_key, {})
 
-        con_h = round(sum(con_h_prices)/len(con_h_prices),3) if con_h_prices else home_price
-        con_a = round(sum(con_a_prices)/len(con_a_prices),3) if con_a_prices else away_price
+        # ★ 沿用上面已用sharp book加權算好的 _con_h/_con_a/...，不再另外算一次普通平均
+        # （舊版con_h/con_a等是獨立用con_h_prices等plain list算普通平均，等於sharp加權白做了）
+        con_h = _con_h if _con_h is not None else home_price
+        con_a = _con_a if _con_a is not None else away_price
         if con_h <= 0 or con_a <= 0: continue  # guard: 防止除以零
 
-        con_rl_h_p = round(sum(con_rl_h)/len(con_rl_h),3) if con_rl_h else rl_h_price
-        con_rl_a_p = round(sum(con_rl_a)/len(con_rl_a),3) if con_rl_a else rl_a_price
-        con_rl_h_p_25 = round(sum(con_rl_h_25)/len(con_rl_h_25),3) if con_rl_h_25 else rl_h_price_25
-        con_rl_a_p_25 = round(sum(con_rl_a_25)/len(con_rl_a_25),3) if con_rl_a_25 else rl_a_price_25
-        con_ov_p   = round(sum(con_over)/len(con_over),3) if con_over else over_price
-        con_un_p   = round(sum(con_under)/len(con_under),3) if con_under else under_price
+        con_rl_h_p    = _con_rl_h    if _con_rl_h    is not None else rl_h_price
+        con_rl_a_p    = _con_rl_a    if _con_rl_a    is not None else rl_a_price
+        con_rl_h_p_25 = _con_rl_h_25 if _con_rl_h_25 is not None else rl_h_price_25
+        con_rl_a_p_25 = _con_rl_a_25 if _con_rl_a_25 is not None else rl_a_price_25
+        con_ov_p      = _con_ov      if _con_ov      is not None else over_price
+        con_un_p      = _con_un      if _con_un      is not None else under_price
 
         pred    = predict(home,away,home_sp,away_sp,market_total=market_total,game_dt=game_dt)
         _ALL_GAME_PREDS[(home, away)] = {
