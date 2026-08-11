@@ -1074,21 +1074,31 @@ def fetch_probable_pitchers():
                 log.info("SP(probable): %s vs %s | H=%s A=%s", hs, as_, _name_to_key(hp), _name_to_key(ap))
 
     # ── 第二來源：RotoWire probable pitchers（編輯維護，更新比 MLB API 快）
+    # 舊邏輯（漏洞）：只有「改名」才算數，RotoWire跟MLB官方公告一致（=兩獨立來源互相
+    # 印證，其實是最強的確認訊號）時完全不記錄，_src繼續停在probable，被誤標未確認。
+    # 新邏輯：改名（override）或一致（confirm）都算確認，都把_src升級。
     for key, roto in _ROTO_SP.items():
         if key not in result: continue
         entry   = result[key]
-        changed = []
+        changed = []; confirmed = []
         for side, is_home in [("home",True),("away",False)]:
             rname = roto.get("home" if is_home else "away")
-            if rname and rname != entry["home_name" if is_home else "away_name"]:
+            if not rname: continue
+            cur = entry["home_name" if is_home else "away_name"]
+            if rname != cur:
                 if is_home:
                     entry.update({"home_name":rname,"home_pitcher":_name_to_key(rname),"home_pitcher_id":None})
                 else:
                     entry.update({"away_name":rname,"away_pitcher":_name_to_key(rname),"away_pitcher_id":None})
                 changed.append(("H" if is_home else "A")+":"+rname)
-        if changed:
+            else:
+                confirmed.append(("H" if is_home else "A")+":"+rname)
+        if changed or confirmed:
             entry["_src"] = "rotowire"
-            log.info("SP(RotoWire override): %s vs %s | %s", key[0], key[1], ", ".join(changed))
+            if changed:
+                log.info("SP(RotoWire override): %s vs %s | %s", key[0], key[1], ", ".join(changed))
+            if confirmed:
+                log.info("SP(RotoWire confirm): %s vs %s | %s", key[0], key[1], ", ".join(confirmed))
 
     # ── 第三來源：ESPN Scoreboard probables ───────────────────
     try:
@@ -1113,16 +1123,26 @@ def fetch_probable_pitchers():
                 key = (home_k, away_k)
                 if key not in result: continue
                 entry = result[key]
-                changed = []
-                if home_sp and home_sp != entry["home_name"]:
-                    entry.update({"home_name":home_sp,"home_pitcher":_name_to_key(home_sp),"home_pitcher_id":None})
-                    changed.append("H:"+home_sp)
-                if away_sp and away_sp != entry["away_name"]:
-                    entry.update({"away_name":away_sp,"away_pitcher":_name_to_key(away_sp),"away_pitcher_id":None})
-                    changed.append("A:"+away_sp)
-                if changed:
+                # 同RotoWire：一致(confirm)跟改名(override)都算確認訊號，都要升級_src
+                changed = []; confirmed = []
+                if home_sp:
+                    if home_sp != entry["home_name"]:
+                        entry.update({"home_name":home_sp,"home_pitcher":_name_to_key(home_sp),"home_pitcher_id":None})
+                        changed.append("H:"+home_sp)
+                    else:
+                        confirmed.append("H:"+home_sp)
+                if away_sp:
+                    if away_sp != entry["away_name"]:
+                        entry.update({"away_name":away_sp,"away_pitcher":_name_to_key(away_sp),"away_pitcher_id":None})
+                        changed.append("A:"+away_sp)
+                    else:
+                        confirmed.append("A:"+away_sp)
+                if changed or confirmed:
                     entry["_src"] = "espn"
-                    log.info("SP(ESPN override): %s vs %s | %s", home_k, away_k, ", ".join(changed))
+                    if changed:
+                        log.info("SP(ESPN override): %s vs %s | %s", home_k, away_k, ", ".join(changed))
+                    if confirmed:
+                        log.info("SP(ESPN confirm): %s vs %s | %s", home_k, away_k, ", ".join(confirmed))
     except Exception as e:
         log.warning("ESPN scoreboard SP failed: %s", e)
 
@@ -1149,7 +1169,9 @@ def fetch_probable_pitchers():
             if not feed: continue
             bs    = feed.get("liveData",{}).get("boxscore",{}).get("teams",{})
             entry = result[key]
-            changed = []
+            # 同RotoWire/ESPN：官方牛棚卡/正式先發卡跟已知先發一致(confirm)也要算確認，
+            # 不能只有改名(override)才升級_src，否則名字一開始就對的場次永遠標「未確認」。
+            changed = []; confirmed = []
             for side, is_home in [("home",True),("away",False)]:
                 t            = bs.get(side,{})
                 pitchers_ids = t.get("pitchers",[])
@@ -1178,9 +1200,14 @@ def fetch_probable_pitchers():
                         else:
                             entry.update({"away_name":name,"away_pitcher":_name_to_key(name),"away_pitcher_id":pid_found})
                         changed.append(("H" if is_home else "A")+":"+name)
-            if changed:
+                    else:
+                        confirmed.append(("H" if is_home else "A")+":"+name)
+            if changed or confirmed:
                 entry["_src"] = "gamefeed"
-                log.info("SP(gamefeed ✅): %s vs %s | %s", key[0], key[1], ", ".join(changed))
+                if changed:
+                    log.info("SP(gamefeed ✅ override): %s vs %s | %s", key[0], key[1], ", ".join(changed))
+                if confirmed:
+                    log.info("SP(gamefeed ✅ confirm): %s vs %s | %s", key[0], key[1], ", ".join(confirmed))
         except Exception as e:
             log.warning("Game feed SP failed gpk=%s: %s", gpk, e)
 
