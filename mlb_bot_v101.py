@@ -120,6 +120,8 @@ LEAGUE_OBP       = 0.315 # MLB聯盟平均上壘率
 BULLPEN_DYN_W    = 0.50  # 動態牛棚ERA混入比重（靜態50% + 動態50%）
 BULL_FATIGUE_IP  = 5.0   # 近1天牛棚IP超過此值開始計疲勞懲罰
 BULL_FATIGUE_ERA = 0.06  # 每超出1局的ERA等效懲罰
+BULL_B2B_ERA_PER = 0.15  # 每一位「昨天+前天連兩天都登板」的牛棚投手，額外ERA等效懲罰
+BULL_B2B_CAP     = 3     # 連兩天上場人數超過此值不再加成（避免極端值失真）
 WIND_OUT_W       = 0.010 # 每m/s順風（吹向外野）→ 得分+1.0%
 UMP_W            = 1.0   # 裁判run調整使用倍率（1.0=直接使用dict值）
 # ── ★ 校正 ───────────────────────────────────────────────
@@ -146,6 +148,8 @@ TRAVEL_ROAD_PEN    = 0.035  # 每天連續客場 ERA 懲罰（轉換為對手得
 TRAVEL_TZ_PEN      = 0.10   # 跨三個時區額外懲罰（東西岸）
 TRAVEL_MAX_PEN     = 0.28   # 旅行疲勞 ERA 懲罰上限
 TRAVEL_LOOKBACK    = 7      # 往回查幾天的賽程
+GETAWAY_PEN         = 0.05  # Getaway day（今天系列賽最後一場，賽後要移動）ERA等效懲罰
+DAY_AFTER_NIGHT_PEN = 0.06  # 日夜連戰（昨夜比賽、今天日賽）ERA等效懲罰
 CONS_GAME_THRESH   = 7      # 連戰超過此天數後啟動打線疲勞
 CONS_GAME_OFF_PEN  = 0.025  # 每超額一天的打線得分懲罰
 
@@ -453,6 +457,7 @@ _PITCHER_TREND   = {}  # pitcher_key → era_trend（近2場ERA − 前3場ERA�
 _TEAM_OBP        = {}  # team_key → OBP float（MLB API動態本賽季）
 _BULLPEN_ERA_DYN = {}  # team_key → 本賽季牛棚ERA（MLB API動態）
 _BULLPEN_LOAD    = {}  # team_key → 昨日牛棚使用局數（疲勞度代理指標）
+_BULLPEN_B2B     = {}  # team_key → 昨天+前天連兩天都登板的牛棚投手人數（連續作戰疲勞）
 _GAME_UMP        = {}  # (home_key, away_key) → (ump_name, run_adj)（主審裁判偏好）
 _ALL_GAME_PREDS  = {}  # (home_key, away_key) → 預測結果 dict（供場中推薦使用）
 _PITCHER_ID_MAP  = {}  # pitcher_key → MLB pitcher_id（用於賽季ERA補抓）
@@ -1346,26 +1351,25 @@ def fetch_game_umpires(today_str):
     log.info("Umpires fetched: %d games", len(result))
 
 
-def fetch_bullpen_load():
-    """拉取昨日各隊牛棚使用局數（IP），作為疲勞度指標。
-    高使用量 → bullpen_adj 加入ERA懲罰。"""
-    global _BULLPEN_LOAD
-    d = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
+def _bullpen_day_appearances(d):
+    """單日各隊牛棚（非先發）使用局數與登板投手名單。
+    回傳 {team_key: {"ip": float, "pitchers": set(name_key)}}"""
     sched = safe_get(
         "https://statsapi.mlb.com/api/v1/schedule",
         params={"date": d, "sportId": 1, "gameType": "R",
                 "fields": "dates,games,gamePk,status,abstractGameState"},
         timeout=8,
     )
-    if not sched: return False
+    if not sched: return {}
     pks = [g.get("gamePk") for db in sched.get("dates",[])
            for g in db.get("games",[])
            if g.get("status",{}).get("abstractGameState") == "Final" and g.get("gamePk")]
-    load = {}
+    out = {}
     for gpk in pks[:16]:
         box = safe_get(
             "https://statsapi.mlb.com/api/v1/game/%d/boxscore" % gpk,
-            params={"fields":"teams,home,away,team,name,pitchers,players,stats,pitching,inningsPitched,gamesStarted"},
+            params={"fields":"teams,home,away,team,name,pitchers,players,person,fullName,"
+                             "stats,pitching,inningsPitched,gamesStarted"},
             timeout=5,
         )
         if not box: continue
@@ -1380,15 +1384,44 @@ def fetch_bullpen_load():
                 stat  = pdata.get("stats",{}).get("pitching",{})
                 if int(stat.get("gamesStarted",0) or 0) > 0: continue
                 ip_s = str(stat.get("inningsPitched","0") or "0")
+                name = pdata.get("person",{}).get("fullName","")
                 try:
                     parts = ip_s.split(".")
                     ip = int(parts[0]) + (int(parts[1])/3 if len(parts)>1 and parts[1] else 0)
-                    if ip > 0: load[tkey] = load.get(tkey, 0) + ip
-                except: pass
+                except (ValueError, IndexError): ip = 0
+                if ip <= 0 and not name: continue
+                entry = out.setdefault(tkey, {"ip": 0.0, "pitchers": set()})
+                entry["ip"] += ip
+                if name: entry["pitchers"].add(_name_to_key(name))
+    return out
+
+def fetch_bullpen_load():
+    """拉取昨日、前日各隊牛棚使用局數與登板投手，計算兩項疲勞指標：
+    1. _BULLPEN_LOAD：昨日牛棚使用局數（原有，疲勞度代理指標）
+    2. _BULLPEN_B2B：昨天+前天『連兩天都登板』的牛棚投手人數——這是終結者/主力
+       後援連續作戰、隔天可用性與品質打折的直接信號，比單看昨日總局數更貼近
+       「牛棚今天還剩多少子彈」。"""
+    global _BULLPEN_LOAD, _BULLPEN_B2B
+    d1 = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
+    d2 = (datetime.date.today() - datetime.timedelta(days=2)).isoformat()
+    day1 = _bullpen_day_appearances(d1)
+    day2 = _bullpen_day_appearances(d2)
+
+    load = {tk: v["ip"] for tk, v in day1.items()}
+    b2b  = {}
+    for tk, v1 in day1.items():
+        v2 = day2.get(tk)
+        if not v2: continue
+        overlap = v1["pitchers"] & v2["pitchers"]
+        if overlap: b2b[tk] = len(overlap)
+
     if load:
         _BULLPEN_LOAD = load
         log.info("Bullpen load(1d): %s",
                  {k:round(v,1) for k,v in sorted(load.items(),key=lambda x:-x[1])[:8]})
+    _BULLPEN_B2B = b2b
+    if b2b:
+        log.info("Bullpen back-to-back fatigue: %s", b2b)
     return bool(load)
 
 
@@ -1587,18 +1620,23 @@ _CITY_TZ_UTC = {
 }
 
 def fetch_schedule_context(today_str, teams_today):
-    """分析近 TRAVEL_LOOKBACK 天的賽程，計算每支球隊的旅行疲勞與連戰天數。
+    """分析近 TRAVEL_LOOKBACK 天(往前)+1天(往後)的賽程，計算每支球隊的：
+    - 旅行疲勞（連續客場天數、跨時區，沿用原邏輯）
+    - getaway day：今天是系列賽最後一場，明天要移動去打不同對手
+    - day_after_night：昨晚是夜間賽（主場地當地時間≥18:00開打），今天是日間賽（<17:00開打）
     teams_today: set of team_key that play today。"""
     global _TRAVEL_CONTEXT
     if not teams_today: return
     start = (datetime.date.today() - datetime.timedelta(days=TRAVEL_LOOKBACK)).isoformat()
+    tomorrow_str = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
     data = safe_get(
         "https://statsapi.mlb.com/api/v1/schedule",
-        params={"sportId":1,"startDate":start,"endDate":today_str,"gameType":"R"},
+        params={"sportId":1,"startDate":start,"endDate":tomorrow_str,"gameType":"R"},
         timeout=12,
     )
     # Build per-team game history: [(date_str, home_team_key, away_team_key)]
     game_hist = []
+    game_dt_by_key = {}  # (date_str, home_key, away_key) -> game UTC datetime（naive）
     for de in (data or {}).get("dates",[]):
         d = de.get("date","")
         for g in de.get("games",[]):
@@ -1608,9 +1646,34 @@ def fetch_schedule_context(today_str, teams_today):
             ak = norm_team(TEAM_ALIAS.get(ad.lower(), ad.lower().split()[-1] if ad else ""))
             if hk and ak:
                 game_hist.append((d, hk, ak))
+                try:
+                    gd = g.get("gameDate","")
+                    game_dt_by_key[(d, hk, ak)] = datetime.datetime.fromisoformat(
+                        gd.replace("Z","+00:00")).replace(tzinfo=None)
+                except Exception:
+                    pass
     game_hist.sort()
     today = datetime.date.today().isoformat()
+
+    def _local_hour(d, hk, ak, venue_key):
+        dt_utc = game_dt_by_key.get((d, hk, ak))
+        if dt_utc is None: return None
+        return (dt_utc + datetime.timedelta(hours=_CITY_TZ_UTC.get(venue_key, -5))).hour
+
     for team in teams_today:
+        # ── getaway day：比對「今天球場」跟「明天球場」是否同一個城市 ──
+        # 用venue（=hk，主場方）而不是對手來判斷：主場今天打完明天換新對手但還是
+        # 同一個主場，球隊沒有移動，不算getaway；venue變了（不論主客怎麼換）才算。
+        # ★ 這一段獨立於「過去賽程」計算，不能被下面「無過去出賽紀錄」的early-exit擋掉，
+        #   否則球季初期/剛從全明星賽假期回來、過去7天沒比賽的隊伍會永遠判定getaway=False。
+        today_venue = tomorrow_venue = None
+        for (d, hk, ak) in game_hist:
+            if d == today and (hk == team or ak == team):
+                today_venue = hk
+            elif d == tomorrow_str and (hk == team or ak == team):
+                tomorrow_venue = hk
+        getaway = bool(today_venue and tomorrow_venue and today_venue != tomorrow_venue)
+
         # Get ordered list of (date, is_home) for this team
         appearances = []
         for (d, hk, ak) in game_hist:
@@ -1618,7 +1681,8 @@ def fetch_schedule_context(today_str, teams_today):
             if hk == team: appearances.append((d, True))
             elif ak == team: appearances.append((d, False))
         if not appearances:
-            _TRAVEL_CONTEXT[team] = {"road_days": 0, "tz_cross": False}
+            _TRAVEL_CONTEXT[team] = {"road_days": 0, "tz_cross": False,
+                                      "getaway": getaway, "day_after_night": False}
             continue
         # Count consecutive road days ending yesterday
         road_days = 0
@@ -1627,19 +1691,40 @@ def fetch_schedule_context(today_str, teams_today):
             if is_home: break
             road_days += 1
         # Check timezone crossing: compare yesterday's city vs today's city
-        if appearances:
-            last_d, last_home = appearances[-1]
-            if not last_home:
-                # Yesterday was away game; find the home team (venue) of that game
-                for (d, hk, ak) in game_hist:
-                    if d == last_d and ak == team:
-                        last_tz = _CITY_TZ_UTC.get(hk, -5)
-                        home_tz = _CITY_TZ_UTC.get(team, -5)
-                        if abs(last_tz - home_tz) >= 3:
-                            tz_cross = True
-                        break
-        _TRAVEL_CONTEXT[team] = {"road_days": road_days, "tz_cross": tz_cross}
-    log.info("Travel context: %d teams analyzed", len(_TRAVEL_CONTEXT))
+        last_d, last_home = appearances[-1]
+        if not last_home:
+            # Yesterday was away game; find the home team (venue) of that game
+            for (d, hk, ak) in game_hist:
+                if d == last_d and ak == team:
+                    last_tz = _CITY_TZ_UTC.get(hk, -5)
+                    home_tz = _CITY_TZ_UTC.get(team, -5)
+                    if abs(last_tz - home_tz) >= 3:
+                        tz_cross = True
+                    break
+
+        # ── day-after-night：昨天是這隊最近一場比賽，且昨晚夜賽、今天日賽 ──
+        day_after_night = False
+        yesterday = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
+        if last_d == yesterday:
+            last_hk = last_ak = today_hk = today_ak = None
+            for (d, hk, ak) in game_hist:
+                if d == last_d and (hk == team or ak == team):
+                    last_hk, last_ak = hk, ak; break
+            for (d, hk, ak) in game_hist:
+                if d == today and (hk == team or ak == team):
+                    today_hk, today_ak = hk, ak; break
+            if last_hk and today_hk:
+                last_hour  = _local_hour(last_d, last_hk, last_ak, last_hk)
+                today_hour = _local_hour(today, today_hk, today_ak, today_hk)
+                if last_hour is not None and today_hour is not None:
+                    day_after_night = (last_hour >= 18 and today_hour < 17)
+
+        _TRAVEL_CONTEXT[team] = {"road_days": road_days, "tz_cross": tz_cross,
+                                  "getaway": getaway, "day_after_night": day_after_night}
+    n_getaway = sum(1 for v in _TRAVEL_CONTEXT.values() if v.get("getaway"))
+    n_dan     = sum(1 for v in _TRAVEL_CONTEXT.values() if v.get("day_after_night"))
+    log.info("Travel context: %d teams analyzed (getaway=%d, day_after_night=%d)",
+             len(_TRAVEL_CONTEXT), n_getaway, n_dan)
 
 
 def fetch_team_l10():
@@ -2254,6 +2339,9 @@ def bullpen_adj(team):
     # 昨日疲勞懲罰：牛棚使用局數超出基準值 → ERA等效上升（壓制力下降）
     recent_ip   = _BULLPEN_LOAD.get(t, 0.0)
     fatigue_era = max(0.0, (recent_ip - BULL_FATIGUE_IP) * BULL_FATIGUE_ERA)
+    # 連兩天上場懲罰：昨天+前天都登板的投手，今天大機率降級使用或直接不能用
+    b2b_cnt      = min(_BULLPEN_B2B.get(t, 0), BULL_B2B_CAP)
+    fatigue_era += b2b_cnt * BULL_B2B_ERA_PER
     effective_era = era + fatigue_era
     # ★ 修正符號：好牛棚（ERA < 聯盟均值）→ 正值 → 對手得分減少
     return round((LEAGUE_BULL_ERA - effective_era) * 0.20 * depth, 3)
@@ -2501,6 +2589,21 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
                          TRAVEL_MAX_PEN)
         a_exp = round(a_exp - travel_pen * 0.35, 3)  # 換算為得分懲罰（ERA的0.35係數）
         a_exp_tot = round(a_exp_tot - travel_pen * 0.35, 3)
+
+    # ⑩b ★ Getaway day / Day-after-night 疲勞（不分主客，任一隊今天符合條件都扣分）
+    # getaway：今天系列賽最後一場，賽後要換城市 → 賽前心思/後段體力都打折
+    # day-after-night：昨晚夜間賽（本地時間≥18:00開打）、今天日間賽（<17:00開打）→ 休息不足
+    # 兩者都是球圈公認的疲勞因子，跟旅行天數/跨時區獨立，因此不分主客各自判定
+    h_ctx = _TRAVEL_CONTEXT.get(home, {})
+    a_ctx = _TRAVEL_CONTEXT.get(away, {})
+    if h_ctx.get("getaway"):
+        h_exp = round(h_exp - GETAWAY_PEN * 0.35, 3); h_exp_tot = round(h_exp_tot - GETAWAY_PEN * 0.35, 3)
+    if h_ctx.get("day_after_night"):
+        h_exp = round(h_exp - DAY_AFTER_NIGHT_PEN * 0.35, 3); h_exp_tot = round(h_exp_tot - DAY_AFTER_NIGHT_PEN * 0.35, 3)
+    if a_ctx.get("getaway"):
+        a_exp = round(a_exp - GETAWAY_PEN * 0.35, 3); a_exp_tot = round(a_exp_tot - GETAWAY_PEN * 0.35, 3)
+    if a_ctx.get("day_after_night"):
+        a_exp = round(a_exp - DAY_AFTER_NIGHT_PEN * 0.35, 3); a_exp_tot = round(a_exp_tot - DAY_AFTER_NIGHT_PEN * 0.35, 3)
 
     # ⑪ ★ 近10場勝率修正（熱手/冷手效應，比賽季整體勝率更即時）
     h_l10 = _TEAM_L10_WPCT.get(home.lower())
