@@ -3536,16 +3536,26 @@ def run():
                       away, home, btype, bside, model_p, raw_edge, bet_conf,
                       raw_edge*bet_conf, edge_min, "PASS" if edge_ok else "FAIL")
             if not edge_ok: continue
-            if bp<MIN_P or bp>MAX_P: continue
+            if bp<MIN_P or bp>MAX_P:
+                log.info("CANDBLOCK %s@%s %s/%s: price_range bp=%.2f not in [%.2f,%.2f]", away,home,btype,bside,bp,MIN_P,MAX_P)
+                continue
             if btype==BET_ML and (blend_p is None or
                 blend_p < max(0.55, (1.0/bp) + 0.02)):   # breakeven + 2pp buffer（賠率感知門檻）
+                log.info("CANDBLOCK %s@%s %s/%s: blend_p=%s need>=%.3f", away,home,btype,bside,
+                          ("%.3f"%blend_p) if blend_p is not None else "None", max(0.55,(1.0/bp)+0.02))
                 continue
             _mp_min = MIN_MODEL_P_RL if btype==BET_RL else (MIN_MODEL_P_TOT if btype==BET_TOT else MIN_MODEL_P_ML)
-            if model_p < _mp_min: continue
+            if model_p < _mp_min:
+                log.info("CANDBLOCK %s@%s %s/%s: model_p=%.3f < min=%.3f", away,home,btype,bside,model_p,_mp_min)
+                continue
             _min_conf_gate = RL_BET_CONF_MIN if btype==BET_RL else (ML_BET_CONF_MIN if btype==BET_ML else TOT_BET_CONF_MIN)
-            if bet_conf < _min_conf_gate: continue
+            if bet_conf < _min_conf_gate:
+                log.info("CANDBLOCK %s@%s %s/%s: bet_conf=%.3f < min=%.3f", away,home,btype,bside,bet_conf,_min_conf_gate)
+                continue
             # ML低賠保護：賠率<1.65（損益平衡≥60.6%），需更大的devigged edge
-            if btype == BET_ML and bp < 1.65 and raw_edge < EDGE_MIN_ML_FAV: continue
+            if btype == BET_ML and bp < 1.65 and raw_edge < EDGE_MIN_ML_FAV:
+                log.info("CANDBLOCK %s@%s %s/%s: ML低賠保護 bp=%.2f raw_edge=%.3f < %.3f", away,home,btype,bside,bp,raw_edge,EDGE_MIN_ML_FAV)
+                continue
             # ── ★ ML 保護層（FIP回歸 · 對手強打線 · 模型市場差距）──
             if btype == BET_ML:
                 _ml_sp = home_sp if bside == "home" else away_sp
@@ -3630,9 +3640,11 @@ def run():
                 if bside in ("rl_a","rl_a_25"):
                     # ② 爆冷保護：客隊弱投手 + ERA差大 + 模型分差大
                     if _era_diff < -BLOWOUT_ERA_DIFF and _a_era_v >= BLOWOUT_ERA_POOR and _margin > 1.2:
+                        log.info("CANDBLOCK %s@%s RL/%s: blowout guard era_diff=%.2f a_era=%.2f margin=%.2f", away,home,bside,_era_diff,_a_era_v,_margin)
                         continue
                     # ③ 王牌封殺：面對 ERA≤2.70 王牌，客隊幾乎無法得分
                     if _h_era_v <= ACE_ERA_RL:
+                        log.info("CANDBLOCK %s@%s RL/%s: ace guard h_era=%.2f <= %.2f", away,home,bside,_h_era_v,ACE_ERA_RL)
                         continue
                     # ④ FIP回歸保護：客隊推薦隊SP的FIP遠高於賽季ERA → 幸運ERA不可持續，RL風險高
                     _rl_sp_fip = _PITCHER_FIP.get(away_sp)
@@ -3645,9 +3657,11 @@ def run():
                 elif bside in ("rl_h","rl_h_25"):
                     # ② 爆冷保護：主隊弱投手 + ERA差大 + 模型分差大
                     if _era_diff > BLOWOUT_ERA_DIFF and _h_era_v >= BLOWOUT_ERA_POOR and _margin < -1.2:
+                        log.info("CANDBLOCK %s@%s RL/%s: blowout guard era_diff=%.2f h_era=%.2f margin=%.2f", away,home,bside,_era_diff,_h_era_v,_margin)
                         continue
                     # ③ 王牌封殺：面對 ERA≤2.70 王牌，主隊幾乎無法得分
                     if _a_era_v <= ACE_ERA_RL:
+                        log.info("CANDBLOCK %s@%s RL/%s: ace guard a_era=%.2f <= %.2f", away,home,bside,_a_era_v,ACE_ERA_RL)
                         continue
                     # ④ FIP回歸保護：主隊推薦隊SP的FIP遠高於賽季ERA → 幸運ERA不可持續，RL風險高
                     _rl_sp_fip = _PITCHER_FIP.get(home_sp)
