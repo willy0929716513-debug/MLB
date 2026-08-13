@@ -26,9 +26,22 @@ KELLY_BAYES_W   = 0.50  # Kelly計算時，devigged市場概率混入model_p的�
 ML_RL_CORR_DAMP = 0.50  # 同場ML+RL第二注Kelly折扣（相關性ρ≈0.75，需縮注50%）
 MOD_W          = 0.18
 MKT_W          = 0.82
-TOTAL_STD      = 2.30   # 兩隊合計得分標準差
+TOTAL_STD      = 2.30   # 兩隊合計得分標準差（norm_cdf備援分支用，MC為主）
 STD            = 2.00   # 比賽勝負分差標準差（↑1.80→2.00 norm_cdf成分更接近實測）
 RL_STD_MULT    = 1.90   # 讓分概率用更高不確定性
+# ── ★ 單場比賽不可化約變異（irreducible game variance）───────────
+# 舊邏輯的缺口：MC模擬用純Poisson抽樣＋_era_sigma()當唯一的變異來源，但
+# _era_sigma()只反映「投手實力估計得準不準」（樣本數夠大→sigma趨近下限0.30）。
+# 這等於假設「投手實力摸得越準，今晚比賽的波動就越小」——這兩件事其實無關：
+# 就算100%精準知道一個投手的真實實力，單場比賽的失分數本身還是會有很大
+# 波動（牛棚爆掉、單局大局、守備失誤...）。純Poisson本身也已知比真實棒球
+# 得分分佈更「薄尾」，兩者疊加會讓模型系統性低估大小分/讓分的爆冷機率——
+# 而且反而在「先發已確認、樣本可靠」、模型信心最高、下注最大的場次影響最大，
+# 因為這時候_era_sigma()壓到最低，MC模擬幾乎退化成裸Poisson。
+# 用開根號疊加（獨立變異數相加）幫每個投手的sigma補上這個下限，且對TBD/未知
+# 先發用最不可靠等級起跳（見_era_sigma），確保「不知道先發是誰」的不確定性
+# 不會反而小於「先發已知但保守估計」的不確定性。
+GAME_IRREDUCIBLE_SIGMA = 1.10
 RS_BLEND_W     = 0.12   # 投手隊友得分支援調整幅度（用於ML/RL預測）
 RS_BLEND_W_TOT = 0.04   # 大小分預測的RS權重（極低，防止RS拉高Over）
 RS_ADJ_CAP     = 1.5    # RS調整上限（±1.5分）：防止3場小樣本RS極端值扭曲預測
@@ -2105,6 +2118,9 @@ def settle_hist(hist):
                     scores = sc; break
             if scores is None: continue
             h_score, a_score = scores
+            # ★ 不論注別，都記錄實際總分——用來回測 pred_total_mean/pred_total_std
+            # （MC模擬的賽前預測）校準得準不準，見 scripts/analyze_variance_calibration.py
+            r["actual_total"] = h_score + a_score
 
             btype = r.get("bet_type","")
             team  = r.get("team","")
@@ -2432,13 +2448,16 @@ def over_prob(exp_total, line):
     return max(0.02, min(0.98, 1.0 - poisson_cdf(k, max(0.1, exp_total))))
 
 def _era_sigma(key):
-    """投手ERA估算的標準誤差（換算為每場期望得分的不確定性）。
-    小樣本（avgIP低）→ ERA不可靠 → 需要更寬廣的模擬分佈。"""
-    avg_ip = _PITCHER_IP.get(key, 6.0)
-    if avg_ip < 4.5:   return 1.20   # 極小樣本（<4.5局/場均）
-    elif avg_ip < 5.5: return 0.80   # 小樣本（4.5-5.5局）
-    elif avg_ip < 6.0: return 0.50   # 中等樣本（5.5-6.0局）
-    else:              return 0.30   # 足夠樣本（≥6.0局）
+    """投手ERA估算的標準誤差（換算為每場期望得分的不確定性），
+    再疊加GAME_IRREDUCIBLE_SIGMA（見常數定義處的說明）。
+    小樣本（avgIP低）→ ERA不可靠 → 需要更寬廣的模擬分佈；
+    key為None/空（先發TBD）→ 直接視為最不可靠等級起跳。"""
+    avg_ip = _PITCHER_IP.get(key, 6.0) if key else 0.0
+    if avg_ip < 4.5:   era_unc = 1.20   # 極小樣本（<4.5局/場均）或TBD
+    elif avg_ip < 5.5: era_unc = 0.80   # 小樣本（4.5-5.5局）
+    elif avg_ip < 6.0: era_unc = 0.50   # 中等樣本（5.5-6.0局）
+    else:              era_unc = 0.30   # 足夠樣本（≥6.0局）
+    return round(math.sqrt(era_unc**2 + GAME_IRREDUCIBLE_SIGMA**2), 3)
 
 def monte_carlo_game(h_exp, a_exp, h_sigma=0.0, a_sigma=0.0,
                      market_total=None, n_sims=MC_SIMS, rl_spreads=None):
@@ -2699,8 +2718,9 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
 
     # ── ★ 蒙地卡羅模擬 ──────────────────────────────────────────
     # 客隊投手ERA不確定性 → 主隊得分標準差；主隊投手ERA不確定性 → 客隊得分標準差
-    _h_sigma = _era_sigma(away_sp) if away_sp else 0.50
-    _a_sigma = _era_sigma(home_sp) if home_sp else 0.50
+    # （_era_sigma對None/TBD會自動視為最不可靠等級，不需要再另外處理fallback）
+    _h_sigma = _era_sigma(away_sp)
+    _a_sigma = _era_sigma(home_sp)
     mc_home_wp, mc_over_p, mc_mean_tot, mc_std_tot, mc_rl_probs = monte_carlo_game(
         h_exp, a_exp, _h_sigma, _a_sigma, market_total,
         rl_spreads=[1.5, -1.5, 2.5, -2.5]
@@ -4021,7 +4041,11 @@ def run():
                  "home_trend":round(_PITCHER_TREND[home_sp],2) if home_sp and home_sp in _PITCHER_TREND else None,
                  "sp_src":    _sp_src,
                  "hist_label":_hist_label,
-                 "hist_mkt_total":market_total if btype==BET_TOT else None}
+                 "hist_mkt_total":market_total if btype==BET_TOT else None,
+                 # ★ MC模擬的總分期望值/標準差，跟settle_hist存的實際總分比對，
+                 # 可以回測GAME_IRREDUCIBLE_SIGMA校準得準不準（見 scripts/analyze_variance_calibration.py）
+                 "pred_total_mean": pred.get("mc_mean_total"),
+                 "pred_total_std":  pred.get("mc_std_total")}
         if ex is not None:
             if best_pick["score"]>picks[ex].get("score",0):
                 picks[ex]=_pick
@@ -4145,6 +4169,14 @@ def run():
                     "label":   p.get("hist_label",""),
                     "market_total": p.get("hist_mkt_total"),
                     "sp_src":  p.get("sp_src","probable"),
+                    # ★ 提前下注時數：這筆推薦產生當下距離開賽還有幾小時，
+                    # 供之後回測「提前多久下注、命中率會不會比較差」用（見 scripts/analyze_lead_time.py）。
+                    # 舊紀錄沒有這欄位（值為None），只有這次上線之後新產生的紀錄才會累積。
+                    "hours_before_game": round((game_dt_tw - now_tw).total_seconds()/3600, 1) if game_dt_tw else None,
+                    # ★ MC模擬的總分期望值/標準差（開賽前）；settle_hist結算時會補上actual_total，
+                    # 兩者比對可以回測GAME_IRREDUCIBLE_SIGMA校準得準不準，見 scripts/analyze_variance_calibration.py
+                    "pred_total_mean": p.get("pred_total_mean"),
+                    "pred_total_std":  p.get("pred_total_std"),
                 })
 
     total_settled,wins,wr=calc_perf(hist)

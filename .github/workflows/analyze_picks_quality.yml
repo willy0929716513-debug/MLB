@@ -1,0 +1,22 @@
+name: Analyze Picks Quality (manual)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests numpy
+      - name: Hit rate by lead time / sp_src
+        run: python scripts/analyze_lead_time.py
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: MC total-runs variance calibration
+        run: python scripts/analyze_variance_calibration.py
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
