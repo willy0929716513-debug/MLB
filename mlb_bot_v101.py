@@ -2118,6 +2118,9 @@ def settle_hist(hist):
                     scores = sc; break
             if scores is None: continue
             h_score, a_score = scores
+            # ★ 不論注別，都記錄實際總分——用來回測 pred_total_mean/pred_total_std
+            # （MC模擬的賽前預測）校準得準不準，見 scripts/analyze_variance_calibration.py
+            r["actual_total"] = h_score + a_score
 
             btype = r.get("bet_type","")
             team  = r.get("team","")
@@ -4038,7 +4041,11 @@ def run():
                  "home_trend":round(_PITCHER_TREND[home_sp],2) if home_sp and home_sp in _PITCHER_TREND else None,
                  "sp_src":    _sp_src,
                  "hist_label":_hist_label,
-                 "hist_mkt_total":market_total if btype==BET_TOT else None}
+                 "hist_mkt_total":market_total if btype==BET_TOT else None,
+                 # ★ MC模擬的總分期望值/標準差，跟settle_hist存的實際總分比對，
+                 # 可以回測GAME_IRREDUCIBLE_SIGMA校準得準不準（見 scripts/analyze_variance_calibration.py）
+                 "pred_total_mean": pred.get("mc_mean_total"),
+                 "pred_total_std":  pred.get("mc_std_total")}
         if ex is not None:
             if best_pick["score"]>picks[ex].get("score",0):
                 picks[ex]=_pick
@@ -4166,6 +4173,10 @@ def run():
                     # 供之後回測「提前多久下注、命中率會不會比較差」用（見 scripts/analyze_lead_time.py）。
                     # 舊紀錄沒有這欄位（值為None），只有這次上線之後新產生的紀錄才會累積。
                     "hours_before_game": round((game_dt_tw - now_tw).total_seconds()/3600, 1) if game_dt_tw else None,
+                    # ★ MC模擬的總分期望值/標準差（開賽前）；settle_hist結算時會補上actual_total，
+                    # 兩者比對可以回測GAME_IRREDUCIBLE_SIGMA校準得準不準，見 scripts/analyze_variance_calibration.py
+                    "pred_total_mean": p.get("pred_total_mean"),
+                    "pred_total_std":  p.get("pred_total_std"),
                 })
 
     total_settled,wins,wr=calc_perf(hist)
