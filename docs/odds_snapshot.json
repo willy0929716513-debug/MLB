@@ -26,7 +26,7 @@
     "home_ml": 2.12,
     "away_ml": 1.84,
     "rl_h": 1.64,
-    "rl_a": 2.4,
+    "rl_a": 2.41,
     "rl_h_25": null,
     "rl_a_25": null,
     "over": 1.93,
@@ -34,7 +34,7 @@
   },
   "2026-08-14|yankees|mariners": {
     "ts": "2026-08-13",
-    "home_ml": 1.67,
+    "home_ml": 1.66,
     "away_ml": 2.48,
     "rl_h": 2.4,
     "rl_a": 1.66,
@@ -84,7 +84,7 @@
     "rl_a": 2.15,
     "rl_h_25": null,
     "rl_a_25": null,
-    "over": 1.98,
+    "over": 2.01,
     "under": 1.93
   },
   "2026-08-14|dodgers|brewers": {

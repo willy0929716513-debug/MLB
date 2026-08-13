@@ -1,33 +1,33 @@
 {
-  "generated_at": "2026-08-13 23:41 (台灣時間)",
+  "generated_at": "2026-08-13 23:48 (台灣時間)",
   "date": "2026-08-13",
   "stats": {
-    "settled": 117,
-    "wins": 83,
-    "win_rate": 70.9,
-    "total_in": 5706.1,
-    "total_pnl": 1671.4,
-    "roi": 29.3,
-    "pnl_novig": 1635.5,
-    "vig_cost": -35.9,
+    "settled": 121,
+    "wins": 85,
+    "win_rate": 70.2,
+    "total_in": 5906.1,
+    "total_pnl": 1655.4,
+    "roi": 28.0,
+    "pnl_novig": 1622.9,
+    "vig_cost": -32.5,
     "by_type": {
       "ML": {
-        "wins": 21,
-        "settled": 36,
-        "win_rate": 58.3,
-        "roi": -2.9
+        "wins": 22,
+        "settled": 37,
+        "win_rate": 59.5,
+        "roi": -0.5
       },
       "RL": {
-        "wins": 42,
-        "settled": 51,
-        "win_rate": 82.4,
-        "roi": 50.1
+        "wins": 43,
+        "settled": 53,
+        "win_rate": 81.1,
+        "roi": 47.8
       },
       "TOT": {
         "wins": 20,
-        "settled": 30,
-        "win_rate": 66.7,
-        "roi": 32.2
+        "settled": 31,
+        "win_rate": 64.5,
+        "roi": 27.8
       }
     }
   },
@@ -44,7 +44,7 @@
       "price": 2.72,
       "stake": 50.0,
       "edge": 32.6,
-      "result": null,
+      "result": "L",
       "sp_confirmed": false
     },
     {
@@ -58,7 +58,7 @@
       "price": 1.85,
       "stake": 50.0,
       "edge": 21.1,
-      "result": null,
+      "result": "W",
       "sp_confirmed": false
     },
     {
@@ -72,7 +72,7 @@
       "price": 1.89,
       "stake": 50.0,
       "edge": 17.4,
-      "result": null,
+      "result": "L",
       "sp_confirmed": false
     },
     {
@@ -86,7 +86,7 @@
       "price": 2.02,
       "stake": 50.0,
       "edge": 14.2,
-      "result": null,
+      "result": "L",
       "sp_confirmed": false
     },
     {
@@ -114,7 +114,7 @@
       "price": 1.83,
       "stake": 50.0,
       "edge": 17.5,
-      "result": "L",
+      "result": "W",
       "sp_confirmed": false
     },
     {
@@ -496,47 +496,53 @@
     {
       "date": "2026-08-12",
       "settled": 117,
-      "win_rate": 70.9,
-      "roi": 29.3
+      "win_rate": 71.8,
+      "roi": 30.9
+    },
+    {
+      "date": "2026-08-13",
+      "settled": 121,
+      "win_rate": 70.2,
+      "roi": 28.0
     }
   ],
   "live_games": [],
   "live_updated_ts": 1786420758,
   "game_preds": {
     "white sox|reds": {
-      "home_win_prob": 0.4919,
+      "home_win_prob": 0.4981,
       "market_total": 8.5
     },
     "tigers|guardians": {
-      "home_win_prob": 0.4017,
+      "home_win_prob": 0.4068,
       "market_total": 8.0
     },
     "marlins|pirates": {
-      "home_win_prob": 0.4526,
+      "home_win_prob": 0.4501,
       "market_total": 8.0
     },
     "yankees|mariners": {
-      "home_win_prob": 0.6929,
+      "home_win_prob": 0.7111,
       "market_total": 7.5
     },
     "blue jays|red sox": {
-      "home_win_prob": 0.4395,
+      "home_win_prob": 0.4351,
       "market_total": 8.0
     },
     "nationals|cubs": {
-      "home_win_prob": 0.3484,
+      "home_win_prob": 0.3349,
       "market_total": 8.5
     },
     "twins|phillies": {
-      "home_win_prob": 0.6368,
+      "home_win_prob": 0.6461,
       "market_total": 8.5
     },
     "angels|rangers": {
-      "home_win_prob": 0.4289,
+      "home_win_prob": 0.4172,
       "market_total": 7.5
     },
     "dodgers|brewers": {
-      "home_win_prob": 0.6069,
+      "home_win_prob": 0.6064,
       "market_total": 8.5
     }
   }
