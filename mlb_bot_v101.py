@@ -3529,6 +3529,12 @@ def run():
                 # 再打conf會疊加conf_mult(×0.92/0.88)造成過度過濾
             # 統一用 edge×conf ≥ threshold（所有注單類型一致，低信心高edge也會被過濾）
             edge_ok = raw_edge * bet_conf >= edge_min
+            # ★ 診斷log：這是最常見的過濾點，但過去完全沒有記錄，導致「今天為什麼
+            # 0推薦」查不出原因。先印出每個候選注單的實際數字，再視情況決定要調
+            # 門檻還是調模型，而不是繼續憑感覺猜。
+            log.info("CAND %s@%s %s/%s: model_p=%.3f raw_edge=%+.3f bet_conf=%.3f edge*conf=%+.3f need>=%.3f %s",
+                      away, home, btype, bside, model_p, raw_edge, bet_conf,
+                      raw_edge*bet_conf, edge_min, "PASS" if edge_ok else "FAIL")
             if not edge_ok: continue
             if bp<MIN_P or bp>MAX_P: continue
             if btype==BET_ML and (blend_p is None or
