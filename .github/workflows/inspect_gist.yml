@@ -1,0 +1,17 @@
+name: Inspect History Gist (manual, read-only)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - run: python scripts/inspect_gist.py
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
