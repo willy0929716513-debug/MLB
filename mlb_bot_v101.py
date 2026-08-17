@@ -2214,23 +2214,30 @@ class HistoryLoadError(Exception):
     寧可讓呼叫端明確中止這次執行。"""
 
 def load_hist():
+    """讀取歷史紀錄。讀取路徑（list gists → 取detail → 抓raw → 解析JSON）過去沒有
+    重試，任何一步的暫時性網路問題（timeout、CDN回傳不完整內容...）都會直接讓
+    整次執行中止（HistoryLoadError是刻意設計成「寧可中止也不要用空歷史覆蓋」，
+    這個設計本身沒錯，但沒有重試代表小小的網路抖動也會白白浪費一整次執行）。
+    補上最多3次重試，每次間隔遞增，只有真的連續失敗3次才真正放棄並中止。"""
     if not GH_TOKEN: return []
     h = _gh_h()
-    try:
-        r = requests.get("https://api.github.com/gists", headers=h, timeout=15)
-        r.raise_for_status(); gists = r.json()
-    except Exception as e:
-        raise HistoryLoadError(f"could not list gists: {e}") from e
-    gid = _find_gid(gists)
-    if not gid: return []   # 合法情況：還沒建立過歷史 Gist，之後 save_hist() 會自動建立
-    try:
-        detail = requests.get("https://api.github.com/gists/"+gid, headers=h, timeout=15).json()
-        raw    = list(detail["files"].values())[0]["raw_url"]
-        records = requests.get(raw, timeout=15).json()
-        log.info("Hist loaded: %d records", len(records))
-        return _purge(records)
-    except Exception as e:
-        raise HistoryLoadError(f"gist exists but failed to load/parse: {e}") from e
+    last_err = None
+    for attempt in range(1, 4):
+        try:
+            r = requests.get("https://api.github.com/gists", headers=h, timeout=15)
+            r.raise_for_status(); gists = r.json()
+            gid = _find_gid(gists)
+            if not gid: return []   # 合法情況：還沒建立過歷史 Gist，之後 save_hist() 會自動建立
+            detail = requests.get("https://api.github.com/gists/"+gid, headers=h, timeout=15).json()
+            raw    = list(detail["files"].values())[0]["raw_url"]
+            records = requests.get(raw, timeout=15).json()
+            log.info("Hist loaded: %d records", len(records))
+            return _purge(records)
+        except Exception as e:
+            last_err = e
+            log.warning("load_hist %d/3 failed: %s", attempt, e)
+            if attempt < 3: time.sleep(attempt * 2)
+    raise HistoryLoadError(f"gist load failed after 3 attempts: {last_err}") from last_err
 
 def save_hist(records):
     if not GH_TOKEN: return
