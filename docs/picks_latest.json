@@ -1,220 +1,193 @@
 {
-  "generated_at": "2026-08-23 23:34 (台灣時間)",
-  "date": "2026-08-23",
+  "generated_at": "2026-08-25 00:34 (台灣時間)",
+  "date": "2026-08-25",
   "stats": {
     "settled": 124,
     "wins": 83,
     "win_rate": 66.9,
     "total_in": 6214.2,
-    "total_pnl": 1415.7,
+    "total_pnl": 1416.7,
     "roi": 22.8,
-    "pnl_novig": 1397.7,
-    "vig_cost": -18.0,
+    "pnl_novig": 1400.4,
+    "vig_cost": -16.3,
     "by_type": {
       "ML": {
         "wins": 21,
-        "settled": 37,
-        "win_rate": 56.8,
-        "roi": -4.5
+        "settled": 36,
+        "win_rate": 58.3,
+        "roi": -1.9
       },
       "RL": {
-        "wins": 42,
-        "settled": 55,
-        "win_rate": 76.4,
-        "roi": 40.8
+        "wins": 43,
+        "settled": 57,
+        "win_rate": 75.4,
+        "roi": 39.4
       },
       "TOT": {
-        "wins": 20,
-        "settled": 32,
-        "win_rate": 62.5,
-        "roi": 23.3
+        "wins": 19,
+        "settled": 31,
+        "win_rate": 61.3,
+        "roi": 20.9
       }
     }
   },
   "picks": [
     {
-      "tier": "🔥 強力",
-      "btype": "大小分",
-      "away": "angels",
-      "home": "rangers",
-      "away_cn": "天使",
-      "home_cn": "遊騎兵",
-      "bet_label": "UNDER 8.0",
-      "bk": "FanDuel",
-      "bp": 2.0,
-      "con_p": 1.879,
-      "dv_p": 0.5089,
-      "edge": 16.0,
-      "conf": 86.4,
+      "tier": "⭐ 穩定",
+      "btype": "獨贏",
+      "away": "rangers",
+      "home": "white sox",
+      "away_cn": "遊騎兵",
+      "home_cn": "白襪",
+      "bet_label": "白襪 獨贏",
+      "bk": "DraftKings",
+      "bp": 1.78,
+      "con_p": 1.756,
+      "dv_p": 0.5527,
+      "edge": 17.7,
+      "conf": 75.5,
       "stake": 50.0,
-      "model_p": 66.9,
-      "away_sp": "Yusei Kikuchi",
-      "home_sp": "Cal Quantrill",
-      "away_era": 1.93,
-      "home_era": 2.56,
-      "away_fip": 1.41,
-      "home_fip": 2.82,
-      "away_k9": 11.8,
-      "home_k9": 7.5,
-      "away_avgip": 5.3,
+      "model_p": 72.9,
+      "away_sp": "Kumar Rocker",
+      "home_sp": "José Urquidy",
+      "away_era": 4.95,
+      "home_era": 2.84,
+      "away_fip": 5.15,
+      "home_fip": 0.5,
+      "away_k9": 6.6,
+      "home_k9": 12.0,
+      "away_avgip": 5.0,
       "home_avgip": 6.0,
-      "away_whip": 1.19,
-      "home_whip": 0.89,
+      "away_whip": 1.85,
+      "home_whip": 0.33,
       "away_rest": null,
       "home_rest": null,
       "away_rs": 2.0,
-      "home_rs": 2.67,
-      "away_rpg": 4.24,
-      "home_rpg": 4.01,
-      "pred_away": 3.4,
-      "pred_home": 3.6,
-      "model_total": 7.3,
-      "market_total": 8.0,
-      "park_factor": 1.12,
-      "weather_factor": 1.108,
+      "home_rs": 3.0,
+      "away_rpg": 4.01,
+      "home_rpg": 4.79,
+      "pred_away": 3.3,
+      "pred_home": 4.9,
+      "model_total": null,
+      "market_total": null,
+      "park_factor": null,
+      "weather_factor": null,
       "ump_name": null,
       "ump_adj": null,
-      "away_trend": -2.88,
-      "home_trend": -4.02,
+      "away_trend": 1.9,
+      "home_trend": null,
       "line_clv": null,
-      "game_date": "2026-08-24",
-      "game_time": "02:36",
-      "sp_src": "espn",
+      "game_date": "2026-08-25",
+      "game_time": "07:41",
+      "sp_src": "probable",
       "home_hand": "R",
       "away_hand": "R",
-      "home_babip": 0.367,
-      "away_babip": 0.375,
-      "home_lob": 95.9,
-      "away_lob": 55.0,
-      "away_road_days": 5,
+      "home_babip": 0.2,
+      "away_babip": 0.486,
+      "home_lob": 100.0,
+      "away_lob": 80.2,
+      "away_road_days": null,
       "away_tz_cross": null,
       "home_wpct": null,
       "away_road_wpct": null,
-      "home_l10_wpct": 0.4,
-      "away_l10_wpct": 0.6,
+      "home_l10_wpct": null,
+      "away_l10_wpct": 0.5,
       "home_lineup": [],
       "away_lineup": []
     },
     {
       "tier": "⭐ 穩定",
       "btype": "讓分",
-      "away": "athletics",
-      "home": "astros",
-      "away_cn": "運動家",
-      "home_cn": "太空人",
-      "bet_label": "運動家 讓分(+1.5)",
-      "bk": "LowVig.ag",
-      "bp": 1.77,
-      "con_p": 1.744,
-      "dv_p": 0.5518,
-      "edge": 13.6,
-      "conf": 65.6,
+      "away": "guardians",
+      "home": "angels",
+      "away_cn": "守護者",
+      "home_cn": "天使",
+      "bet_label": "天使 讓分(+1.5)",
+      "bk": "FanDuel",
+      "bp": 1.82,
+      "con_p": 1.799,
+      "dv_p": 0.5342,
+      "edge": 16.9,
+      "conf": 79.9,
       "stake": 50.0,
-      "model_p": 67.6,
-      "away_sp": "J.T. Ginn",
-      "home_sp": "Cristian Javier",
-      "away_era": 3.71,
-      "home_era": 5.82,
-      "away_fip": 3.57,
-      "home_fip": 5.77,
-      "away_k9": 6.9,
-      "home_k9": 5.4,
-      "away_avgip": 5.7,
-      "home_avgip": 5.0,
-      "away_whip": 1.35,
-      "home_whip": 1.47,
+      "model_p": 68.8,
+      "away_sp": "Parker Messick",
+      "home_sp": "George Klassen",
+      "away_era": 2.99,
+      "home_era": 3.28,
+      "away_fip": 3.26,
+      "home_fip": 3.69,
+      "away_k9": 11.7,
+      "home_k9": 7.9,
+      "away_avgip": 6.1,
+      "home_avgip": 5.7,
+      "away_whip": 0.87,
+      "home_whip": 1.06,
       "away_rest": null,
       "home_rest": null,
-      "away_rs": 2.33,
-      "home_rs": 1.33,
-      "away_rpg": 4.41,
-      "home_rpg": 4.53,
-      "pred_away": 4.7,
-      "pred_home": 4.6,
+      "away_rs": 2.67,
+      "home_rs": 4.0,
+      "away_rpg": 3.98,
+      "home_rpg": 4.24,
+      "pred_away": 3.5,
+      "pred_home": 3.5,
       "model_total": null,
       "market_total": null,
       "park_factor": null,
       "weather_factor": null,
-      "ump_name": "ryan wills",
+      "ump_name": null,
       "ump_adj": null,
-      "away_trend": 3.74,
-      "home_trend": 0.67,
+      "away_trend": 0.4,
+      "home_trend": null,
       "line_clv": null,
-      "game_date": "2026-08-24",
-      "game_time": "02:11",
-      "sp_src": "gamefeed",
+      "game_date": "2026-08-25",
+      "game_time": "09:39",
+      "sp_src": "espn",
       "home_hand": "R",
-      "away_hand": null,
-      "home_babip": 0.593,
-      "away_babip": 0.514,
-      "home_lob": 79.3,
-      "away_lob": 73.2,
-      "away_road_days": 6,
+      "away_hand": "R",
+      "home_babip": 0.281,
+      "away_babip": 0.27,
+      "home_lob": 90.9,
+      "away_lob": 93.8,
+      "away_road_days": 3,
       "away_tz_cross": null,
       "home_wpct": null,
       "away_road_wpct": null,
-      "home_l10_wpct": 0.4,
-      "away_l10_wpct": 0.3,
-      "home_lineup": [
-        {
-          "order": 1,
-          "name": "Jeremy Peña",
-          "pos": "SS",
-          "id": 665161
-        },
-        {
-          "order": 2,
-          "name": "Yordan Alvarez",
-          "pos": "DH",
-          "id": 670541
-        },
-        {
-          "order": 3,
-          "name": "Isaac Paredes",
-          "pos": "3B",
-          "id": 670623
-        },
-        {
-          "order": 4,
-          "name": "Jose Altuve",
-          "pos": "2B",
-          "id": 514888
-        },
-        {
-          "order": 5,
-          "name": "Daulton Varsho",
-          "pos": "CF",
-          "id": 662139
-        },
-        {
-          "order": 6,
-          "name": "Christian Walker",
-          "pos": "1B",
-          "id": 572233
-        },
-        {
-          "order": 7,
-          "name": "LaMonte Wade Jr.",
-          "pos": "LF",
-          "id": 664774
-        },
-        {
-          "order": 8,
-          "name": "Cam Smith",
-          "pos": "RF",
-          "id": 701358
-        },
-        {
-          "order": 9,
-          "name": "Christian Vázquez",
-          "pos": "C",
-          "id": 543877
-        }
-      ],
+      "home_l10_wpct": 0.5,
+      "away_l10_wpct": 0.6,
+      "home_lineup": [],
       "away_lineup": []
     }
   ],
   "recent_history": [
+    {
+      "date": "2026-08-24",
+      "home": "astros",
+      "away": "athletics",
+      "home_cn": "太空人",
+      "away_cn": "運動家",
+      "bet_type": "讓分",
+      "label": "+1.5",
+      "price": 1.77,
+      "stake": 50.0,
+      "edge": 13.6,
+      "result": null,
+      "sp_confirmed": false
+    },
+    {
+      "date": "2026-08-24",
+      "home": "rangers",
+      "away": "angels",
+      "home_cn": "遊騎兵",
+      "away_cn": "天使",
+      "bet_type": "大小分",
+      "label": "UNDER",
+      "price": 2.0,
+      "stake": 50.0,
+      "edge": 16.0,
+      "result": null,
+      "sp_confirmed": false
+    },
     {
       "date": "2026-08-23",
       "home": "astros",
@@ -226,7 +199,7 @@
       "price": 1.97,
       "stake": 50.0,
       "edge": 24.4,
-      "result": null,
+      "result": "W",
       "sp_confirmed": true
     },
     {
@@ -240,7 +213,7 @@
       "price": 1.75,
       "stake": 50.0,
       "edge": 21.1,
-      "result": null,
+      "result": "L",
       "sp_confirmed": false
     },
     {
@@ -254,7 +227,7 @@
       "price": 1.95,
       "stake": 50.0,
       "edge": 13.8,
-      "result": null,
+      "result": "P",
       "sp_confirmed": false
     },
     {
@@ -326,363 +299,335 @@
       "edge": 26.9,
       "result": "L",
       "sp_confirmed": false
-    },
-    {
-      "date": "2026-08-20",
-      "home": "phillies",
-      "away": "marlins",
-      "home_cn": "費城人",
-      "away_cn": "馬林魚",
-      "bet_type": "讓分",
-      "label": "+1.5",
-      "price": 1.61,
-      "stake": 50.0,
-      "edge": 14.1,
-      "result": "L",
-      "sp_confirmed": false
-    },
-    {
-      "date": "2026-08-20",
-      "home": "brewers",
-      "away": "mariners",
-      "home_cn": "釀酒人",
-      "away_cn": "水手",
-      "bet_type": "獨贏",
-      "label": "",
-      "price": 1.85,
-      "stake": 50.0,
-      "edge": 18.0,
-      "result": "W",
-      "sp_confirmed": false
     }
   ],
   "history_trend": [
     {
-      "date": "2026-05-25",
-      "settled": 2,
-      "win_rate": 50.0,
-      "roi": -2.5
-    },
-    {
       "date": "2026-05-26",
-      "settled": 4,
-      "win_rate": 75.0,
-      "roi": 28.5
+      "settled": 2,
+      "win_rate": 100.0,
+      "roi": 59.5
     },
     {
       "date": "2026-05-27",
-      "settled": 6,
-      "win_rate": 83.3,
-      "roi": 45.2
+      "settled": 4,
+      "win_rate": 100.0,
+      "roi": 69.0
     },
     {
       "date": "2026-05-29",
-      "settled": 8,
-      "win_rate": 87.5,
-      "roi": 54.8
+      "settled": 6,
+      "win_rate": 100.0,
+      "roi": 73.8
     },
     {
       "date": "2026-05-30",
-      "settled": 9,
-      "win_rate": 88.9,
-      "roi": 55.1
+      "settled": 7,
+      "win_rate": 100.0,
+      "roi": 71.6
     },
     {
       "date": "2026-05-31",
-      "settled": 10,
-      "win_rate": 80.0,
-      "roi": 39.6
+      "settled": 8,
+      "win_rate": 87.5,
+      "roi": 50.1
     },
     {
       "date": "2026-06-01",
-      "settled": 12,
-      "win_rate": 83.3,
-      "roi": 43.8
+      "settled": 10,
+      "win_rate": 90.0,
+      "roi": 53.0
     },
     {
       "date": "2026-06-02",
-      "settled": 14,
-      "win_rate": 85.7,
-      "roi": 48.7
+      "settled": 12,
+      "win_rate": 91.7,
+      "roi": 57.2
     },
     {
       "date": "2026-06-03",
-      "settled": 18,
-      "win_rate": 83.3,
-      "roi": 42.6
+      "settled": 16,
+      "win_rate": 87.5,
+      "roi": 48.2
     },
     {
       "date": "2026-06-04",
-      "settled": 23,
-      "win_rate": 73.9,
-      "roi": 25.0
+      "settled": 21,
+      "win_rate": 76.2,
+      "roi": 27.6
     },
     {
       "date": "2026-06-06",
-      "settled": 26,
-      "win_rate": 73.1,
-      "roi": 24.5
+      "settled": 24,
+      "win_rate": 75.0,
+      "roi": 26.7
     },
     {
       "date": "2026-06-07",
-      "settled": 29,
-      "win_rate": 75.9,
-      "roi": 29.9
+      "settled": 27,
+      "win_rate": 77.8,
+      "roi": 32.3
     },
     {
       "date": "2026-06-09",
-      "settled": 30,
-      "win_rate": 76.7,
-      "roi": 30.7
-    },
-    {
-      "date": "2026-06-10",
-      "settled": 33,
-      "win_rate": 78.8,
-      "roi": 34.5
-    },
-    {
-      "date": "2026-06-11",
-      "settled": 35,
-      "win_rate": 80.0,
-      "roi": 36.4
-    },
-    {
-      "date": "2026-06-12",
-      "settled": 36,
-      "win_rate": 80.6,
-      "roi": 37.1
-    },
-    {
-      "date": "2026-06-13",
-      "settled": 40,
-      "win_rate": 77.5,
+      "settled": 28,
+      "win_rate": 78.6,
       "roi": 33.0
     },
     {
+      "date": "2026-06-10",
+      "settled": 31,
+      "win_rate": 80.6,
+      "roi": 36.8
+    },
+    {
+      "date": "2026-06-11",
+      "settled": 33,
+      "win_rate": 81.8,
+      "roi": 38.7
+    },
+    {
+      "date": "2026-06-12",
+      "settled": 34,
+      "win_rate": 82.4,
+      "roi": 39.4
+    },
+    {
+      "date": "2026-06-13",
+      "settled": 38,
+      "win_rate": 78.9,
+      "roi": 34.8
+    },
+    {
       "date": "2026-06-14",
-      "settled": 45,
-      "win_rate": 75.6,
-      "roi": 30.1
+      "settled": 43,
+      "win_rate": 76.7,
+      "roi": 31.6
     },
     {
       "date": "2026-06-15",
-      "settled": 48,
-      "win_rate": 70.8,
-      "roi": 22.1
+      "settled": 46,
+      "win_rate": 71.7,
+      "roi": 23.1
     },
     {
       "date": "2026-06-16",
-      "settled": 49,
-      "win_rate": 71.4,
-      "roi": 23.0
+      "settled": 47,
+      "win_rate": 72.3,
+      "roi": 24.1
     },
     {
       "date": "2026-06-17",
-      "settled": 51,
-      "win_rate": 70.6,
-      "roi": 21.3
+      "settled": 49,
+      "win_rate": 71.4,
+      "roi": 22.2
     },
     {
       "date": "2026-06-18",
-      "settled": 53,
-      "win_rate": 69.8,
-      "roi": 20.1
+      "settled": 51,
+      "win_rate": 70.6,
+      "roi": 20.9
     },
     {
       "date": "2026-06-19",
-      "settled": 54,
-      "win_rate": 68.5,
-      "roi": 17.9
+      "settled": 52,
+      "win_rate": 69.2,
+      "roi": 18.6
     },
     {
       "date": "2026-06-20",
-      "settled": 55,
-      "win_rate": 69.1,
-      "roi": 20.8
-    },
-    {
-      "date": "2026-06-23",
-      "settled": 56,
-      "win_rate": 69.6,
+      "settled": 53,
+      "win_rate": 69.8,
       "roi": 21.7
     },
     {
+      "date": "2026-06-23",
+      "settled": 54,
+      "win_rate": 70.4,
+      "roi": 22.6
+    },
+    {
       "date": "2026-06-25",
-      "settled": 58,
-      "win_rate": 70.7,
-      "roi": 24.2
+      "settled": 56,
+      "win_rate": 71.4,
+      "roi": 25.2
     },
     {
       "date": "2026-06-27",
-      "settled": 61,
-      "win_rate": 70.5,
-      "roi": 24.0
+      "settled": 59,
+      "win_rate": 71.2,
+      "roi": 24.9
     },
     {
       "date": "2026-06-28",
-      "settled": 64,
-      "win_rate": 70.3,
-      "roi": 23.4
+      "settled": 62,
+      "win_rate": 71.0,
+      "roi": 24.2
     },
     {
       "date": "2026-06-29",
+      "settled": 66,
+      "win_rate": 71.2,
+      "roi": 24.3
+    },
+    {
+      "date": "2026-07-01",
+      "settled": 67,
+      "win_rate": 71.6,
+      "roi": 25.3
+    },
+    {
+      "date": "2026-07-02",
       "settled": 68,
       "win_rate": 70.6,
       "roi": 23.5
     },
     {
-      "date": "2026-07-01",
-      "settled": 69,
-      "win_rate": 71.0,
-      "roi": 24.5
-    },
-    {
-      "date": "2026-07-02",
-      "settled": 70,
-      "win_rate": 70.0,
-      "roi": 22.8
-    },
-    {
       "date": "2026-07-03",
-      "settled": 71,
-      "win_rate": 69.0,
-      "roi": 21.0
+      "settled": 69,
+      "win_rate": 69.6,
+      "roi": 21.7
     },
     {
       "date": "2026-07-04",
-      "settled": 73,
-      "win_rate": 69.9,
-      "roi": 22.5
+      "settled": 71,
+      "win_rate": 70.4,
+      "roi": 23.2
     },
     {
       "date": "2026-07-05",
-      "settled": 76,
-      "win_rate": 71.1,
-      "roi": 24.5
+      "settled": 74,
+      "win_rate": 71.6,
+      "roi": 25.2
     },
     {
       "date": "2026-07-06",
-      "settled": 78,
-      "win_rate": 69.2,
-      "roi": 21.4
+      "settled": 76,
+      "win_rate": 69.7,
+      "roi": 22.0
     },
     {
       "date": "2026-07-09",
-      "settled": 82,
-      "win_rate": 68.3,
-      "roi": 20.5
+      "settled": 80,
+      "win_rate": 68.8,
+      "roi": 21.1
     },
     {
       "date": "2026-07-12",
-      "settled": 86,
-      "win_rate": 69.8,
-      "roi": 25.5
+      "settled": 84,
+      "win_rate": 70.2,
+      "roi": 26.1
     },
     {
       "date": "2026-07-13",
-      "settled": 87,
-      "win_rate": 70.1,
-      "roi": 26.3
+      "settled": 85,
+      "win_rate": 70.6,
+      "roi": 27.0
     },
     {
       "date": "2026-07-18",
-      "settled": 90,
-      "win_rate": 70.0,
-      "roi": 26.6
+      "settled": 88,
+      "win_rate": 70.5,
+      "roi": 27.3
     },
     {
       "date": "2026-07-19",
-      "settled": 91,
-      "win_rate": 70.3,
-      "roi": 28.0
-    },
-    {
-      "date": "2026-07-20",
-      "settled": 93,
-      "win_rate": 69.9,
-      "roi": 28.0
-    },
-    {
-      "date": "2026-07-21",
-      "settled": 94,
-      "win_rate": 70.2,
-      "roi": 28.4
-    },
-    {
-      "date": "2026-07-26",
-      "settled": 95,
-      "win_rate": 70.5,
-      "roi": 29.6
-    },
-    {
-      "date": "2026-07-27",
-      "settled": 98,
-      "win_rate": 71.4,
-      "roi": 31.1
-    },
-    {
-      "date": "2026-07-28",
-      "settled": 100,
-      "win_rate": 71.0,
-      "roi": 30.5
-    },
-    {
-      "date": "2026-08-12",
-      "settled": 103,
-      "win_rate": 71.8,
-      "roi": 32.1
-    },
-    {
-      "date": "2026-08-13",
-      "settled": 107,
-      "win_rate": 70.1,
-      "roi": 28.9
-    },
-    {
-      "date": "2026-08-15",
-      "settled": 110,
-      "win_rate": 70.0,
+      "settled": 89,
+      "win_rate": 70.8,
       "roi": 28.6
     },
     {
+      "date": "2026-07-20",
+      "settled": 91,
+      "win_rate": 70.3,
+      "roi": 28.7
+    },
+    {
+      "date": "2026-07-21",
+      "settled": 92,
+      "win_rate": 70.7,
+      "roi": 29.1
+    },
+    {
+      "date": "2026-07-26",
+      "settled": 93,
+      "win_rate": 71.0,
+      "roi": 30.3
+    },
+    {
+      "date": "2026-07-27",
+      "settled": 96,
+      "win_rate": 71.9,
+      "roi": 31.8
+    },
+    {
+      "date": "2026-07-28",
+      "settled": 98,
+      "win_rate": 71.4,
+      "roi": 31.2
+    },
+    {
+      "date": "2026-08-12",
+      "settled": 101,
+      "win_rate": 72.3,
+      "roi": 32.8
+    },
+    {
+      "date": "2026-08-13",
+      "settled": 105,
+      "win_rate": 70.5,
+      "roi": 29.5
+    },
+    {
+      "date": "2026-08-15",
+      "settled": 108,
+      "win_rate": 70.4,
+      "roi": 29.1
+    },
+    {
       "date": "2026-08-16",
-      "settled": 112,
-      "win_rate": 69.6,
-      "roi": 27.8
+      "settled": 110,
+      "win_rate": 70.0,
+      "roi": 28.3
     },
     {
       "date": "2026-08-17",
-      "settled": 114,
-      "win_rate": 69.3,
-      "roi": 26.9
+      "settled": 112,
+      "win_rate": 69.6,
+      "roi": 27.4
     },
     {
       "date": "2026-08-18",
-      "settled": 116,
-      "win_rate": 68.1,
-      "roi": 24.7
-    },
-    {
-      "date": "2026-08-19",
-      "settled": 117,
+      "settled": 114,
       "win_rate": 68.4,
       "roi": 25.2
     },
     {
+      "date": "2026-08-19",
+      "settled": 115,
+      "win_rate": 68.7,
+      "roi": 25.7
+    },
+    {
       "date": "2026-08-20",
-      "settled": 120,
-      "win_rate": 67.5,
-      "roi": 23.6
+      "settled": 118,
+      "win_rate": 67.8,
+      "roi": 24.1
     },
     {
       "date": "2026-08-21",
-      "settled": 121,
-      "win_rate": 66.9,
-      "roi": 22.6
+      "settled": 119,
+      "win_rate": 67.2,
+      "roi": 23.0
     },
     {
       "date": "2026-08-22",
+      "settled": 122,
+      "win_rate": 67.2,
+      "roi": 23.2
+    },
+    {
+      "date": "2026-08-23",
       "settled": 124,
       "win_rate": 66.9,
       "roi": 22.8
@@ -691,65 +636,45 @@
   "live_games": [],
   "live_updated_ts": 1786420758,
   "game_preds": {
-    "phillies|cardinals": {
-      "home_win_prob": 0.4259,
+    "marlins|red sox": {
+      "home_win_prob": 0.5042,
+      "market_total": 7.0
+    },
+    "tigers|rays": {
+      "home_win_prob": 0.433,
       "market_total": 8.0
     },
-    "orioles|rays": {
-      "home_win_prob": 0.5154,
+    "nationals|rockies": {
+      "home_win_prob": 0.76,
       "market_total": 8.5
     },
-    "yankees|blue jays": {
-      "home_win_prob": 0.6176,
+    "white sox|rangers": {
+      "home_win_prob": 0.7293,
       "market_total": 8.0
     },
-    "marlins|nationals": {
-      "home_win_prob": 0.7264,
-      "market_total": 8.5
+    "angels|guardians": {
+      "home_win_prob": 0.501,
+      "market_total": 7.5
     },
-    "royals|tigers": {
-      "home_win_prob": 0.491,
-      "market_total": 8.5
-    },
-    "astros|athletics": {
-      "home_win_prob": 0.4944,
+    "diamondbacks|cubs": {
+      "home_win_prob": 0.3039,
       "market_total": 9.0
     },
-    "white sox|mets": {
-      "home_win_prob": 0.5705,
-      "market_total": 8.0
+    "padres|pirates": {
+      "home_win_prob": 0.308,
+      "market_total": 7.5
     },
-    "rangers|angels": {
-      "home_win_prob": 0.549,
-      "market_total": 8.0
-    },
-    "red sox|giants": {
-      "home_win_prob": 0.5471,
-      "market_total": 8.5
-    },
-    "rockies|guardians": {
-      "home_win_prob": 0.3117,
+    "athletics|twins": {
+      "home_win_prob": 0.4251,
       "market_total": 11.0
     },
-    "mariners|cubs": {
-      "home_win_prob": 0.3923,
-      "market_total": 7.5
+    "mariners|phillies": {
+      "home_win_prob": 0.5577,
+      "market_total": 6.5
     },
-    "dodgers|pirates": {
-      "home_win_prob": 0.7197,
-      "market_total": 8.5
-    },
-    "padres|twins": {
-      "home_win_prob": 0.6614,
-      "market_total": 8.5
-    },
-    "diamondbacks|reds": {
-      "home_win_prob": 0.711,
-      "market_total": 9.0
-    },
-    "brewers|braves": {
-      "home_win_prob": 0.5255,
-      "market_total": 7.5
+    "giants|reds": {
+      "home_win_prob": 0.2577,
+      "market_total": 7.0
     }
   }
 }
