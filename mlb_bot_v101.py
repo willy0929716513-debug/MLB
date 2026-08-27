@@ -186,7 +186,8 @@ LOB_FIP_BONUS   = 0.15   # LOB% 每偏 5% 時，FIP 混合比增加此幅度
 TRAVEL_ROAD_PEN    = 0.035  # 每天連續客場 ERA 懲罰（轉換為對手得分）
 TRAVEL_TZ_PEN      = 0.10   # 跨三個時區額外懲罰（東西岸）
 TRAVEL_MAX_PEN     = 0.28   # 旅行疲勞 ERA 懲罰上限
-TRAVEL_LOOKBACK    = 7      # 往回查幾天的賽程
+TRAVEL_LOOKBACK    = 12     # 往回查幾天的賽程（比CONS_GAME_THRESH多留5天緩衝，
+                             # 否則連戰天數算到窗口邊界就會被低估，量不出真正的長連戰）
 GETAWAY_PEN         = 0.05  # Getaway day（今天系列賽最後一場，賽後要移動）ERA等效懲罰
 DAY_AFTER_NIGHT_PEN = 0.06  # 日夜連戰（昨夜比賽、今天日賽）ERA等效懲罰
 CONS_GAME_THRESH   = 7      # 連戰超過此天數後啟動打線疲勞
@@ -1752,7 +1753,7 @@ def fetch_schedule_context(today_str, teams_today):
             if hk == team: appearances.append((d, True))
             elif ak == team: appearances.append((d, False))
         if not appearances:
-            _TRAVEL_CONTEXT[team] = {"road_days": 0, "tz_cross": False,
+            _TRAVEL_CONTEXT[team] = {"road_days": 0, "tz_cross": False, "cons_days": 0,
                                       "getaway": getaway, "day_after_night": False}
             continue
         # Count consecutive road days ending yesterday
@@ -1761,6 +1762,15 @@ def fetch_schedule_context(today_str, teams_today):
         for (d, is_home) in reversed(appearances):
             if is_home: break
             road_days += 1
+
+        # ── 連戰天數：不分主客，只要當天有出賽就算，中間出現空檔（休息日）就停
+        # （這是CONS_GAME_THRESH/CONS_GAME_OFF_PEN這兩個常數原本要用、但一直沒接的資料源）
+        cons_days = 0
+        _appearance_dates = {d for (d, _ih) in appearances}
+        _check_date = datetime.date.fromisoformat(today) - datetime.timedelta(days=1)
+        while _check_date.isoformat() in _appearance_dates:
+            cons_days += 1
+            _check_date -= datetime.timedelta(days=1)
         # Check timezone crossing: compare yesterday's city vs today's city
         last_d, last_home = appearances[-1]
         if not last_home:
@@ -1790,12 +1800,13 @@ def fetch_schedule_context(today_str, teams_today):
                 if last_hour is not None and today_hour is not None:
                     day_after_night = (last_hour >= 18 and today_hour < 17)
 
-        _TRAVEL_CONTEXT[team] = {"road_days": road_days, "tz_cross": tz_cross,
+        _TRAVEL_CONTEXT[team] = {"road_days": road_days, "tz_cross": tz_cross, "cons_days": cons_days,
                                   "getaway": getaway, "day_after_night": day_after_night}
     n_getaway = sum(1 for v in _TRAVEL_CONTEXT.values() if v.get("getaway"))
     n_dan     = sum(1 for v in _TRAVEL_CONTEXT.values() if v.get("day_after_night"))
-    log.info("Travel context: %d teams analyzed (getaway=%d, day_after_night=%d)",
-             len(_TRAVEL_CONTEXT), n_getaway, n_dan)
+    n_cons    = sum(1 for v in _TRAVEL_CONTEXT.values() if v.get("cons_days", 0) > CONS_GAME_THRESH)
+    log.info("Travel context: %d teams analyzed (getaway=%d, day_after_night=%d, cons_fatigue=%d)",
+             len(_TRAVEL_CONTEXT), n_getaway, n_dan, n_cons)
 
 
 def fetch_team_l10():
@@ -2768,6 +2779,20 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
         a_exp = round(a_exp - GETAWAY_PEN * 0.35, 3); a_exp_tot = round(a_exp_tot - GETAWAY_PEN * 0.35, 3)
     if a_ctx.get("day_after_night"):
         a_exp = round(a_exp - DAY_AFTER_NIGHT_PEN * 0.35, 3); a_exp_tot = round(a_exp_tot - DAY_AFTER_NIGHT_PEN * 0.35, 3)
+
+    # ⑩c ★ 連戰疲勞（不分主客，連續出賽天數超過CONS_GAME_THRESH才開始扣）
+    # 這兩個常數（CONS_GAME_THRESH/CONS_GAME_OFF_PEN）本來就定義好了，但一直沒有
+    # 接上資料源——fetch_schedule_context()現在會算cons_days，這裡才真正用到。
+    # 用直接的打線得分比例懲罰（不像travel/getaway用0.35 ERA轉換係數），因為連戰
+    # 疲勞影響的是整體打線而非單一投手對戰。
+    h_cons_excess = max(0, h_ctx.get("cons_days", 0) - CONS_GAME_THRESH)
+    a_cons_excess = max(0, a_ctx.get("cons_days", 0) - CONS_GAME_THRESH)
+    if h_cons_excess:
+        h_exp = round(h_exp * (1.0 - h_cons_excess * CONS_GAME_OFF_PEN), 3)
+        h_exp_tot = round(h_exp_tot * (1.0 - h_cons_excess * CONS_GAME_OFF_PEN), 3)
+    if a_cons_excess:
+        a_exp = round(a_exp * (1.0 - a_cons_excess * CONS_GAME_OFF_PEN), 3)
+        a_exp_tot = round(a_exp_tot * (1.0 - a_cons_excess * CONS_GAME_OFF_PEN), 3)
 
     # ⑪ ★ 近10場勝率修正（熱手/冷手效應，比賽季整體勝率更即時）
     h_l10 = _TEAM_L10_WPCT.get(home.lower())
