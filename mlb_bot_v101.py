@@ -4350,8 +4350,10 @@ def run():
             # 加賽時依場次時間匹配投手（與主循環一致，避免 G1/G2 投手混用）
             _diag_comm = game.get("commence_time","")
             _diag_dt = None
+            _diag_dt_tw = None
             try:
                 _diag_dt = datetime.datetime.fromisoformat(_diag_comm.replace("Z","+00:00")).replace(tzinfo=None)
+                _diag_dt_tw = _diag_dt + datetime.timedelta(hours=8)
             except Exception:
                 pass
             if _dh_pitchers and (h, a) in _dh_pitchers:
@@ -4413,7 +4415,7 @@ def run():
             def _diag_clv(side_key, curr_p):
                 prev_p = _prev_gd.get(side_key)
                 return line_clv(curr_p, prev_p) if prev_p and curr_p else None
-            pr=predict(h,a,hp_k,ap_k,market_total=mt)
+            pr=predict(h,a,hp_k,ap_k,market_total=mt,game_dt=_diag_dt_tw)
             cf=pr["conf_factor"]; mg=pr["margin"]; ds=pr["dyn_std"]
             _h_era=get_pitcher_era(hp_k); _a_era=get_pitcher_era(ap_k)
             # ML edge
