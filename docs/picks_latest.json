@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-28 00:27 (台灣時間)",
+  "generated_at": "2026-08-28 01:36 (台灣時間)",
   "date": "2026-08-28",
   "stats": {
     "settled": 126,
@@ -512,19 +512,32 @@
       "roi": 19.7
     }
   ],
-  "live_games": [],
+  "live_games": [
+    {
+      "home_cn": "國民",
+      "away_cn": "落磯",
+      "inning": 2,
+      "top_inning": true,
+      "home_runs": 2,
+      "away_runs": 0,
+      "projected_total": 11.3,
+      "market_total": 10.5,
+      "bet": null,
+      "reason": null
+    }
+  ],
   "live_updated_ts": 1786420758,
   "game_preds": {
     "nationals|rockies": {
-      "home_win_prob": 0.6462,
-      "market_total": 9.5
+      "home_win_prob": 0.6115,
+      "market_total": 10.5
     },
     "cardinals|orioles": {
-      "home_win_prob": 0.4879,
+      "home_win_prob": 0.484,
       "market_total": 8.0
     },
     "yankees|astros": {
-      "home_win_prob": 0.6274,
+      "home_win_prob": 0.63,
       "market_total": 8.0
     },
     "blue jays|royals": {
@@ -536,11 +549,11 @@
       "market_total": 7.0
     },
     "braves|dodgers": {
-      "home_win_prob": 0.4378,
+      "home_win_prob": 0.4412,
       "market_total": 6.0
     },
     "giants|diamondbacks": {
-      "home_win_prob": 0.4214,
+      "home_win_prob": 0.4032,
       "market_total": 8.0
     }
   }
