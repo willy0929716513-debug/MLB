@@ -4421,9 +4421,12 @@ def run():
             be=max(he,ae); bp2=hp if he>=ae else ap; best_lbl="ML"
             best_mp=pr["home_win_prob"] if he>=ae else pr["away_win_prob"]
             # 讓分 edge（比較時套用0.92信心折扣；使用RL_STD_MULT與主循環一致）
+            # ★ 修正：舊版無論主隊讓分方向都寫死+1.5，等於忽略了主隊是讓分方還是受讓方，
+            # 這只是診斷用文字（不影響實際下注），但會讓「為什麼今天沒推薦」的說明算錯方向。
+            # 用跟主循環一樣的_rl_h_dir_home（多數書商方向）決定符號。
             rl_he=rl_ae=tot_he=tot_ue=0.0
             if rl_hp and rl_ap:
-                rl_ph=runline_prob(mg,1.5,ds*RL_STD_MULT)
+                rl_ph=runline_prob(mg, 1.5 if _rl_h_dir_home else -1.5, ds*RL_STD_MULT)
                 rl_ph=max(0.25,min(0.72,rl_ph))  # 與主循環clamp一致
                 rl_he=rl_ph-1/rl_hp; rl_ae=(1-rl_ph)-1/rl_ap; rl_be=max(rl_he,rl_ae)
                 if rl_be*0.92>be:
