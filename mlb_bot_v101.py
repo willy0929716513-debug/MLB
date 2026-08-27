@@ -2485,20 +2485,45 @@ def _era_sigma(key):
 
 def monte_carlo_game(h_exp, a_exp, h_sigma=0.0, a_sigma=0.0,
                      market_total=None, n_sims=MC_SIMS, rl_spreads=None):
-    """蒙地卡羅模擬：Poisson泊松離散得分 + 投手ERA估算不確定性。
+    """蒙地卡羅模擬：Gamma-Poisson混合（統計上等於負二項分布）+ 投手ERA估算不確定性。
 
     h_sigma/a_sigma：主/客隊得分的不確定性（由對方投手樣本大小決定）。
     rl_spreads: list of spread values to compute P(h_runs - a_runs > spread).
     Returns: (home_win_prob, over_prob_mc, mean_total, std_total, rl_probs_dict)
+
+    ★ 2026-08-27 重新設計：舊版是「Poisson平均值加高斯雜訊後夾範圍、再抽Poisson」，
+    這個做法有兩個問題：①高斯雜訊是對稱的，會同等放大「異常低分」和「異常高分」，
+    但棒球真正常被低估的是單局大爆發、牛棚一次炸裂這種「右偏、厚尾」的爆冷高分，
+    不是對稱地變寬；②抽出來的平均值要先夾到[1,15]這種人工範圍，會扭曲極端值的
+    真實機率。改成Gamma-Poisson混合（Gamma分布抽「這場真實得分率」，再用這個抽到
+    的值去抽Poisson得分）是統計學處理「均值不確定、且變異數大於均值」計數資料的
+    標準做法（等於負二項分布），天生右偏、天生不需要人工夾範圍，能更真實地反映
+    大比分差場次的機率，而不是單純把對稱雜訊的sigma數字調大。
+    數學上：Var(得分) = 期望得分 + sigma²，跟舊版設計時的變異數目標一致，只是
+    改用更貼近真實得分分布形狀的抽樣方式，不是重新發明整套目標變異數。
     """
+    def _gamma_params(mu, sigma):
+        """回傳(shape, scale)，讓Gamma(shape,scale)的均值=mu、變異數=sigma²。"""
+        mu = max(0.3, float(mu))
+        if sigma and sigma > 0:
+            var = float(sigma) ** 2
+            scale = var / mu
+            shape = mu / scale  # = mu²/var
+            return shape, scale
+        return None, None  # sigma<=0：不加額外變異，直接用固定mu
+
     try:
         import numpy as np
         rng = np.random.default_rng()
         # 客隊投手不確定性影響主隊得分；主隊投手不確定性影響客隊得分
-        h_lam = np.clip(h_exp + (rng.normal(0, a_sigma, n_sims) if a_sigma > 0 else 0.0), 1.0, 15.0)
-        a_lam = np.clip(a_exp + (rng.normal(0, h_sigma, n_sims) if h_sigma > 0 else 0.0), 1.0, 15.0)
-        h_runs = rng.poisson(h_lam)
-        a_runs = rng.poisson(a_lam)
+        h_shape, h_scale = _gamma_params(h_exp, a_sigma)
+        a_shape, a_scale = _gamma_params(a_exp, h_sigma)
+        h_rate = rng.gamma(h_shape, h_scale, n_sims) if h_shape else np.full(n_sims, max(0.3, h_exp))
+        a_rate = rng.gamma(a_shape, a_scale, n_sims) if a_shape else np.full(n_sims, max(0.3, a_exp))
+        h_rate = np.clip(h_rate, 0.05, 25.0)
+        a_rate = np.clip(a_rate, 0.05, 25.0)
+        h_runs = rng.poisson(h_rate)
+        a_runs = rng.poisson(a_rate)
         ties = h_runs == a_runs
         home_wins = (h_runs > a_runs) | (ties & (rng.random(n_sims) < 0.5))
         totals = h_runs + a_runs
@@ -2510,21 +2535,23 @@ def monte_carlo_game(h_exp, a_exp, h_sigma=0.0, a_sigma=0.0,
                 rl_probs[sp] = round(float(np.mean(diff > sp)), 4)
         return float(np.mean(home_wins)), over_p, float(np.mean(totals)), float(np.std(totals)), rl_probs
     except ImportError:
-        # 純Python備援：Knuth泊松採樣
+        # 純Python備援：用 random.gammavariate 抽率 + Knuth泊松採樣
         import random
         wins = 0; total_sum = 0; over_cnt = 0
         rl_cnts = {sp: 0 for sp in (rl_spreads or [])}
         def _pois(lam):
-            lam = max(1.0, min(float(lam), 20.0))
+            lam = max(0.05, min(float(lam), 25.0))
             L = math.exp(-lam); k = 0; p = 1.0
             while p > L:
                 k += 1; p *= random.random()
             return k - 1
+        def _nb_sample(mu, sigma):
+            shape, scale = _gamma_params(mu, sigma)
+            rate = random.gammavariate(shape, scale) if shape else max(0.3, mu)
+            return _pois(rate)
         for _ in range(n_sims):
-            h_n = random.gauss(0, a_sigma) if a_sigma > 0 else 0.0
-            a_n = random.gauss(0, h_sigma) if h_sigma > 0 else 0.0
-            h_r = _pois(max(1.0, h_exp + h_n))
-            a_r = _pois(max(1.0, a_exp + a_n))
+            h_r = _nb_sample(h_exp, a_sigma)
+            a_r = _nb_sample(a_exp, h_sigma)
             if h_r > a_r or (h_r == a_r and random.random() < 0.5): wins += 1
             tr = h_r + a_r; total_sum += tr
             if market_total is not None and tr > market_total: over_cnt += 1
