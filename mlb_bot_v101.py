@@ -2465,11 +2465,35 @@ def poisson_cdf(k_int, lam):
         term *= lam / (i + 1)
     return total
 
-def over_prob(exp_total, line):
-    """P(合計得分 > line) — Poisson 模型（棒球得分正確分佈）。
+def nb_cdf(k_int, mean, var):
+    """P(NegBinom(mean,var) ≤ k_int)，用比率遞推算PMF（不需要gamma函式庫）。
+    NegBinom是Gamma-Poisson混合的邊際分布，跟monte_carlo_game()同一套變異數
+    設計（Var=期望值+sigma²），用來替代裸Poisson，讓大小分的薄尾問題不再只
+    靠MC那一半權重去補。var必須嚴格大於mean，否則沒有超額變異，直接退回Poisson。"""
+    if var is None or var <= mean:
+        return poisson_cdf(k_int, mean)
+    mean = max(0.1, mean)
+    r = mean * mean / (var - mean)   # shape/size參數
+    p = mean / var                    # 「成功」機率
+    term = p ** r
+    total = term
+    if total >= 1.0: return 1.0
+    for i in range(int(k_int)):
+        term *= (i + r) / (i + 1) * (1 - p)
+        total += term
+        if total >= 1.0: return 1.0
+    return min(total, 1.0)
+
+def over_prob(exp_total, line, var=None):
+    """P(合計得分 > line)。
+    舊版只有裸Poisson（無額外變異，天生薄尾）；現在若有給var（例如MC模擬算出
+    的mc_std_total²），改用負二項分布，讓沒被MC模擬直接覆蓋、但用到同一個
+    exp_total的估計（例如跟市場混合後的_tot_blend）也能反映真實的爆冷風險，
+    不再讓p_over/p_under裡有一半權重來自完全沒加寬過的估計值。
     8.5線 → P(X≥9) = 1 - P(X≤8)；9.0線 → P(X≥10) = 1 - P(X≤9)。"""
     k = int(line)  # floor: P(X > line) = P(X >= k+1) = 1 - P(X <= k)
-    return max(0.02, min(0.98, 1.0 - poisson_cdf(k, max(0.1, exp_total))))
+    cdf = nb_cdf(k, max(0.1, exp_total), var) if var is not None else poisson_cdf(k, max(0.1, exp_total))
+    return max(0.02, min(0.98, 1.0 - cdf))
 
 def _era_sigma(key):
     """投手ERA估算的標準誤差（換算為每場期望得分的不確定性），
@@ -3502,7 +3526,10 @@ def run():
         # 使用 pure_total_tot（RS權重極低），防止高RS誤拉高Over概率
         # 30% model + 70% market（與model_total顯示權重一致，更貼近市場現實）
         _tot_blend = pred["pure_total_tot"] * 0.30 + market_total * 0.70
-        _poisson_over = over_prob(_tot_blend, market_total)
+        # ★ 帶入MC模擬算出的變異數（mc_std_total²），改用負二項分布，避免這一半
+        # 權重仍是完全沒加寬過的裸Poisson，稀釋掉monte_carlo_game()那邊做的修正
+        _mc_std = pred.get("mc_std_total")
+        _poisson_over = over_prob(_tot_blend, market_total, var=(_mc_std**2 if _mc_std else None))
         _mc_ov = pred.get("mc_over_p")
         # MC over概率：同時考慮Poisson離散和ERA不確定性，比點估計更準
         p_over  = (_poisson_over * 0.50 + _mc_ov * 0.50) if _mc_ov is not None else _poisson_over
@@ -4379,7 +4406,9 @@ def run():
                     best_mp=rl_ph if rl_he>=rl_ae else (1-rl_ph)
             # 大小分 edge（比較時套用0.88信心折扣）
             if ov_p and un_p:
-                p_ov=over_prob(pr.get("pure_total_tot", pr["pure_total"]),mt)
+                _live_mc_std = pr.get("mc_std_total")
+                p_ov=over_prob(pr.get("pure_total_tot", pr["pure_total"]),mt,
+                                var=(_live_mc_std**2 if _live_mc_std else None))
                 tot_he=p_ov-1/ov_p; tot_ue=(1-p_ov)-1/un_p; tot_be=max(tot_he,tot_ue)
                 if tot_be*0.88>be:
                     be=tot_be; bp2=ov_p if tot_he>=tot_ue else un_p; best_lbl="TOT"
