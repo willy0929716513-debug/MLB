@@ -26,6 +26,18 @@ KELLY_BAYES_W   = 0.50  # Kelly計算時，devigged市場概率混入model_p的�
 ML_RL_CORR_DAMP = 0.50  # 同場ML+RL第二注Kelly折扣（相關性ρ≈0.75，需縮注50%）
 MOD_W          = 0.18
 MKT_W          = 0.82
+# ── ★ Stage 3：三種注單統一市場錨定權重（blend_prob，見該函式說明）──
+# 現況三種注單機率跟市場的錨定程度完全不一致：大小分期望總分70%權重壓在
+# market_total（見_tot_blend），獨贏的決策機率(h_model)卻100%是純模型輸出、
+# 完全沒混市場（MOD_W/MKT_W只在下面卡一個「至少要贏過打平點」的次要關卡，
+# 不是主要決策機率）。這個不一致本身可能就是獨贏勝率>50%卻ROI是負的機制性
+# 原因之一——TOT/RL被市場結構性拉住，獨贏沒有。MARKET_W_BASE是三種注單
+# 統一之後的基準市場權重（ML/TOT沿用現況數值，RL是新增的折衷基準值）；
+# _market_weight()會再依calc_roi_by_type()算出的歷史ROI微調——ROI（不是
+# 勝率）才能反映「這個類型的機率大小有沒有系統性過度自信」：勝率只看方向
+# 對不對，獨贏目前就是勝率>50%但ROI是負的最佳反例，所以校準訊號選ROI。
+MARKET_W_BASE  = {"獨贏": MKT_W, "讓分": 0.40, "大小分": 0.70}
+MARKET_W_ADJ_MAX = 0.12  # ROI校準對基準權重的最大調整幅度
 TOTAL_STD      = 2.30   # 兩隊合計得分標準差（norm_cdf備援分支用，MC為主）
 STD            = 2.00   # 比賽勝負分差標準差（↑1.80→2.00 norm_cdf成分更接近實測）
 RL_STD_MULT    = 1.90   # 讓分概率用更高不確定性
@@ -2935,6 +2947,30 @@ def kelly_stake(edge, model_p, price, conf=1.0, dv_p=None):
     dyn_k = max(0.08, min(0.30, KELLY*conf))
     return round(max(0.0, min(KELLY_MAX, dyn_k*raw_k*BANK)), 1)
 
+def _market_weight(bet_type, roi_by_type):
+    """Stage 3：算這個注單類型該混多少市場機率（見 MARKET_W_BASE 說明）。
+    roi_by_type 用 calc_roi_by_type(hist) 的結果；樣本不足（None）時只用
+    基準值，不做校準調整（跟 _calib 的 MIN_SAMPLE_CALIB 保護邏輯一致）。"""
+    base = MARKET_W_BASE.get(bet_type, 0.5)
+    roi = (roi_by_type or {}).get(bet_type)
+    if roi is None:
+        adj = 0.0
+    elif roi < -0.05: adj =  MARKET_W_ADJ_MAX        # 嚴重虧錢：大幅加重市場權重
+    elif roi <  0.00: adj =  MARKET_W_ADJ_MAX * 0.5  # 小虧：略加重市場權重
+    elif roi >  0.30: adj = -MARKET_W_ADJ_MAX        # 非常賺：大幅加重模型權重
+    elif roi >  0.15: adj = -MARKET_W_ADJ_MAX * 0.5  # 賺：略加重模型權重
+    else:              adj = 0.0
+    return round(max(0.10, min(0.92, base + adj)), 3)
+
+def blend_prob(model_p, market_p, bet_type, roi_by_type):
+    """Stage 3：統一三種注單機率的市場錨定，取代現況「TOT內建70/30、ML只在
+    次要關卡用18/82、RL完全沒有」的不一致做法（見 MARKET_W_BASE 說明）。
+    ★ 目前只在 SHADOW_V3 log 使用，尚未接進真正的candidates/edge計算。"""
+    if market_p is None:
+        return model_p
+    w = _market_weight(bet_type, roi_by_type)
+    return round(w*market_p + (1-w)*model_p, 4)
+
 def calc_perf(hist):
     settled = [r for r in hist if r.get("result") in ("W","L")]
     wins = sum(1 for r in settled if r["result"]=="W")
@@ -2999,6 +3035,30 @@ def calc_perf_by_type(hist):
             if r["result"]=="W": buckets[bt][1] += 1
     return {
         bt: (v[1]/v[0] if v[0]>=MIN_SAMPLE_CALIB else None)
+        for bt, v in buckets.items()
+    }
+
+def calc_roi_by_type(hist):
+    """分別計算 ML/RL/TOT 歷史 ROI，用於 Stage 3 blend_prob() 的市場錨定權重。
+    ROI 比勝率更適合當「這個類型的模型機率該被信任多少」的校準訊號：勝率只
+    反映方向對不對（贏家隊猜對了沒），ROI才反映機率的『大小』有沒有過度自信
+    ——勝率過半但edge/機率算得太大，一樣會讓ROI變負（獨贏目前就是這種情況：
+    WR 57.1% 但 ROI -3.2%）。需 ≥ MIN_SAMPLE_CALIB 筆才回傳值，否則回傳 None
+    （避免小樣本過擬合，跟 calc_perf_by_type 一致）。"""
+    buckets = {"獨贏":[0.0,0.0], "讓分":[0.0,0.0], "大小分":[0.0,0.0]}  # [total_in, total_pnl]
+    counts  = {"獨贏":0, "讓分":0, "大小分":0}
+    for r in hist:
+        if r.get("result") not in ("W","L"): continue
+        bt = r.get("bet_type","")
+        if bt not in buckets: continue
+        stake = r.get("stake") or 0
+        if not stake: continue
+        price = r.get("price") or 0
+        buckets[bt][0] += stake
+        buckets[bt][1] += stake*(price-1) if r["result"]=="W" else -stake
+        counts[bt] += 1
+    return {
+        bt: (v[1]/v[0] if counts[bt]>=MIN_SAMPLE_CALIB and v[0]>0 else None)
         for bt, v in buckets.items()
     }
 
@@ -3249,6 +3309,14 @@ def run():
     for _bt, _bwr in wr_by_type.items():
         if _bwr is not None:
             log.info("HistCalib [%s]: WR=%.1f%%", _bt, _bwr * 100)
+
+    # ★ Stage 3：按投注類型計算歷史ROI（blend_prob的市場錨定校準訊號，見
+    # MARKET_W_BASE說明）。目前只餵給下面的SHADOW_V3診斷log，尚未生效。
+    roi_by_type = calc_roi_by_type(hist) or {}
+    for _bt, _broi in roi_by_type.items():
+        if _broi is not None:
+            log.info("ROICalib [%s]: ROI=%+.1f%% → market_w=%.2f", _bt, _broi * 100,
+                      _market_weight(_bt, roi_by_type))
 
     # ★ 低迷偵測：近 SLUMP_WINDOW 已結算注，勝率 < SLUMP_WR_THRESH → 全局縮注
     _recent_settled = [r for r in hist if r.get("result") in ("W", "L")][-SLUMP_WINDOW:]
@@ -3642,6 +3710,26 @@ def run():
         if con_ov_p and con_un_p and con_ov_p>0 and con_un_p>0:
             _m = 1/con_ov_p + 1/con_un_p
             _dv["over"] = round((1/con_ov_p)/_m, 4); _dv["under"] = round((1/con_un_p)/_m, 4)
+
+        # ── ★ Stage 3 影子模式（只log比較，完全不影響下方candidates/picks）──
+        # 用blend_prob()（見該函式與MARKET_W_BASE說明）算出「統一市場錨定後」
+        # 的機率，跟現有（各自不同錨定程度的）model_p並列印出差異。SHADOW_V2
+        # 累積幾天後，這裡也一起觀察：獨贏被市場拉住的幅度合不合理、讓分/
+        # 大小分是否維持原本可信賴的機率，才會決定要不要正式接進candidates。
+        try:
+            _v3_h = blend_prob(h_model, _dv.get("home"), BET_ML, roi_by_type)
+            _v3_a = blend_prob(a_model, _dv.get("away"), BET_ML, roi_by_type)
+            _v3_rl_h = blend_prob(p_h_rl, _dv.get("rl_h"), BET_RL, roi_by_type)
+            _v3_over = blend_prob(p_over, _dv.get("over"), BET_TOT, roi_by_type)
+            log.info(
+                "SHADOW_V3 %s@%s: ML_h %.3f→%.3f ML_a %.3f→%.3f RL_h %.3f→%.3f TOT_over %.3f→%.3f "
+                "(market_w ML=%.2f RL=%.2f TOT=%.2f)",
+                away, home, h_model, _v3_h, a_model, _v3_a, p_h_rl, _v3_rl_h, p_over, _v3_over,
+                _market_weight(BET_ML, roi_by_type), _market_weight(BET_RL, roi_by_type),
+                _market_weight(BET_TOT, roi_by_type),
+            )
+        except Exception as _shad3_e:
+            log.warning("SHADOW_V3 failed for %s@%s: %s", away, home, _shad3_e)
 
         # ── ★ 建立所有候選注單並選最優 ──────────────────────
         BET_ML="獨贏"; BET_RL="讓分"; BET_TOT="大小分"
