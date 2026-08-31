@@ -59,6 +59,24 @@ RL_STD_MULT    = 1.90   # 讓分概率用更高不確定性
 # 跳很大；之後應該持續用同一支校準腳本追蹤，樣本數到30以上再視情況決定要不要
 # 再調，而不是每次有一點新資料就大幅度反應。
 GAME_IRREDUCIBLE_SIGMA = 0.65
+# ── ★ 專案(point-estimate)不確定性 sigma_proj ─────────────────────
+# _era_sigma()只反映投手ERA樣本大小的不確定性，疊加GAME_IRREDUCIBLE_SIGMA後
+# 餵給monte_carlo_game()。但predict()裡還有另外十幾個修正因子（打線OPS、
+# BvP、球隊樣本數、旅行/連戰疲勞…），這些因子的估計品質完全沒有反映在模擬
+# 的變異數裡——不管資料多齊全/多殘缺，模擬寬度目前只看投手一個因子，等於
+# 把h_exp/a_exp當成已知真值在模擬，這是獨贏(ML)勝率過半、ROI卻是負的其中一個
+# 機制性原因（詳見2026-09 mlb-v2-analysis-review的分析與plan）。
+# sigma_proj把「這場預測本身有多少個估計品質不佳的輸入」量化成一個額外的
+# 不確定性項，用一階近似疊加（各來源視為獨立，開根號相加平方和），刻意不
+# 重複計入_era_sigma()已經包含的投手ERA/GAME_IRREDUCIBLE_SIGMA部分。
+# ★ Stage 1（本次）只計算並回傳h_sigma_proj/a_sigma_proj這兩個新欄位，尚未
+# 接進monte_carlo_game()——這一步只新增診斷資料，不改變任何現有機率/推薦
+# 結果（predict()其餘所有既有計算與回傳值逐位元不變）。下一階段（Stage 2）
+# 會先以「只log不影響下注」的影子模式驗證幾天，確認沒問題才接進模擬寬度。
+PROJ_UNC_OFFSEASON_MAX = 0.20  # 球隊樣本太少（開季前10場）時的最大額外不確定性
+PROJ_UNC_LINEUP_MISSING= 0.15  # 今日先發打線未公布，退回整季平均打擊力的額外不確定性
+PROJ_UNC_BVP_PRESENT   = 0.05  # 有採用BvP微調時的殘餘小樣本不確定性（已大量收縮但非零）
+PROJ_UNC_FATIGUE_FLAG  = 0.05  # 每觸發一項疲勞因子（旅行/getaway/day-after-night/連戰）的不確定性
 RS_BLEND_W     = 0.12   # 投手隊友得分支援調整幅度（用於ML/RL預測）
 RS_BLEND_W_TOT = 0.04   # 大小分預測的RS權重（極低，防止RS拉高Over）
 RS_ADJ_CAP     = 1.5    # RS調整上限（±1.5分）：防止3場小樣本RS極端值扭曲預測
@@ -2842,6 +2860,26 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
     # ★ TOT專用信心：用pure_total_tot（降低RS影響）比較更準確
     conf_tot = total_confidence(pure_total_tot, market_total) * _pc
 
+    # ── ★ sigma_proj（見上方 PROJ_UNC_* 常數說明；Stage 1 只計算，不使用）──
+    def _proj_unc(is_home, cons_excess, ctx):
+        terms = []
+        if games < 10:
+            terms.append(PROJ_UNC_OFFSEASON_MAX * (10 - games) / 10)
+        if (h_lineup_ops if is_home else a_lineup_ops) is None:
+            terms.append(PROJ_UNC_LINEUP_MISSING)
+        if (h_bvp_ops if is_home else a_bvp_ops) is not None:
+            terms.append(PROJ_UNC_BVP_PRESENT)
+        if ctx.get("getaway") or ctx.get("day_after_night"):
+            terms.append(PROJ_UNC_FATIGUE_FLAG)
+        if cons_excess:
+            terms.append(PROJ_UNC_FATIGUE_FLAG)
+        if not is_home and road_days > 0:
+            terms.append(PROJ_UNC_FATIGUE_FLAG)
+        return round(math.sqrt(sum(t * t for t in terms)), 3) if terms else 0.0
+
+    h_sigma_proj = _proj_unc(True,  h_cons_excess, h_ctx)
+    a_sigma_proj = _proj_unc(False, a_cons_excess, a_ctx)
+
     return {
         "home_win_prob":  round(model_win_p, 4),
         "away_win_prob":  round(1-model_win_p, 4),
@@ -2874,6 +2912,8 @@ def predict(home, away, home_sp, away_sp, market_total=8.5, game_dt=None):
         "a_lineup_ops":   a_lineup_ops,             # 客隊今日先發打線OPS
         "h_bvp_ops":      h_bvp_ops,                # 主隊打線對客隊先發歷史對戰OPS（已收縮，None=無資料）
         "a_bvp_ops":      a_bvp_ops,                # 客隊打線對主隊先發歷史對戰OPS
+        "h_sigma_proj":   h_sigma_proj,             # 主隊「非投手ERA」估計不確定性（Stage1新增，尚未使用）
+        "a_sigma_proj":   a_sigma_proj,             # 客隊「非投手ERA」估計不確定性（Stage1新增，尚未使用）
     }
 
 def runline_prob(margin, spread, dyn_std):
