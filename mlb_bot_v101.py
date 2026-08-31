@@ -3543,6 +3543,32 @@ def run():
         # 已開賽：只需預測供場中分析使用，不進入注單評估
         if game_started:
             continue
+
+        # ── ★ Stage 2 影子模式（只log比較，完全不影響下方candidates/picks）──
+        # 把sigma_proj（Stage 1新增，見PROJ_UNC_*常數說明）加進模擬寬度，
+        # 重跑一次MC，跟現有（未加寬）機率並列印出差異。先觀察真實場次幾天，
+        # 確認獨贏的機率有合理收斂、pick量沒有塌陷，才會把這個接進真正的
+        # candidates計算（目前predict()回傳的home_win_prob/mc_over_p等完全
+        #不受這段影響）。
+        try:
+            _shad_h_sig = math.sqrt(_era_sigma(away_sp)**2 + pred.get("h_sigma_proj", 0.0)**2)
+            _shad_a_sig = math.sqrt(_era_sigma(home_sp)**2 + pred.get("a_sigma_proj", 0.0)**2)
+            _shad_wp, _shad_over, _shad_mean, _shad_std, _shad_rl = monte_carlo_game(
+                pred["h_expected"], pred["a_expected"], _shad_h_sig, _shad_a_sig,
+                market_total, rl_spreads=[1.5, -1.5]
+            )
+            log.info(
+                "SHADOW_V2 %s@%s: win %.3f→%.3f(Δ%+.3f) over %.3f→%.3f(Δ%+.3f) "
+                "sigma h(%.2f→%.2f) a(%.2f→%.2f) proj(h=%.2f,a=%.2f)",
+                away, home, pred["mc_home_wp"], _shad_wp, _shad_wp - pred["mc_home_wp"],
+                pred.get("mc_over_p") or 0.0, _shad_over or 0.0,
+                (_shad_over or 0.0) - (pred.get("mc_over_p") or 0.0),
+                _era_sigma(away_sp), _shad_h_sig, _era_sigma(home_sp), _shad_a_sig,
+                pred.get("h_sigma_proj", 0.0), pred.get("a_sigma_proj", 0.0),
+            )
+        except Exception as _shad_e:
+            log.warning("SHADOW_V2 failed for %s@%s: %s", away, home, _shad_e)
+
         margin  = pred["margin"]
         dyn_std = pred["dyn_std"]
         h_model   = pred["home_win_prob"]; a_model = pred["away_win_prob"]
