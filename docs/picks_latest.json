@@ -1,27 +1,27 @@
 {
-  "generated_at": "2026-09-29 04:13 (台灣時間)",
-  "date": "2026-09-29",
+  "generated_at": "2026-09-30 02:51 (台灣時間)",
+  "date": "2026-09-30",
   "stats": {
-    "settled": 102,
-    "wins": 57,
-    "win_rate": 55.9,
-    "total_in": 5085.3,
-    "total_pnl": 291.9,
-    "roi": 5.7,
-    "pnl_novig": 292.8,
-    "vig_cost": 0.9,
+    "settled": 105,
+    "wins": 60,
+    "win_rate": 57.1,
+    "total_in": 5235.3,
+    "total_pnl": 433.4,
+    "roi": 8.3,
+    "pnl_novig": 438.6,
+    "vig_cost": 5.2,
     "by_type": {
       "ML": {
-        "wins": 6,
-        "settled": 13,
-        "win_rate": 46.2,
-        "roi": -15.2
+        "wins": 7,
+        "settled": 14,
+        "win_rate": 50.0,
+        "roi": -7.7
       },
       "RL": {
-        "wins": 37,
-        "settled": 64,
-        "win_rate": 57.8,
-        "roi": 7.5
+        "wins": 39,
+        "settled": 66,
+        "win_rate": 59.1,
+        "roi": 10.2
       },
       "TOT": {
         "wins": 14,
@@ -31,7 +31,71 @@
       }
     }
   },
-  "picks": [],
+  "picks": [
+    {
+      "tier": "⭐ 穩定",
+      "btype": "讓分",
+      "away": "cubs",
+      "home": "padres",
+      "away_cn": "小熊",
+      "home_cn": "教士",
+      "bet_label": "小熊 讓分(+1.5)",
+      "bk": "BetRivers",
+      "bp": 1.54,
+      "con_p": 1.517,
+      "dv_p": 0.6359,
+      "edge": 11.4,
+      "conf": 79.9,
+      "stake": 50.0,
+      "model_p": 75.0,
+      "away_sp": "Matthew Boyd",
+      "home_sp": "Michael King",
+      "away_era": 3.09,
+      "home_era": 3.97,
+      "away_fip": 2.98,
+      "home_fip": 3.75,
+      "away_k9": 5.3,
+      "home_k9": 7.9,
+      "away_avgip": 5.7,
+      "home_avgip": 5.7,
+      "away_whip": 1.17,
+      "home_whip": 1.29,
+      "away_rest": null,
+      "home_rest": null,
+      "away_rs": 3.33,
+      "home_rs": 5.33,
+      "away_rpg": 5.14,
+      "home_rpg": 4.27,
+      "pred_away": 5.1,
+      "pred_home": 3.5,
+      "model_total": null,
+      "market_total": null,
+      "park_factor": null,
+      "weather_factor": null,
+      "ump_name": null,
+      "ump_adj": null,
+      "away_trend": -3.73,
+      "home_trend": 4.88,
+      "line_clv": 0.42,
+      "game_date": "2026-09-30",
+      "game_time": "10:10",
+      "sp_src": "espn",
+      "home_hand": "R",
+      "away_hand": "R",
+      "home_babip": 0.457,
+      "away_babip": 0.467,
+      "home_lob": 64.4,
+      "away_lob": 70.0,
+      "away_road_days": 3,
+      "away_tz_cross": null,
+      "home_wpct": null,
+      "away_road_wpct": null,
+      "home_l10_wpct": 0.8,
+      "away_l10_wpct": 0.5,
+      "home_lineup": [],
+      "away_lineup": []
+    }
+  ],
   "recent_history": [
     {
       "date": "2026-09-28",
@@ -44,7 +108,7 @@
       "price": 1.8,
       "stake": 50.0,
       "edge": 18.0,
-      "result": null,
+      "result": "W",
       "sp_confirmed": false
     },
     {
@@ -58,7 +122,7 @@
       "price": 2.14,
       "stake": 50.0,
       "edge": 15.8,
-      "result": null,
+      "result": "W",
       "sp_confirmed": false
     },
     {
@@ -72,7 +136,7 @@
       "price": 1.89,
       "stake": 50.0,
       "edge": 26.2,
-      "result": null,
+      "result": "W",
       "sp_confirmed": false
     },
     {
@@ -492,26 +556,32 @@
       "settled": 102,
       "win_rate": 55.9,
       "roi": 5.7
+    },
+    {
+      "date": "2026-09-28",
+      "settled": 105,
+      "win_rate": 57.1,
+      "roi": 8.3
     }
   ],
   "live_games": [],
   "live_updated_ts": 1786420758,
   "game_preds": {
     "braves|phillies": {
-      "home_win_prob": 0.5351,
-      "market_total": 6.5
+      "home_win_prob": 0.4522,
+      "market_total": 7.5
     },
     "astros|white sox": {
-      "home_win_prob": 0.469,
+      "home_win_prob": 0.4623,
       "market_total": 8.0
     },
     "yankees|red sox": {
-      "home_win_prob": 0.5365,
-      "market_total": 6.5
+      "home_win_prob": 0.4846,
+      "market_total": 6.0
     },
     "padres|cubs": {
-      "home_win_prob": 0.3879,
-      "market_total": 7.0
+      "home_win_prob": 0.2706,
+      "market_total": 7.5
     }
   }
 }

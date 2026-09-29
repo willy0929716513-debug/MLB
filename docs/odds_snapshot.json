@@ -1,46 +1,46 @@
 {
   "2026-09-30|braves|phillies": {
-    "ts": "2026-09-29",
-    "home_ml": 1.53,
-    "away_ml": 2.7,
-    "rl_h": 2.26,
-    "rl_a": 1.8,
+    "ts": "2026-09-30",
+    "home_ml": 1.75,
+    "away_ml": 2.52,
+    "rl_h": 2.75,
+    "rl_a": 1.83,
     "rl_h_25": null,
     "rl_a_25": null,
-    "over": 2.05,
-    "under": 2.03
+    "over": 2.11,
+    "under": 1.95
   },
   "2026-09-30|astros|white sox": {
-    "ts": "2026-09-29",
-    "home_ml": 1.81,
-    "away_ml": 2.17,
-    "rl_h": 2.7,
-    "rl_a": 1.57,
+    "ts": "2026-09-30",
+    "home_ml": 1.86,
+    "away_ml": 2.08,
+    "rl_h": 2.66,
+    "rl_a": 1.6,
     "rl_h_25": null,
     "rl_a_25": null,
     "over": 2.0,
-    "under": 1.98
+    "under": 2.0
   },
   "2026-09-30|yankees|red sox": {
-    "ts": "2026-09-29",
-    "home_ml": 1.76,
-    "away_ml": 2.22,
-    "rl_h": 2.71,
-    "rl_a": 1.57,
-    "rl_h_25": null,
-    "rl_a_25": null,
-    "over": 2.0,
-    "under": 1.92
-  },
-  "2026-09-30|padres|cubs": {
-    "ts": "2026-09-29",
-    "home_ml": 1.83,
-    "away_ml": 2.13,
+    "ts": "2026-09-30",
+    "home_ml": 1.79,
+    "away_ml": 2.16,
     "rl_h": 2.8,
-    "rl_a": 1.55,
+    "rl_a": 1.57,
     "rl_h_25": null,
     "rl_a_25": null,
     "over": 2.02,
-    "under": 2.05
+    "under": 2.0
+  },
+  "2026-09-30|padres|cubs": {
+    "ts": "2026-09-30",
+    "home_ml": 1.82,
+    "away_ml": 2.17,
+    "rl_h": 2.69,
+    "rl_a": 1.54,
+    "rl_h_25": null,
+    "rl_a_25": null,
+    "over": 2.05,
+    "under": 1.88
   }
 }
