@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07 03:01 (台灣時間)",
+  "generated_at": "2026-10-07 23:27 (台灣時間)",
   "date": "2026-10-07",
   "stats": {
     "settled": 96,
@@ -473,21 +473,21 @@
   "live_games": [],
   "live_updated_ts": 1786420758,
   "game_preds": {
-    "braves|dodgers": {
-      "home_win_prob": 0.3283,
-      "market_total": 6.5
-    },
-    "padres|brewers": {
-      "home_win_prob": 0.4544,
-      "market_total": 7.5
-    },
     "white sox|guardians": {
-      "home_win_prob": 0.572,
+      "home_win_prob": 0.5749,
       "market_total": 8.0
     },
+    "braves|dodgers": {
+      "home_win_prob": 0.3146,
+      "market_total": 7.5
+    },
     "yankees|rays": {
-      "home_win_prob": 0.4684,
+      "home_win_prob": 0.5071,
       "market_total": 7.0
+    },
+    "padres|brewers": {
+      "home_win_prob": 0.345,
+      "market_total": 7.5
     }
   }
 }
