@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-09 03:24 (台灣時間)",
-  "date": "2026-10-09",
+  "generated_at": "2026-10-10 02:58 (台灣時間)",
+  "date": "2026-10-10",
   "stats": {
     "settled": 92,
     "wins": 52,
@@ -467,12 +467,12 @@
   "live_games": [],
   "live_updated_ts": 1786420758,
   "game_preds": {
-    "white sox|guardians": {
-      "home_win_prob": 0.4971,
+    "guardians|white sox": {
+      "home_win_prob": 0.4466,
       "market_total": 7.0
     },
     "brewers|dodgers": {
-      "home_win_prob": 0.5279,
+      "home_win_prob": 0.5369,
       "market_total": 6.0
     }
   }
