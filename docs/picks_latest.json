@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-13 05:51 (台灣時間)",
-  "date": "2026-10-13",
+  "generated_at": "2026-10-14 03:56 (台灣時間)",
+  "date": "2026-10-14",
   "stats": {
     "settled": 87,
     "wins": 47,
@@ -455,13 +455,13 @@
   "live_games": [],
   "live_updated_ts": 1786420758,
   "game_preds": {
-    "brewers|dodgers": {
-      "home_win_prob": 0.4525,
+    "rays|guardians": {
+      "home_win_prob": 0.5958,
       "market_total": 7.0
     },
-    "rays|guardians": {
-      "home_win_prob": 0.6373,
-      "market_total": 7.0
+    "dodgers|brewers": {
+      "home_win_prob": 0.4789,
+      "market_total": 7.5
     }
   }
 }
