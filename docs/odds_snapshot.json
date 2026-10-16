@@ -1,24 +1,13 @@
 {
-  "2026-10-16|guardians|rays": {
-    "ts": "2026-10-16",
-    "home_ml": 1.4,
-    "away_ml": 3.3,
-    "rl_h": 2.1,
-    "rl_a": 1.83,
+  "2026-10-17|guardians|rays": {
+    "ts": "2026-10-17",
+    "home_ml": 2.0,
+    "away_ml": 1.92,
+    "rl_h": 1.53,
+    "rl_a": 2.67,
     "rl_h_25": null,
     "rl_a_25": null,
-    "over": 2.0,
-    "under": 1.88
-  },
-  "2026-10-16|dodgers|brewers": {
-    "ts": "2026-10-16",
-    "home_ml": 1.67,
-    "away_ml": 2.35,
-    "rl_h": 2.43,
-    "rl_a": 1.62,
-    "rl_h_25": null,
-    "rl_a_25": null,
-    "over": 1.97,
+    "over": 1.89,
     "under": 2.0
   }
 }
