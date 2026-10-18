@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-10-18 00:38 (台灣時間)",
-  "date": "2026-10-18",
+  "generated_at": "2026-10-19 00:50 (台灣時間)",
+  "date": "2026-10-19",
   "stats": {
-    "settled": 84,
-    "wins": 45,
-    "win_rate": 53.6,
-    "total_in": 4203.0,
-    "total_pnl": -11.4,
-    "roi": -0.3,
-    "pnl_novig": -8.4,
-    "vig_cost": 2.9,
+    "settled": 83,
+    "wins": 44,
+    "win_rate": 53.0,
+    "total_in": 4153.0,
+    "total_pnl": -86.9,
+    "roi": -2.1,
+    "pnl_novig": -61.3,
+    "vig_cost": 25.6,
     "by_type": {
       "ML": {
         "wins": 7,
@@ -18,10 +18,10 @@
         "roi": 7.7
       },
       "RL": {
-        "wins": 31,
-        "settled": 58,
-        "win_rate": 53.4,
-        "roi": -2.0
+        "wins": 30,
+        "settled": 57,
+        "win_rate": 52.6,
+        "roi": -4.7
       },
       "TOT": {
         "wins": 7,
@@ -176,281 +176,275 @@
   ],
   "history_trend": [
     {
-      "date": "2026-07-19",
-      "settled": 1,
-      "win_rate": 100.0,
-      "roi": 151.0
-    },
-    {
       "date": "2026-07-20",
-      "settled": 3,
-      "win_rate": 66.7,
-      "roi": 70.4
+      "settled": 2,
+      "win_rate": 50.0,
+      "roi": 31.2
     },
     {
       "date": "2026-07-21",
-      "settled": 4,
-      "win_rate": 75.0,
-      "roi": 68.3
+      "settled": 3,
+      "win_rate": 66.7,
+      "roi": 41.3
     },
     {
       "date": "2026-07-26",
-      "settled": 5,
-      "win_rate": 80.0,
-      "roi": 83.5
+      "settled": 4,
+      "win_rate": 75.0,
+      "roi": 66.8
     },
     {
       "date": "2026-07-27",
-      "settled": 8,
-      "win_rate": 87.5,
-      "roi": 81.9
+      "settled": 7,
+      "win_rate": 85.7,
+      "roi": 72.1
     },
     {
       "date": "2026-07-28",
-      "settled": 10,
-      "win_rate": 80.0,
-      "roi": 65.6
+      "settled": 9,
+      "win_rate": 77.8,
+      "roi": 56.2
     },
     {
       "date": "2026-08-12",
-      "settled": 13,
-      "win_rate": 84.6,
-      "roi": 70.1
+      "settled": 12,
+      "win_rate": 83.3,
+      "roi": 63.4
     },
     {
       "date": "2026-08-13",
-      "settled": 17,
-      "win_rate": 70.6,
-      "roi": 41.0
+      "settled": 16,
+      "win_rate": 68.8,
+      "roi": 34.2
     },
     {
       "date": "2026-08-15",
-      "settled": 20,
-      "win_rate": 70.0,
-      "roi": 37.5
+      "settled": 19,
+      "win_rate": 68.4,
+      "roi": 31.5
     },
     {
       "date": "2026-08-16",
-      "settled": 22,
-      "win_rate": 68.2,
-      "roi": 32.5
+      "settled": 21,
+      "win_rate": 66.7,
+      "roi": 26.9
     },
     {
       "date": "2026-08-17",
-      "settled": 24,
-      "win_rate": 66.7,
-      "roi": 27.9
+      "settled": 23,
+      "win_rate": 65.2,
+      "roi": 22.6
     },
     {
       "date": "2026-08-18",
-      "settled": 26,
-      "win_rate": 61.5,
-      "roi": 18.1
+      "settled": 25,
+      "win_rate": 60.0,
+      "roi": 12.8
     },
     {
       "date": "2026-08-19",
-      "settled": 27,
-      "win_rate": 63.0,
-      "roi": 20.7
+      "settled": 26,
+      "win_rate": 61.5,
+      "roi": 15.7
     },
     {
       "date": "2026-08-20",
-      "settled": 30,
-      "win_rate": 60.0,
-      "roi": 14.8
+      "settled": 29,
+      "win_rate": 58.6,
+      "roi": 10.1
     },
     {
       "date": "2026-08-21",
-      "settled": 31,
-      "win_rate": 58.1,
-      "roi": 11.1
+      "settled": 30,
+      "win_rate": 56.7,
+      "roi": 6.5
     },
     {
       "date": "2026-08-22",
-      "settled": 34,
-      "win_rate": 58.8,
-      "roi": 12.7
-    },
-    {
-      "date": "2026-08-23",
-      "settled": 36,
-      "win_rate": 58.3,
-      "roi": 11.9
-    },
-    {
-      "date": "2026-08-24",
-      "settled": 37,
-      "win_rate": 59.5,
-      "roi": 13.7
-    },
-    {
-      "date": "2026-08-25",
-      "settled": 39,
-      "win_rate": 59.0,
-      "roi": 12.4
-    },
-    {
-      "date": "2026-08-26",
-      "settled": 42,
-      "win_rate": 57.1,
-      "roi": 8.4
-    },
-    {
-      "date": "2026-08-29",
-      "settled": 43,
-      "win_rate": 58.1,
-      "roi": 9.7
-    },
-    {
-      "date": "2026-08-30",
-      "settled": 45,
-      "win_rate": 57.8,
-      "roi": 9.0
-    },
-    {
-      "date": "2026-09-01",
-      "settled": 47,
-      "win_rate": 57.4,
-      "roi": 8.2
-    },
-    {
-      "date": "2026-09-02",
-      "settled": 49,
-      "win_rate": 55.1,
-      "roi": 3.8
-    },
-    {
-      "date": "2026-09-03",
-      "settled": 50,
-      "win_rate": 56.0,
-      "roi": 5.1
-    },
-    {
-      "date": "2026-09-04",
-      "settled": 51,
-      "win_rate": 56.9,
-      "roi": 6.1
-    },
-    {
-      "date": "2026-09-05",
-      "settled": 53,
-      "win_rate": 56.6,
-      "roi": 5.1
-    },
-    {
-      "date": "2026-09-09",
-      "settled": 55,
-      "win_rate": 58.2,
+      "settled": 33,
+      "win_rate": 57.6,
       "roi": 8.5
     },
     {
-      "date": "2026-09-10",
-      "settled": 56,
-      "win_rate": 58.9,
-      "roi": 9.4
+      "date": "2026-08-23",
+      "settled": 35,
+      "win_rate": 57.1,
+      "roi": 7.9
     },
     {
-      "date": "2026-09-11",
-      "settled": 57,
+      "date": "2026-08-24",
+      "settled": 36,
+      "win_rate": 58.3,
+      "roi": 9.9
+    },
+    {
+      "date": "2026-08-25",
+      "settled": 38,
       "win_rate": 57.9,
-      "roi": 7.5
+      "roi": 8.8
     },
     {
-      "date": "2026-09-12",
-      "settled": 60,
-      "win_rate": 56.7,
-      "roi": 4.8
+      "date": "2026-08-26",
+      "settled": 41,
+      "win_rate": 56.1,
+      "roi": 5.0
     },
     {
-      "date": "2026-09-13",
-      "settled": 61,
-      "win_rate": 55.7,
-      "roi": 3.1
+      "date": "2026-08-29",
+      "settled": 42,
+      "win_rate": 57.1,
+      "roi": 6.3
     },
     {
-      "date": "2026-09-14",
-      "settled": 63,
-      "win_rate": 55.6,
+      "date": "2026-08-30",
+      "settled": 44,
+      "win_rate": 56.8,
+      "roi": 5.7
+    },
+    {
+      "date": "2026-09-01",
+      "settled": 46,
+      "win_rate": 56.5,
+      "roi": 5.1
+    },
+    {
+      "date": "2026-09-02",
+      "settled": 48,
+      "win_rate": 54.2,
+      "roi": 0.7
+    },
+    {
+      "date": "2026-09-03",
+      "settled": 49,
+      "win_rate": 55.1,
+      "roi": 2.1
+    },
+    {
+      "date": "2026-09-04",
+      "settled": 50,
+      "win_rate": 56.0,
+      "roi": 3.2
+    },
+    {
+      "date": "2026-09-05",
+      "settled": 52,
+      "win_rate": 55.8,
       "roi": 2.3
     },
     {
-      "date": "2026-09-16",
-      "settled": 65,
-      "win_rate": 53.8,
-      "roi": -0.9
+      "date": "2026-09-09",
+      "settled": 54,
+      "win_rate": 57.4,
+      "roi": 5.8
     },
     {
-      "date": "2026-09-17",
-      "settled": 67,
-      "win_rate": 53.7,
-      "roi": -0.8
+      "date": "2026-09-10",
+      "settled": 55,
+      "win_rate": 58.2,
+      "roi": 6.9
     },
     {
-      "date": "2026-09-19",
-      "settled": 68,
-      "win_rate": 54.4,
+      "date": "2026-09-11",
+      "settled": 56,
+      "win_rate": 57.1,
+      "roi": 5.0
+    },
+    {
+      "date": "2026-09-12",
+      "settled": 59,
+      "win_rate": 55.9,
+      "roi": 2.3
+    },
+    {
+      "date": "2026-09-13",
+      "settled": 60,
+      "win_rate": 55.0,
       "roi": 0.6
     },
     {
-      "date": "2026-09-20",
-      "settled": 69,
-      "win_rate": 55.1,
-      "roi": 2.4
-    },
-    {
-      "date": "2026-09-21",
-      "settled": 71,
-      "win_rate": 54.9,
-      "roi": 2.5
-    },
-    {
-      "date": "2026-09-22",
-      "settled": 72,
-      "win_rate": 55.6,
-      "roi": 3.3
-    },
-    {
-      "date": "2026-09-23",
-      "settled": 74,
-      "win_rate": 54.1,
-      "roi": 0.5
-    },
-    {
-      "date": "2026-09-24",
-      "settled": 76,
-      "win_rate": 53.9,
+      "date": "2026-09-14",
+      "settled": 62,
+      "win_rate": 54.8,
       "roi": -0.1
     },
     {
+      "date": "2026-09-16",
+      "settled": 64,
+      "win_rate": 53.1,
+      "roi": -3.2
+    },
+    {
+      "date": "2026-09-17",
+      "settled": 66,
+      "win_rate": 53.0,
+      "roi": -3.1
+    },
+    {
+      "date": "2026-09-19",
+      "settled": 67,
+      "win_rate": 53.7,
+      "roi": -1.6
+    },
+    {
+      "date": "2026-09-20",
+      "settled": 68,
+      "win_rate": 54.4,
+      "roi": 0.2
+    },
+    {
+      "date": "2026-09-21",
+      "settled": 70,
+      "win_rate": 54.3,
+      "roi": 0.4
+    },
+    {
+      "date": "2026-09-22",
+      "settled": 71,
+      "win_rate": 54.9,
+      "roi": 1.2
+    },
+    {
+      "date": "2026-09-23",
+      "settled": 73,
+      "win_rate": 53.4,
+      "roi": -1.6
+    },
+    {
+      "date": "2026-09-24",
+      "settled": 75,
+      "win_rate": 53.3,
+      "roi": -2.1
+    },
+    {
       "date": "2026-09-25",
-      "settled": 78,
-      "win_rate": 52.6,
-      "roi": -2.7
+      "settled": 77,
+      "win_rate": 51.9,
+      "roi": -4.7
     },
     {
       "date": "2026-09-27",
-      "settled": 80,
-      "win_rate": 52.5,
-      "roi": -2.6
+      "settled": 79,
+      "win_rate": 51.9,
+      "roi": -4.5
     },
     {
       "date": "2026-09-28",
-      "settled": 83,
-      "win_rate": 54.2,
-      "roi": 0.9
+      "settled": 82,
+      "win_rate": 53.7,
+      "roi": -0.9
     },
     {
       "date": "2026-09-30",
-      "settled": 84,
-      "win_rate": 53.6,
-      "roi": -0.3
+      "settled": 83,
+      "win_rate": 53.0,
+      "roi": -2.1
     }
   ],
   "live_games": [],
   "live_updated_ts": 1786420758,
   "game_preds": {
     "guardians|rays": {
-      "home_win_prob": 0.4329,
+      "home_win_prob": 0.3575,
       "market_total": 6.5
     }
   }
