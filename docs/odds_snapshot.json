@@ -1,13 +1,13 @@
 {
-  "2026-10-19|guardians|rays": {
+  "2026-10-20|rays|guardians": {
     "ts": "2026-10-19",
-    "home_ml": 2.14,
-    "away_ml": 1.81,
-    "rl_h": 1.62,
-    "rl_a": 2.47,
+    "home_ml": 1.68,
+    "away_ml": 2.33,
+    "rl_h": 2.58,
+    "rl_a": 1.57,
     "rl_h_25": null,
     "rl_a_25": null,
-    "over": 2.0,
-    "under": 1.96
+    "over": 1.88,
+    "under": 2.03
   }
 }
