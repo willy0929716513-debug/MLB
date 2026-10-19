@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-19 21:49 (台灣時間)",
-  "date": "2026-10-19",
+  "generated_at": "2026-10-20 03:27 (台灣時間)",
+  "date": "2026-10-20",
   "stats": {
     "settled": 81,
     "wins": 43,
@@ -438,7 +438,7 @@
   "live_updated_ts": 1786420758,
   "game_preds": {
     "rays|guardians": {
-      "home_win_prob": 0.6991,
+      "home_win_prob": 0.6728,
       "market_total": 6.5
     }
   }
