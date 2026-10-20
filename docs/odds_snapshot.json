@@ -1,13 +1,13 @@
 {
-  "2026-10-20|rays|guardians": {
-    "ts": "2026-10-20",
-    "home_ml": 1.68,
-    "away_ml": 2.36,
-    "rl_h": 2.56,
-    "rl_a": 1.61,
+  "2026-10-24|brewers|rays": {
+    "ts": "2026-10-21",
+    "home_ml": 1.66,
+    "away_ml": 2.45,
+    "rl_h": 2.6,
+    "rl_a": 1.6,
     "rl_h_25": null,
     "rl_a_25": null,
-    "over": 2.05,
-    "under": 2.07
+    "over": 2.06,
+    "under": 1.95
   }
 }
