@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-22 02:14 (台灣時間)",
-  "date": "2026-10-22",
+  "generated_at": "2026-10-23 02:08 (台灣時間)",
+  "date": "2026-10-23",
   "stats": {
     "settled": 80,
     "wins": 42,
@@ -432,7 +432,7 @@
   "live_updated_ts": 1786420758,
   "game_preds": {
     "brewers|rays": {
-      "home_win_prob": 0.6121,
+      "home_win_prob": 0.6116,
       "market_total": 6.0
     }
   }
